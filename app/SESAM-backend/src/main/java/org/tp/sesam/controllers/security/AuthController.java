@@ -2,6 +2,8 @@ package org.tp.sesam.controllers.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.tp.sesam.dtos.AuthDto;
+import org.tp.sesam.dtos.api.LoginResponse;
+import org.tp.sesam.dtos.api.MeResponse;
 import org.tp.sesam.models.entities.User;
 import org.tp.sesam.security.jwt.JwtUtils;
 import org.tp.sesam.services.RefreshTokenService;
@@ -65,7 +67,7 @@ public class AuthController {
      * Retour : header Authorization: Bearer {jwt}  +  cookie tp_refresh (httpOnly)
      */
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@jakarta.validation.Valid @RequestBody AuthDto authDto, HttpServletRequest request) {
+    public ResponseEntity<LoginResponse> login(@jakarta.validation.Valid @RequestBody AuthDto authDto, HttpServletRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword())
@@ -78,10 +80,13 @@ public class AuthController {
                     user, extractIp(request), request.getHeader(HttpHeaders.USER_AGENT)
             );
 
+            MeResponse userDto = new MeResponse(user.getId(), user.getNom(), user.getPrenom(), user.getEmail(), user.getRole(), user.isActif());
+            LoginResponse loginResponse = new LoginResponse(jwt, userDto);
             return ResponseEntity.ok()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
                     .header(HttpHeaders.SET_COOKIE, buildRefreshCookie(rawRefresh).toString())
-                    .build();
+                    .body(loginResponse);
+
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401).build();

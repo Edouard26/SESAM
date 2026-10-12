@@ -200,17 +200,6 @@ Les autres requêtes utilisent `Authorization: Bearer ...`. La déconnexion rév
 | Java configuré dans le POM | **21** |
 | Java utilisé lors des derniers lancements locaux | **26.0.1** |
 
-### Vérifications effectuées
-
-Lors de la préparation initiale des contrôleurs, la compilation Maven avait été bloquée par l'accès à Maven Central. Cet essai avait été fait dans un environnement Java 17 avec une surcharge locale de `java.version`, sans modifier la version du POM.
-
-Les vérifications initiales portaient sur la présence des routes, l'absence de doublons méthode/chemin, la syntaxe Java et les signatures des appels entre contrôleurs et services. Elles ne remplacent pas une compilation complète avec les dépendances et Lombok.
-
-Depuis, les corrections ont porté sur les dépendances JWT, RSQL et JSON-P, la configuration PostgreSQL et le service de refresh tokens. L'implémentation de `RefreshTokenServiceImpl` est disponible ; son intégration et le démarrage complet restent à vérifier.
-
-`ControllersContractTest` contient neuf tests sur l'identité du formateur pour les règles, la validation des affectations, les réponses 204 et 202 avec l'adresse de suivi, les erreurs 501, les ressources d'import acceptées, les 150 caractères de description, les dates de disponibilité et les PATCH vides ou contenant `false`.
-
-> **Tests à exécuter :** ils n'avaient pas pu être lancés lors de la préparation initiale. Ils utilisent des services simulés et ne vérifient pas la persistance ni l'ensemble des autorisations Spring Security.
 
 ### Lancer les tests
 
