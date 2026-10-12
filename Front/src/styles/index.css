@@ -1,0 +1,37 @@
+:root {
+    --bs-primary: #102a40;
+    --bs-primary-rgb: 16, 42, 64;
+    --primary-gradient: linear-gradient(165deg, #102a40, #12243a);
+}
+
+.bg-primary-gradient {
+    background: var(--primary-gradient);
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 222px;
+    height: 100vh;
+}
+
+.content {
+    margin-left: 222px;
+}
+
+@media (max-width: 767.98px) {
+    .content {
+        margin-left: 0;
+    }
+}
+
+@keyframes notification-progress {
+    from {
+        width: 0%;
+    }
+
+    to {
+        width: 100%;
+    }
+}

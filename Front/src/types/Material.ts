@@ -1,0 +1,1 @@
+export type Material = { id: number; nom: string };
