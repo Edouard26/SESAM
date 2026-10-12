@@ -68,19 +68,11 @@ GET    /api/v1/processes/materials/{materialId}
 
 ```http
 GET    /api/v1/rules/rooms/{roomId}
-<<<<<<< HEAD
 PATCH  /api/v1/rules/rooms/{roomId}/{processId}
 DELETE /api/v1/rules/rooms/{roomId}/{processId}
 DELETE /api/v1/rules/rooms/{roomId}
 GET    /api/v1/rules/stages/{stageId}
 PATCH  /api/v1/rules/stages/{stageId}/{processId}
-=======
-PATCH    /api/v1/rules/rooms/{roomId}/{processId}
-DELETE /api/v1/rules/rooms/{roomId}/{processId}
-DELETE /api/v1/rules/rooms/{roomId}
-GET    /api/v1/rules/stages/{stageId}
-PATCH    /api/v1/rules/stages/{stageId}/{processId}
->>>>>>> dd57df2c67a14affa1b12a78b82b20ebefca4cf1
 DELETE /api/v1/rules/stages/{stageId}/{processId}
 ```
 
@@ -98,11 +90,7 @@ DELETE /api/v1/rules/stages/{stageId}/{processId}
 GET    /api/v1/stages
 GET    /api/v1/stages/{stageId}
 PATCH  /api/v1/stages/{stageId}
-<<<<<<< HEAD
 POST   /api/v1/stages/{stageId}/users
-=======
-POST   /api/v1/stages/{stageId}/trainees
->>>>>>> dd57df2c67a14affa1b12a78b82b20ebefca4cf1
 POST   /api/v1/stages/{stageId}/closure
 POST   /api/v1/stages/{stageId}/notifications/sagaie/retry
 ```
