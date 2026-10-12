@@ -97,7 +97,7 @@ La maquette charge les stages depuis une source externe (SAGAIE) ; le bouton « 
 ```http
 GET    /api/v1/alertes
 POST   /api/v1/alertes
-PATCH  /api/v1/alertes/{alerteId}/statut
+PATCH  /api/v1/alertes/{alerteId}
 ```
 
 Filtres à prévoir pour `GET /api/v1/alertes` : `statut`, et éventuellement la pagination. La création accepte un type, une description et un ou plusieurs identifiants de matériels. Le statut peut être `VALIDEE` ou `REFUSEE` lors du traitement.
