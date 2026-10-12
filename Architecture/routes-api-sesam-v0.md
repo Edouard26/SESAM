@@ -26,16 +26,14 @@ La réponse est adaptée au rôle connecté : statistiques, salles ou matériels
 GET    /api/v1/rooms
 GET    /api/v1/rooms/{roomId}
 POST   /api/v1/rooms
-GET    /api/v1/rooms/available?startDate={startDate}&endDate={endDate}
-GET    /api/v1/rooms/{roomId}/materials
 POST   /api/v1/rooms/{roomId}/reinstallations
 ```
 
-Filtres à prévoir pour `GET /api/v1/rooms` : `search`, `type`, `building`, `state`, `page`, `size`.
+Filtres à prévoir pour `GET /api/v1/rooms` : `search`, `type`, `building`, `state`, `available`, `page`, `size`.
 
-La route des salles disponibles doit retourner les salles libres sur toute la période demandée, en excluant notamment les salles de stockage, les salles non disponibles et les conflits avec d'autres stages.
+Avec `available=true`, la route retourne les salles libres, en excluant notamment les salles de stockage, les salles non disponibles et les conflits avec d'autres stages.
 
-La liste des matériels d'une salle peut également être utilisée pour l'écran de supervision, avec les filtres `search`, `type`, `materialId`, `state` et `connection`.
+Les matériels d'une salle se consultent via `GET /api/v1/materials?roomId={roomId}` (y compris pour l'écran de supervision).
 
 ## Matériels
 
@@ -49,7 +47,7 @@ POST   /api/v1/materials/{materialId}/reinstallations
 GET    /api/v1/reinstallations/{reinstallationId}
 ```
 
-Filtres à prévoir pour `GET /api/v1/materials` : `search`, `type`, `state`, `roomId`, `building`, `page`, `size`.
+Filtres à prévoir pour `GET /api/v1/materials` : `search`, `type`, `materialId`, `state`, `connection`, `roomId`, `building`, `page`, `size`.
 
 `POST /api/v1/materials/assignments` affecte un ou plusieurs matériels à une salle de destination. Chaque matériel doit toujours être associé à une salle, y compris la salle de stockage.
 
@@ -70,11 +68,19 @@ GET    /api/v1/processes/materials/{materialId}
 
 ```http
 GET    /api/v1/rules/rooms/{roomId}
+<<<<<<< HEAD
+PATCH  /api/v1/rules/rooms/{roomId}/{processId}
+DELETE /api/v1/rules/rooms/{roomId}/{processId}
+DELETE /api/v1/rules/rooms/{roomId}
+GET    /api/v1/rules/stages/{stageId}
+PATCH  /api/v1/rules/stages/{stageId}/{processId}
+=======
 PATCH    /api/v1/rules/rooms/{roomId}/{processId}
 DELETE /api/v1/rules/rooms/{roomId}/{processId}
 DELETE /api/v1/rules/rooms/{roomId}
 GET    /api/v1/rules/stages/{stageId}
 PATCH    /api/v1/rules/stages/{stageId}/{processId}
+>>>>>>> dd57df2c67a14affa1b12a78b82b20ebefca4cf1
 DELETE /api/v1/rules/stages/{stageId}/{processId}
 ```
 
@@ -92,14 +98,18 @@ DELETE /api/v1/rules/stages/{stageId}/{processId}
 GET    /api/v1/stages
 GET    /api/v1/stages/{stageId}
 PATCH  /api/v1/stages/{stageId}
+<<<<<<< HEAD
+POST   /api/v1/stages/{stageId}/users
+=======
 POST   /api/v1/stages/{stageId}/trainees
+>>>>>>> dd57df2c67a14affa1b12a78b82b20ebefca4cf1
 POST   /api/v1/stages/{stageId}/closure
 POST   /api/v1/stages/{stageId}/notifications/sagaie/retry
 ```
 
 Filtres à prévoir pour `GET /api/v1/stages` : `search`, `status`, `roomId`.
 
-L'affectation d'un stage utilise `GET /api/v1/rooms/available` avec ses dates, puis `PUT /api/v1/stages/{stageId}/room`. L'affectation de stagiaires doit vérifier qu'ils sont actifs et qu'ils ne sont pas affectés à un autre stage incompatible.
+L'affectation d'un stage utilise `GET /api/v1/rooms?available=true` pour trouver les salles libres, puis `PATCH /api/v1/stages/{stageId}` avec la salle choisie. L'affectation de stagiaires doit vérifier qu'ils sont actifs et qu'ils ne sont pas affectés à un autre stage incompatible.
 
 La maquette charge les stages depuis une source externe (SAGAIE) ; le bouton « Charger / créer un stage » ouvre l'import. Il n'y a donc pas de route de création manuelle de stage dans cette liste.
 
@@ -111,7 +121,7 @@ POST   /api/v1/alerts
 PATCH  /api/v1/alerts/{alertId}
 ```
 
-Filtres à prévoir pour `GET /api/v1/alerts` : `status`, et éventuellement la pagination. La création accepte un type, une description et un ou plusieurs identifiants de matériels. La modification permet notamment de traiter le signalement avec le statut `VALIDEE` ou `REFUSEE`.
+Filtres à prévoir pour `GET /api/v1/alerts` : `status`, et éventuellement la pagination. La création accepte un type, une description et un ou plusieurs identifiants de matériels. La modification permet notamment de traiter le signalement avec le statut `PROCESSED` ou `CANCELLED`.
 
 La maquette ne présente pas de page de détail dédiée à une alerte : un `GET /api/v1/alerts/{alertId}` n'est pas indispensable pour la reproduire.
 
