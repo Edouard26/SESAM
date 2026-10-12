@@ -70,18 +70,18 @@ GET    /api/v1/processes/materials/{materialId}
 
 ```http
 GET    /api/v1/rules/rooms/{roomId}
-PUT    /api/v1/rules/rooms/{roomId}/{processId}
+PATCH    /api/v1/rules/rooms/{roomId}/{processId}
 DELETE /api/v1/rules/rooms/{roomId}/{processId}
 DELETE /api/v1/rules/rooms/{roomId}
 GET    /api/v1/rules/stages/{stageId}
-PUT    /api/v1/rules/stages/{stageId}/{processId}
+PATCH    /api/v1/rules/stages/{stageId}/{processId}
 DELETE /api/v1/rules/stages/{stageId}/{processId}
 ```
 
 - `GET /api/v1/rules/stages/{stageId}` consulte les règles de référence définies pour le stage.
-- Les routes `PUT` et `DELETE` sous `/rules/stages/{stageId}` créent/remplacent ou suppriment la règle du stage pour un processus donné. Ces règles servent de base lorsqu'aucune règle n'est définie pour la salle.
+- Les routes `PATCH` et `DELETE` sous `/rules/stages/{stageId}` créent/remplacent ou suppriment la règle du stage pour un processus donné. Ces règles servent de base lorsqu'aucune règle n'est définie pour la salle.
 - `GET /api/v1/rules/rooms/{roomId}` consulte les règles ajoutées à la salle par le formateur connecté.
-- Les routes `PUT` et `DELETE` sous `/rules/rooms/{roomId}` créent/remplacent ou suppriment la règle du formateur connecté pour un processus donné. Le `DELETE` sur `/api/v1/rules/rooms/{roomId}` supprime toutes les règles du formateur connecté pour cette salle.
+- Les routes `PATCH` et `DELETE` sous `/rules/rooms/{roomId}` créent/remplacent ou suppriment la règle du formateur connecté pour un processus donné. Le `DELETE` sur `/api/v1/rules/rooms/{roomId}` supprime toutes les règles du formateur connecté pour cette salle.
 - Il n'existe pas de niveau distinct de « règle de base » : **la règle du stage est la règle de référence**, et la règle de salle la surcharge pour le processus concerné.
 - La priorité effective est **Salle > Stage**. Le backend doit retourner, avec chaque processus lorsque c'est utile, la règle effective et son origine.
 - Les règles sont associées à leur niveau respectif : les modifications des règles de salle ne doivent pas modifier les règles du stage, et inversement.
@@ -91,7 +91,7 @@ DELETE /api/v1/rules/stages/{stageId}/{processId}
 ```http
 GET    /api/v1/stages
 GET    /api/v1/stages/{stageId}
-PUT    /api/v1/stages/{stageId}/room
+PATCH  /api/v1/stages/{stageId}
 POST   /api/v1/stages/{stageId}/trainees
 POST   /api/v1/stages/{stageId}/closure
 POST   /api/v1/stages/{stageId}/notifications/sagaie/retry
