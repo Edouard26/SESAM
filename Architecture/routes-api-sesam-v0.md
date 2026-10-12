@@ -121,11 +121,8 @@ La création et la modification couvrent les champs de la fiche utilisateur, l'a
 `{ressource}` prend les valeurs `stages`, `utilisateurs` ou `materiels`.
 
 ```http
-GET    /api/v1/imports/{ressource}/disponibles
 POST   /api/v1/imports/{ressource}
 ```
-
-Le `GET /api/v1/imports/{ressource}/disponibles` retourne les éléments proposés à l'import et indique ceux déjà importés. Le `POST` importe les identifiants sélectionnés. L'import de matériels reçoit aussi la salle de destination ; l'import d'utilisateurs peut recevoir le stage auquel les affecter.
 
 ## Exports
 
