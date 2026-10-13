@@ -17,51 +17,65 @@ export default function Sidebar() {
             <hr />
 
             <ul className="nav nav-pills flex-column gap-1">
-                {user.role >= Role.STAGIAIRE && (
                 <li>
-                    <NavLink to={routes.dashboard} className="nav-link text-white">
-                        Dashboard
+                    <NavLink
+                        to={routes.dashboard}
+                        end
+                        className="nav-link text-white"
+                    >
+                        <i className="bi bi-house me-3" />
+                        Accueil
                     </NavLink>
                 </li>
+
+                {user.role >= Role.GESTIONNAIRE && (
+                    <>
+                        <li>
+                            <NavLink to={routes.materials} className="nav-link text-white">
+                                <i className="bi bi-box me-3" />
+                                Matériels
+                            </NavLink>
+                        </li>
+
+                        <li>
+                            <NavLink to={routes.rooms} className="nav-link text-white">
+                                <i className="bi bi-display me-3" />
+                                Salles
+                            </NavLink>
+                        </li>
+                    </>
                 )}
 
                 {user.role >= Role.FORMATEUR && (
                     <li>
                         <NavLink to={routes.monitoring} className="nav-link text-white">
+                            <i className="bi bi-graph-up me-3" />
                             Supervision
                         </NavLink>
                     </li>
                 )}
 
                 {user.role >= Role.GESTIONNAIRE && (
-                    <>
-                        <li>
-                            <NavLink to={routes.materials} className="nav-link text-white">
-                                Matériels
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to={routes.rooms} className="nav-link text-white">
-                                Salles
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to={routes.alerts} className="nav-link text-white">
-                                Alertes
-                            </NavLink>
-                        </li>
-                    </>
+                    <li>
+                        <NavLink to={routes.alerts} className="nav-link text-white">
+                            <i className="bi bi-bell me-3" />
+                            Alertes
+                        </NavLink>
+                    </li>
                 )}
 
                 {user.role === Role.ADMINISTRATEUR && (
                     <>
                         <li>
                             <NavLink to={routes.stages} className="nav-link text-white">
+                                <i className="bi bi-mortarboard me-3" />
                                 Stages
                             </NavLink>
                         </li>
+
                         <li>
                             <NavLink to={routes.users} className="nav-link text-white">
+                                <i className="bi bi-people me-3" />
                                 Utilisateurs
                             </NavLink>
                         </li>

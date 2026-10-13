@@ -10,7 +10,7 @@ export default function Layout() {
             <div className="content flex-grow-1">
                 <Header />
 
-                <main className="p-4">
+                <main className="p-4 mx-2">
                     <Outlet />
                 </main>
             </div>

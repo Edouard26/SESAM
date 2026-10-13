@@ -35,3 +35,8 @@
         width: 100%;
     }
 }
+
+.sidebar .nav-link i {
+    font-size: 1.15rem;
+    -webkit-text-stroke: 0.4px;
+}

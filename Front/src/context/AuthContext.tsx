@@ -4,6 +4,7 @@ import { authApi } from "../api";
 import { ApiError, TOKEN_KEY } from "../api/client.ts";
 import { routes } from "../router/routes.ts";
 import type { User } from "../types/User.ts";
+import {Role} from "../types/Role.ts";
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -45,7 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await authApi.login(username, password);
 
     localStorage.setItem(TOKEN_KEY, response.token);
-    setUser(response.user);
+    setUser({
+      ...response.user,
+      role: Role[response.user.role as keyof typeof Role],
+    });
 
     navigate(routes.dashboard, { replace: true });
   }
