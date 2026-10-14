@@ -1,0 +1,8 @@
+package net.ent.etnc.backend.services;
+
+import net.ent.etnc.backend.models.entities.Salle;
+import net.ent.etnc.backend.services.commons.Service;
+
+public interface SalleService extends Service<Salle, Long> {
+
+}
