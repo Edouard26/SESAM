@@ -2,15 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import useNotification from "./useNotification.ts";
 import type {Page} from "../types/Page.ts";
 
-type UsePaginatedListOptions<T, TParams extends object> = {
-    load: (params: TParams) => Promise<Page<T>>;
+type QueryParams = Record<
+    string,
+    string | number | boolean | undefined
+>;
+
+type UsePaginatedListOptions<T> = {
+    load: (params?: QueryParams) => Promise<Page<T>>;
     initialFilters: Record<string, string>;
     pageSize: number;
     errorMessage: string;
 };
 
-export default function usePaginatedList
-    <T, TParams extends object>({ load, initialFilters, pageSize, errorMessage,}: UsePaginatedListOptions<T, TParams>) {
+export default function usePaginatedList<T>({ load, initialFilters, pageSize, errorMessage,}: UsePaginatedListOptions<T>) {
 
     const { notify } = useNotification();
 
@@ -45,7 +49,7 @@ export default function usePaginatedList
             ),
         );
 
-        const params = { search, ...activeFilters, page, size: pageSize,} as TParams;
+        const params = { search, ...activeFilters, page, size: pageSize,};
 
         setLoading(true);
 

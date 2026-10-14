@@ -1,7 +1,6 @@
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
 import CardTable from "../../components/generic/display/CardTable.tsx";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { roomApi } from "../../api";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
