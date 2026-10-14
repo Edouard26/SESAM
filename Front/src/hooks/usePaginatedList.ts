@@ -9,12 +9,9 @@ type UsePaginatedListOptions<T, TParams extends object> = {
     errorMessage: string;
 };
 
-export default function usePaginatedList<T, TParams extends object>({
-                                                                        load,
-                                                                        initialFilters,
-                                                                        pageSize,
-                                                                        errorMessage,
-                                                                    }: UsePaginatedListOptions<T, TParams>) {
+export default function usePaginatedList
+    <T, TParams extends object>({ load, initialFilters, pageSize, errorMessage,}: UsePaginatedListOptions<T, TParams>) {
+
     const { notify } = useNotification();
 
     const initialFiltersRef = useRef(initialFilters);
@@ -48,12 +45,7 @@ export default function usePaginatedList<T, TParams extends object>({
             ),
         );
 
-        const params = {
-            search,
-            ...activeFilters,
-            page,
-            size: pageSize,
-        } as TParams;
+        const params = { search, ...activeFilters, page, size: pageSize,} as TParams;
 
         setLoading(true);
 
@@ -72,9 +64,7 @@ export default function usePaginatedList<T, TParams extends object>({
                 setTotalPages(0);
             })
             .finally(() => {
-                if (!cancelled) {
-                    setLoading(false);
-                }
+                if (!cancelled) setLoading(false);
             });
 
         return () => {
@@ -88,11 +78,7 @@ export default function usePaginatedList<T, TParams extends object>({
     }
 
     function handleFilterChange(name: string, value: string) {
-        setFilters((previous) => ({
-            ...previous,
-            [name]: value,
-        }));
-
+        setFilters((previous) => ({ ...previous, [name]: value,}));
         setPage(0);
     }
 
@@ -106,17 +92,5 @@ export default function usePaginatedList<T, TParams extends object>({
         setReloadKey((previous) => previous + 1);
     }
 
-    return {
-        search,
-        filters,
-        items,
-        loading,
-        page,
-        totalPages,
-        setPage,
-        setSearch,
-        handleFilterChange,
-        resetFilters,
-        reload,
-    };
+    return {search, filters, items, loading, page, totalPages, setPage, setSearch, handleFilterChange, resetFilters, reload };
 }
