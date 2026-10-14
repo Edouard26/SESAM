@@ -1,23 +1,15 @@
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
 import Table, {type Column} from "../../components/generic/display/Table.tsx";
-import { useEffect, useState } from "react";
-import {ApiError, materialApi} from "../../api";
+import { useState } from "react";
+import { materialApi } from "../../api";
 import type {Material} from "../../types/Material.ts";
-import useNotification from "../../hooks/useNotification.ts";
+import MaterialPopup from "../../components/material/MaterialPopup.tsx";
+import usePaginatedList from "../../hooks/usePaginatedList.ts";
 
 export default function Materials() {
-    const { notify } = useNotification();
-    const initialFilters = {
-        type: "",
-        state: "",
-        room: "",
-        location: "",
-    };
-
-    const [search, setSearch] = useState("");
-    const [filters, setFilters] = useState(initialFilters);
-    const [loading, setLoading] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+    const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>();
 
     const selects = [
         {
@@ -57,50 +49,31 @@ export default function Materials() {
         },
     ];
 
-    function handleFilterChange(name: string, value: string) {
-        setFilters((previous) => ({
-            ...previous,
-            [name]: value,
-        }));
-        setPage(0);
-    }
+    const initialFilters: Record<string, string> = Object.fromEntries(
+        selects.map(({ name }) => [name, ""])
+    );
 
-    function resetFilters() {
-        setSearch("");
-        setFilters(initialFilters);
-        setPage(0);
-    }
-
-
-    const [materials, setMaterials] = useState<Material[]>([
-        {
-            name: "Poste A101-01",
-            type: "UC",
-            state: "DISPONIBLE",
-            room: "A101",
-        } as Material,
-        {
-            name: "Écran A101-01",
-            type: "ECRAN",
-            state: "PANNE",
-            room: "A101",
-        } as Material,
-    ]);
-
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    const {search, filters, items: materials, loading, page, totalPages, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
+        load: materialApi.list,
+        initialFilters,
+        pageSize: 10,
+        errorMessage: "Impossible de charger les matériels",
+    });
 
     const columns = [
-        { key: "name", label: "Nom" },
-        { key: "type", label: "Type" },
-        { key: "state", label: "État" },
-        { key: "room", label: "Salle" },
+        { key: "nom", label: "Nom" },
+        { key: "marque", label: "Marque" },
+        { key: "modele", label: "Modèle" },
+        { key: "typeMateriel", label: "Type" },
         {
             label: "Action", render: (material: Material) => (
                 <button
                     type="button"
                     className="btn btn-sm btn-outline-primary"
-                    onClick={() => console.log("Modifier", material)}
+                    onClick={() => {
+                        setSelectedMaterial(material);
+                        setShowPopup(true);
+                    }}
                 >
                     Modifier
                 </button>
@@ -108,20 +81,18 @@ export default function Materials() {
         },
     ] satisfies Column<Material>[];
 
-    useEffect(() => {
-        /*setLoading(true);
-        materialApi.list({ search, ...filters, page, size: 10 }).then(data=> {
-            setMaterials(data.content);
-            setTotalPages(data.totalPages);
-        }).catch(() => {
-            notify("Impossible de charger les matériels", "danger", 10000);
-            setMaterials([]);
-            setTotalPages(0);
-        }).finally(() => setLoading(false));*/
-    }, [search, filters, page]);
-
     return (
         <>
+            <MaterialPopup
+                open={showPopup}
+                material={selectedMaterial}
+                onClose={() => setShowPopup(false)}
+                onSubmit={(material) => {
+                    setShowPopup(false);
+                    reload();
+                    setSearch(material.nom);
+                }}
+            />
             <PageHeader
                 title="Matériels"
                 description="Rechercher et gérer les matériels du centre."
@@ -135,7 +106,10 @@ export default function Materials() {
                         label: "Ajouter un matériel",
                         icon: "bi-plus-lg",
                         variant: "primary",
-                        onClick: () => console.log("Ajouter"),
+                        onClick: () => {
+                            setSelectedMaterial(undefined);
+                            setShowPopup(true);
+                        }
                     },
                 ]}
             />
@@ -145,10 +119,7 @@ export default function Materials() {
                 searchPlaceholder="Nom, numéro de série, marque..."
                 selects={selects}
                 values={filters}
-                onSearchChange={(value) => {
-                    setSearch(value);
-                    setPage(0);
-                }}
+                onSearchChange={setSearch}
                 onFilterChange={handleFilterChange}
                 onReset={resetFilters}
             />

@@ -45,10 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(username: string, password: string): Promise<void> {
     const response = await authApi.login(username, password);
 
-    localStorage.setItem(TOKEN_KEY, response.token);
+    localStorage.setItem(TOKEN_KEY, response.accessToken);
     setUser({
-      ...response.user,
-      role: Role[response.user.role as keyof typeof Role],
+      ...response.userDto,
+      role: Role[response.userDto.role.toString().toUpperCase() as keyof typeof Role],
     });
 
     navigate(routes.dashboard, { replace: true });
