@@ -39,8 +39,6 @@ public class MaterielController {
             "dataAjout", "dataAjout",
             "dateFinGarantie", "dateFinGarantie",
             "etat", "etat"
-
-
     );
 
     private final MaterielService materielService;
@@ -64,9 +62,17 @@ public class MaterielController {
     @PreAuthorize("hasRole('GESTIONNAIRE')")
     public ResponseEntity<Page<MaterielResponse>> getAll(
             @RequestParam(required = false) String filter,
-            @PageableDefault(size = 10) Pageable pageable
+            @PageableDefault(size = 10) Pageable pageable,
+            @RequestParam(required = false) Long salleId,
+            @RequestParam(required = false) Long excludeSalleId
     ) {
         Specification<Materiel> spec = this.rsqlFilterUtils.build(filter, FILTERABLE);
+        if(salleId != null){
+            return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId).map(materielAssembler::toResponse));
+        }
+        if(excludeSalleId != null){
+            return ResponseEntity.ok(materielService.findAllByExcludedSalleId(spec, pageable, excludeSalleId).map(materielAssembler::toResponse));
+        }
         return ResponseEntity.ok(materielService.findAll(spec, pageable).map(materielAssembler::toResponse));
     }
 
