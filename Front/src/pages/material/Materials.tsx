@@ -6,9 +6,11 @@ import { materialApi } from "../../api";
 import type {Material} from "../../types/Material.ts";
 import MaterialPopup from "../../components/material/MaterialPopup.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
+import AssignmentsPopup from "../../components/material/AssignmentsPopup.tsx";
 
 export default function Materials() {
-    const [showPopup, setShowPopup] = useState(false);
+    const [showMaterialPopup, setShowMaterialPopup] = useState(false);
+    const [showAffectationPopup, setShowAffectationPopup] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>();
 
     const selects = [
@@ -72,7 +74,7 @@ export default function Materials() {
                     className="btn btn-sm btn-outline-primary"
                     onClick={() => {
                         setSelectedMaterial(material);
-                        setShowPopup(true);
+                        setShowMaterialPopup(true);
                     }}
                 >
                     Modifier
@@ -84,13 +86,21 @@ export default function Materials() {
     return (
         <>
             <MaterialPopup
-                open={showPopup}
+                open={showMaterialPopup}
                 material={selectedMaterial}
-                onClose={() => setShowPopup(false)}
+                onClose={() => setShowMaterialPopup(false)}
                 onSubmit={(material) => {
-                    setShowPopup(false);
+                    setShowMaterialPopup(false);
                     reload();
                     setSearch(material.nom);
+                }}
+            />
+            <AssignmentsPopup
+                open={showAffectationPopup}
+                onClose={() => setShowAffectationPopup(false)}
+                onSubmit={() => {
+                    setShowAffectationPopup(false);
+                    reload();
                 }}
             />
             <PageHeader
@@ -100,7 +110,7 @@ export default function Materials() {
                     {
                         label: "Affecter du matériel",
                         icon: "bi-display",
-                        onClick: () => console.log("Affecter"),
+                        onClick: () => setShowAffectationPopup(true),
                     },
                     {
                         label: "Ajouter un matériel",
@@ -108,7 +118,7 @@ export default function Materials() {
                         variant: "primary",
                         onClick: () => {
                             setSelectedMaterial(undefined);
-                            setShowPopup(true);
+                            setShowMaterialPopup(true);
                         }
                     },
                 ]}

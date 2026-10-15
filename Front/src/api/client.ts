@@ -50,7 +50,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
         throw new ApiError(res.status, data?.message ?? `Erreur ${res.status}`);
     }
 
-    if (res.status === 204) return undefined as T;
+    if (res.status === 204 || res.headers.get("content-length") === "0") return undefined as T; // pour les réponses vide
     return res.json() as Promise<T>;
 }
 

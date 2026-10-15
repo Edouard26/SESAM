@@ -19,8 +19,8 @@ type Props = {
 
 export default function MaterialPopup({ open, material, onClose, blurBackground, onSubmit }: Props) {
     const {notify} = useNotification();
-    const [values, setValues] = useState<MaterialForm>({...materialTemplate,});
-    const [initialValues, setInitialValues] = useState<MaterialForm>({...materialTemplate,});
+    const [values, setValues] = useState<MaterialForm>({...materialTemplate});
+    const [initialValues, setInitialValues] = useState<MaterialForm>({...materialTemplate});
 
     const isEditing = !!material;
 
@@ -52,9 +52,7 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
         setInitialValues({ ...initial });
     }, [material, open]);
 
-    function handleChange(
-        event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-    ) {
+    function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const { name, value } = event.target;
 
         if (name === "typeMateriel") {
@@ -94,9 +92,7 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
         }));
     }
 
-    function handleDateChange(
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) {
+    function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target;
 
         setValues((previous) => ({
@@ -125,8 +121,10 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
                     }),
                 ) as Partial<MaterialForm>;
                 await materialApi.update(material.id, changedValues);
+                onSubmit(values);
             } else {
                 await materialApi.create(values);
+                onSubmit(values);
             }
         } catch (error) {
             if (error instanceof ApiError) {
@@ -139,9 +137,6 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
                 notify("Impossible de joindre le serveur", "danger");
             }
         }
-
-
-        onSubmit(values);
     }
 
     return (
@@ -155,7 +150,7 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
                 </button>
             }
         >
-                <form id="material-form" onSubmit={handleSubmit}>
+            <form id="material-form" onSubmit={handleSubmit}>
                 <div className="row g-4">
                     <div className="col-12 col-md-6">
                         <label htmlFor="nom" className="form-label">

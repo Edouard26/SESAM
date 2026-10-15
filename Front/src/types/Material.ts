@@ -18,6 +18,11 @@ export type MaterialForm = Omit<Material, "id" | "typeMateriel"> & {
     typeMateriel: MaterialType | "";
 };
 
+export type MaterialAssignmentForm = {
+    salleId: number;
+    materielsId: number[];
+}
+
 export const materialTemplate: MaterialForm = {
     typeMateriel: "",
     numeroSerie: "",
@@ -26,4 +31,8 @@ export const materialTemplate: MaterialForm = {
     dateAjout: new Date(),
     dateFinGarantie: new Date(),
     nom: "",
+};
+
+export const materialAssignmentTemplate: MaterialAssignmentForm = {
+    salleId: 0, materielsId: []
 };
