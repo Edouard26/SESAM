@@ -4,9 +4,6 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class BatimentRequest {
     String nom;
 }

@@ -3,14 +3,13 @@ package net.ent.etnc.backend.controllers;
 import net.ent.etnc.backend.commons.JsonPatchUtils;
 import net.ent.etnc.backend.commons.RsqlFilterUtils;
 import net.ent.etnc.backend.dtos.assemblers.UniteCentraleAssembler;
+import net.ent.etnc.backend.dtos.requests.MaterielAffectationRequest;
 import net.ent.etnc.backend.dtos.requests.MaterielRequest;
 import net.ent.etnc.backend.dtos.responses.MaterielResponse;
 import net.ent.etnc.backend.dtos.assemblers.MaterielAssembler;
 import net.ent.etnc.backend.models.entities.Materiel;
-import net.ent.etnc.backend.services.EcranService;
-import net.ent.etnc.backend.services.MaterielService;
-import net.ent.etnc.backend.services.UniteCentraleService;
-import net.ent.etnc.backend.services.VideoProjecteurService;
+import net.ent.etnc.backend.models.entities.Salle;
+import net.ent.etnc.backend.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,39 +36,33 @@ public class MaterielController {
     );
 
     private final MaterielService materielService;
-    private final UniteCentraleService uniteCentraleService;
-    private final EcranService ecranService;
-    private final VideoProjecteurService videoProjecteurService;
 
-    private final MaterielAssembler assembler;
-    private final UniteCentraleAssembler uniteCentraleAssembler;
+    private final MaterielAssembler materielAssembler;
 
     private final RsqlFilterUtils rsqlFilterUtils;
     private final JsonPatchUtils jsonPatchUtils;
+    private final SalleService salleService;
 
     @Autowired
-    public MaterielController(MaterielService materielService, UniteCentraleService uniteCentraleService, EcranService ecranService, VideoProjecteurService videoProjecteurService, MaterielAssembler assembler, UniteCentraleAssembler uniteCentraleAssembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils) {
+    public MaterielController(MaterielService materielService, MaterielAssembler materielAssembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils, SalleService salleService) {
         this.materielService = materielService;
-        this.uniteCentraleService = uniteCentraleService;
-        this.ecranService = ecranService;
-        this.videoProjecteurService = videoProjecteurService;
-        this.assembler = assembler;
-        this.uniteCentraleAssembler = uniteCentraleAssembler;
+        this.materielAssembler = materielAssembler;
         this.rsqlFilterUtils = rsqlFilterUtils;
         this.jsonPatchUtils = jsonPatchUtils;
+        this.salleService = salleService;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('GESTIONNAIRE')")
     public ResponseEntity<Page<MaterielResponse>> getAll(@PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(materielService.findAll(pageable).map(assembler::toResponse));
+        return ResponseEntity.ok(materielService.findAll(pageable).map(materielAssembler::toResponse));
     }
 
     @GetMapping("{id}/")
     @PreAuthorize("hasRole('GESTIONNAIRE')")
     public ResponseEntity<MaterielResponse> getById(@PathVariable Long id) {
         return materielService.findById(id)
-                .map(m -> ResponseEntity.ok(assembler.toResponse(m)))
+                .map(m -> ResponseEntity.ok(materielAssembler.toResponse(m)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -79,13 +72,13 @@ public class MaterielController {
 
         switch (materielRequest.getTypeMateriel()) {
             case "UniteCentrale" -> {
-                return ResponseEntity.ok(assembler.toResponse(materielService.create(assembler.toUniteCentrale(materielRequest))));
+                return ResponseEntity.ok(materielAssembler.toResponse(materielService.create(materielAssembler.toUniteCentrale(materielRequest))));
             }
             case "Ecran" -> {
-                return ResponseEntity.ok(assembler.toResponse(materielService.create(assembler.toEcran(materielRequest))));
+                return ResponseEntity.ok(materielAssembler.toResponse(materielService.create(materielAssembler.toEcran(materielRequest))));
             }
             case "VideoProjecteur" -> {
-                return ResponseEntity.ok(assembler.toResponse(materielService.create(assembler.toVideoProjecteur(materielRequest))));
+                return ResponseEntity.ok(materielAssembler.toResponse(materielService.create(materielAssembler.toVideoProjecteur(materielRequest))));
             }
             default -> {
                 return ResponseEntity.badRequest().build();
@@ -99,18 +92,18 @@ public class MaterielController {
     public ResponseEntity<MaterielResponse> patch(@PathVariable Long id, @RequestBody String patch) {
         Optional<Materiel> existing = materielService.findById(id);
         if (existing.isEmpty()) return ResponseEntity.notFound().build();
-        MaterielRequest patched = jsonPatchUtils.apply(patch, assembler.toRequest(existing.get()), MaterielRequest.class, PATCHABLE);
+        MaterielRequest patched = jsonPatchUtils.apply(patch, materielAssembler.toRequest(existing.get()), MaterielRequest.class, PATCHABLE);
 
         Materiel entity;
         switch (patched.getTypeMateriel()){
             case "UniteCentrale" -> {
-                entity = assembler.toUniteCentrale(patched);
+                entity = materielAssembler.toUniteCentrale(patched);
             }
             case "Ecran" -> {
-                entity = assembler.toEcran(patched);
+                entity = materielAssembler.toEcran(patched);
             }
             case "VideoProjecteur" -> {
-                entity = assembler.toVideoProjecteur(patched);
+                entity = materielAssembler.toVideoProjecteur(patched);
             }
             default -> {
                 return ResponseEntity.badRequest().build();
@@ -118,7 +111,29 @@ public class MaterielController {
         }
         entity.setId(id);
         entity = materielService.update(entity);
-        return ResponseEntity.ok(assembler.toResponse(entity));
+        return ResponseEntity.ok(materielAssembler.toResponse(entity));
+    }
+
+    /**
+     * HTTP post pour l'affectation d'un ou plusieurs matériels à une nouvelle salle.
+     * @param materielAffectationRequest
+     * @return HTTP status 200
+     */
+    @PostMapping(value = "assignments/")
+    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    public ResponseEntity<Void> affectation(@RequestBody MaterielAffectationRequest materielAffectationRequest){
+        Optional<Salle> optionalSalle = salleService.findById(materielAffectationRequest.getSalleId());
+        if(optionalSalle.isEmpty()) return ResponseEntity.notFound().build();
+
+        for(Long materielID : materielAffectationRequest.getMaterielsId()){
+            Optional<Materiel> optionalMateriel = materielService.findById(materielID);
+            if(optionalMateriel.isPresent()){
+                optionalSalle.get().getMateriels().add(optionalMateriel.get());
+            }
+        }
+        salleService.update(optionalSalle.get());
+
+        return ResponseEntity.ok().build();
     }
 
 }

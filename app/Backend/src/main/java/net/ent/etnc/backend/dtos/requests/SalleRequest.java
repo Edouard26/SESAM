@@ -6,9 +6,6 @@ import net.ent.etnc.backend.models.enums.TypeSalle;
 
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class SalleRequest {
     private String nom;
     private Integer nbPlaces;
