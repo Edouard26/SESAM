@@ -13,6 +13,7 @@ import net.ent.etnc.backend.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +33,13 @@ public class MaterielController {
     );
 
     private static final Map<String, String> FILTERABLE = Map.of(
+            "numeroSerie", "numeroSerie",
+            "marque", "marque",
+            "modele", "modele",
+            "dataAjout", "dataAjout",
+            "dateFinGarantie", "dateFinGarantie",
+            "etat", "etat"
+
 
     );
 
@@ -54,8 +62,12 @@ public class MaterielController {
 
     @GetMapping
     @PreAuthorize("hasRole('GESTIONNAIRE')")
-    public ResponseEntity<Page<MaterielResponse>> getAll(@PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(materielService.findAll(pageable).map(materielAssembler::toResponse));
+    public ResponseEntity<Page<MaterielResponse>> getAll(
+            @RequestParam(required = false) String filter,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Specification<Materiel> spec = this.rsqlFilterUtils.build(filter, FILTERABLE);
+        return ResponseEntity.ok(materielService.findAll(spec, pageable).map(materielAssembler::toResponse));
     }
 
     @GetMapping("{id}/")
@@ -125,6 +137,7 @@ public class MaterielController {
         Optional<Salle> optionalSalle = salleService.findById(materielAffectationRequest.getSalleId());
         if(optionalSalle.isEmpty()) return ResponseEntity.notFound().build();
 
+        // TODO faire qu'une seul requete à la bdd
         for(Long materielID : materielAffectationRequest.getMaterielsId()){
             Optional<Materiel> optionalMateriel = materielService.findById(materielID);
             if(optionalMateriel.isPresent()){
