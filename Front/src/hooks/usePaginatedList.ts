@@ -30,6 +30,7 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
     const [reloadKey, setReloadKey] = useState(0);
 
     useEffect(() => {
@@ -59,6 +60,7 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
 
                 setItems(data.content);
                 setTotalPages(data.totalPages);
+                setTotalElements(data.totalElements)
             })
             .catch(() => {
                 if (cancelled) return;
@@ -66,6 +68,7 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
                 notifyRef.current(errorMessage, "danger", 10000);
                 setItems([]);
                 setTotalPages(0);
+                setTotalElements(0);
             })
             .finally(() => {
                 if (!cancelled) setLoading(false);
@@ -96,5 +99,5 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
         setReloadKey((previous) => previous + 1);
     }
 
-    return {search, filters, items, loading, page, totalPages, setPage, setSearch, handleFilterChange, resetFilters, reload };
+    return {search, filters, items, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload };
 }

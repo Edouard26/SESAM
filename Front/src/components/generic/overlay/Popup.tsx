@@ -8,9 +8,10 @@ type PopupProps = {
     children: React.ReactNode;
     actions?: React.ReactNode;
     blurBackground?: boolean;
+    size?: "modal-sm" | "modal-md" | "modal-lg" | "modal-xl";
 };
 
-export default function Popup({title, open, onClose, children, actions, blurBackground = true }: PopupProps) {
+export default function Popup({title, open, onClose, children, actions, blurBackground = true, size = "modal-md" }: PopupProps) {
     useEffect(() => {
         if (!open) {
             return;
@@ -46,13 +47,9 @@ export default function Popup({title, open, onClose, children, actions, blurBack
             <div className="modal fade show d-block" role="dialog" aria-modal="true" aria-labelledby="popup-title"
                 style={{ zIndex: 1055 }}
                 tabIndex={-1}
-                onClick={(event) => {
-                    if (event.target === event.currentTarget) {
-                        onClose();
-                    }
-                }}
+                onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
             >
-                <div className="modal-dialog modal-dialog-centered">
+                <div className={`modal-dialog modal-dialog-centered ${size}`}>
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 id="popup-title" className="modal-title">

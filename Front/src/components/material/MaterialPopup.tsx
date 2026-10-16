@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import Popup from "../generic/overlay/Popup";
 import {
     materialTemplate,
@@ -21,8 +21,16 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
     const {notify} = useNotification();
     const [values, setValues] = useState<MaterialForm>({...materialTemplate});
     const [initialValues, setInitialValues] = useState<MaterialForm>({...materialTemplate});
+    const formRef = useRef<HTMLFormElement>(null);
+    const [canSubmit, setCanSubmit] = useState(false);
+
+    useEffect(() => {
+        setCanSubmit(formRef.current?.checkValidity() ?? false);
+    }, [values, open]);
 
     const isEditing = !!material;
+
+
 
     useEffect(() => {
         if (!open) {
@@ -107,6 +115,8 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (!event.currentTarget.checkValidity()) return;
+
         try {
             if (material) {
                 const changedValues = Object.fromEntries(
@@ -145,12 +155,12 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
             onClose={onClose}
             blurBackground={blurBackground}
             actions={
-                <button type="submit" form="material-form" className="btn btn-primary">
+                <button type="submit" form="material-form" disabled={!canSubmit} className="btn btn-primary">
                     {isEditing ? "Enregistrer" : "Ajouter"}
                 </button>
             }
         >
-            <form id="material-form" onSubmit={handleSubmit}>
+            <form id="material-form" onSubmit={handleSubmit} ref={formRef}>
                 <div className="row g-4">
                     <div className="col-12 col-md-6">
                         <label htmlFor="nom" className="form-label">

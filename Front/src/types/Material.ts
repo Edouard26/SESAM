@@ -34,5 +34,5 @@ export const materialTemplate: MaterialForm = {
 };
 
 export const materialAssignmentTemplate: MaterialAssignmentForm = {
-    salleId: 0, materielsId: []
+    salleId: -1, materielsId: []
 };

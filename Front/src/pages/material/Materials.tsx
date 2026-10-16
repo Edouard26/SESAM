@@ -55,7 +55,7 @@ export default function Materials() {
         selects.map(({ name }) => [name, ""])
     );
 
-    const {search, filters, items: materials, loading, page, totalPages, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
+    const {search, filters, items: materials, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
         load: materialApi.list,
         initialFilters,
         pageSize: 10,
@@ -108,12 +108,17 @@ export default function Materials() {
                 description="Rechercher et gérer les matériels du centre."
                 actions={[
                     {
-                        label: "Affecter du matériel",
+                        label: "Affecter",
                         icon: "bi-display",
                         onClick: () => setShowAffectationPopup(true),
                     },
                     {
-                        label: "Ajouter un matériel",
+                        label: "Importer",
+                        icon: "bi-file-earmark-arrow-down",
+                        onClick: () => console.log("importer"),
+                    },
+                    {
+                        label: "Ajouter",
                         icon: "bi-plus-lg",
                         variant: "primary",
                         onClick: () => {
@@ -139,6 +144,7 @@ export default function Materials() {
                 data={materials}
                 currentPage={page}
                 totalPages={totalPages}
+                totalElements={totalElements}
                 onPageChange={setPage}
                 loading={loading}
             />

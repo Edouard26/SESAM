@@ -19,6 +19,7 @@ type TableProps<T> = {
     data: T[];
     currentPage: number;
     totalPages: number;
+    totalElements: number;
     onPageChange: (page: number) => void;
     loading?: boolean;
     selection?: TableSelection<T>;
@@ -28,6 +29,7 @@ export default function Table<T>({
                                      columns,
                                      data,
                                      currentPage,
+                                     totalElements,
                                      totalPages,
                                      onPageChange,
                                      loading = false,
@@ -159,7 +161,8 @@ export default function Table<T>({
                 </div>
 
                 {totalPages > 0 && (
-                    <div className="d-flex justify-content-end p-3">
+                    <div className="d-flex justify-content-between align-items-center p-3">
+                        <span className="text-body-secondary small">{totalElements} éléments</span>
                         <nav aria-label="Pagination">
                             <ul className="pagination pagination-sm mb-0">
                                 <li

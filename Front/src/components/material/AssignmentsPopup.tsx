@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import Popup from "../generic/overlay/Popup";
 import {
     materialAssignmentTemplate, type MaterialAssignmentForm, type Material,
@@ -23,7 +23,12 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
     const [values, setValues] = useState<MaterialAssignmentForm>({...materialAssignmentTemplate,});
     const [rooms, setRooms] = useState<Room[]>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
+    const formRef = useRef<HTMLFormElement>(null);
+    const [canSubmit, setCanSubmit] = useState(false);
 
+    useEffect(() => {
+        setCanSubmit((formRef.current?.checkValidity() ?? false) && selectedMaterials.length > 0);
+    }, [values, selectedMaterials, open]);
 
     const selects = [
         {
@@ -60,12 +65,27 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
         { key: "typeMateriel", label: "Type" }
     ] satisfies Column<Material>[];
 
-    const {search, filters, items: materials, loading, page, totalPages, setPage, setSearch, handleFilterChange, resetFilters} = usePaginatedList({
-        load: materialApi.list,
+    const {search, filters, items: materials, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload} = usePaginatedList({
+        load: (params) => materialApi.list({
+            ...params,
+            excludeSalleId: values.salleId,
+        }),
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
     });
+
+    const previousSalleId = useRef(values.salleId);
+
+    useEffect(() => {
+        if (previousSalleId.current === values.salleId) {
+            return;
+        }
+
+        previousSalleId.current = values.salleId;
+        setPage(0);
+        reload();
+    }, [values.salleId, reload, setPage]);
 
     useEffect(() => {
         if (!open) {
@@ -109,6 +129,11 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (!event.currentTarget.checkValidity() || selectedMaterials.length === 0) {
+            notify("Sélectionnez une salle et au moins un matériel", "danger");
+            return;
+        }
+
         try {
             const payload: MaterialAssignmentForm = {
                 ...values,
@@ -131,16 +156,18 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
 
     return (
         <Popup title={"Affecter du matériel"}
+            size={"modal-lg"}
             open={open}
             onClose={onClose}
             blurBackground={blurBackground}
             actions={
-                <button type="submit" form="material-form" className="btn btn-primary">
+                <button type="submit" form="material-form" disabled={!canSubmit} className="btn btn-primary">
                     {"Affecter"}
                 </button>
             }
+
         >
-            <form id="material-form" onSubmit={handleSubmit}>
+            <form id="material-form" onSubmit={handleSubmit} ref={formRef}>
                 <div className="mb-4">
                     <label htmlFor="salle_id" className="form-label">
                         Salle de destination <span className="text-danger">*</span>
@@ -168,37 +195,34 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
                     </div>
                 </div>
 
-                <Filters
-                    embedded
-                    search={search}
-                    searchPlaceholder="Nom, numéro de série ou marque..."
-                    selects={selects}
-                    values={filters}
-                    onSearchChange={setSearch}
-                    onFilterChange={handleFilterChange}
-                    onReset={resetFilters}
-                />
-                <Table
-                    columns={columns}
-                    data={materials}
-                    currentPage={page}
-                    totalPages={totalPages}
-                    onPageChange={setPage}
-                    loading={loading}
-                    selection={{
-                        selected: selectedMaterials,
-                        getId: (material) => material.id,
-                        onChange: setSelectedMaterials,
-                    }}
-                />
+                <div hidden={values.salleId < 0}>
+                    <Filters
+                        embedded
+                        search={search}
+                        searchPlaceholder="Nom, numéro de série ou marque..."
+                        selects={selects}
+                        values={filters}
+                        onSearchChange={setSearch}
+                        onFilterChange={handleFilterChange}
+                        onReset={resetFilters}
+                    />
+                    <Table
+                        columns={columns}
+                        data={materials}
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={setPage}
+                        loading={loading}
+                        totalElements={totalElements}
+                        selection={{
+                            selected: selectedMaterials,
+                            getId: (material) => material.id,
+                            onChange: setSelectedMaterials,
+                        }}
+                    />
+                </div>
                 {selectedMaterials.length > 0 && (
-                    <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={() => console.log(selectedMaterials)}
-                    >
-                        Agir sur {selectedMaterials.length} matériel(s)
-                    </button>
+                    <a>{selectedMaterials.length} matériels</a>
                 )}
             </form>
         </Popup>
