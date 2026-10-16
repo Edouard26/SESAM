@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: Backend
+  # === BASE DE DONNÉES ===
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db_sesam
+    username: postgres
+    password: azerty+35
+
+  # === JPA / HIBERNATE ===
+  jpa:
+    hibernate:
+      # "update" : Hibernate adapte le schéma sans supprimer les données existantes
+      # En production on utiliserait "validate" avec un outil de migration (Liquibase/Flyway)
+      ddl-auto: create
+    show-sql: true
+    properties:
+      jakarta:
+        persistence:
+          validation:
+            # La validation est gérée par Spring (via @Validated dans les services), pas par Hibernate
+            mode: none
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  # === JACKSON (sérialisation JSON) ===
+  jackson:
+    # Ne pas inclure les champs null dans les réponses JSON → réponses plus légères
+    default-property-inclusion: non_null
+
+# === CONSTANTES MÉTIER ===
+app:
+  security:
+    jwt:
+      # Clé secrète pour signer les tokens JWT (min. 64 caractères en production)
+      secret: squelette-secret-key-very-long-at-least-64-characters-long-for-security
+      # Access token : 15 minutes (courte durée = fenêtre de vol réduite)
+      #      expiration: 900000
+      expiration: 90000000000
+      expiration-ms: 3600000000000
+      refresh-expiration-ms: 604800000
