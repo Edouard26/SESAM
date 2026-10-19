@@ -2,51 +2,49 @@ import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
 import Table, {type Column} from "../../components/generic/display/Table.tsx";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { materialApi } from "../../api";
+import { routes } from "../../router/routes.ts";
 import type {Material} from "../../types/Material.ts";
 import MaterialPopup from "../../components/material/MaterialPopup.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import AssignmentsPopup from "../../components/material/AssignmentsPopup.tsx";
+import ImportMaterialsPopup from "../../components/material/ImportMaterialsPopup.tsx";
 
 export default function Materials() {
+    const navigate = useNavigate();
     const [showMaterialPopup, setShowMaterialPopup] = useState(false);
     const [showAffectationPopup, setShowAffectationPopup] = useState(false);
+    const [showImportPopup, setShowImportPopup] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>();
 
     const selects = [
         {
-            name: "type",
+            name: "dtype",
             label: "Type",
             options: [
                 { label: "Tous", value: "" },
-                { label: "UC", value: "UC" },
-                { label: "Écran", value: "ECRAN" },
-                { label: "Vidéoprojecteur", value: "PROJECTEUR" },
+                { label: "UC", value: "UniteCentrale" },
+                { label: "Écran", value: "Ecran" },
+                { label: "Vidéoprojecteur", value: "VideoProjecteur" },
             ],
         },
         {
-            name: "state",
+            name: "etat",
             label: "État",
             options: [
                 { label: "Tous", value: "" },
-                { label: "Disponible", value: "DISPONIBLE" },
-                { label: "En panne", value: "PANNE" },
+                { label: "En Etat", value: "EN_ETAT" },
+                { label: "En Maintenance", value: "EN_MAINTENANCE" },
+                { label: "Deprécier", value: "DEPRECIER" },
             ],
         },
         {
-            name: "room",
+            name: "salleId",
             label: "Salle",
             options: [
                 { label: "Toutes", value: "" },
-                { label: "Salle A101", value: "A101" },
-            ],
-        },
-        {
-            name: "location",
-            label: "Localisation",
-            options: [
-                { label: "Toutes", value: "" },
-                { label: "Bâtiment A", value: "A" },
+                { label: "Salle A101", value: "1" },
             ],
         },
     ];
@@ -69,40 +67,61 @@ export default function Materials() {
         { key: "typeMateriel", label: "Type" },
         {
             label: "Action", render: (material: Material) => (
-                <button
-                    type="button"
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={() => {
-                        setSelectedMaterial(material);
-                        setShowMaterialPopup(true);
-                    }}
-                >
-                    Modifier
-                </button>
+                <div className="d-flex gap-2">
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => navigate(`${routes.materials}/${material.id}`)}
+                    >
+                        Voir
+                    </button>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => {
+                            setSelectedMaterial(material);
+                            setShowMaterialPopup(true);
+                        }}
+                    >
+                        Modifier
+                    </button>
+                </div>
             ),
         },
     ] satisfies Column<Material>[];
 
     return (
         <>
-            <MaterialPopup
-                open={showMaterialPopup}
-                material={selectedMaterial}
-                onClose={() => setShowMaterialPopup(false)}
-                onSubmit={(material) => {
-                    setShowMaterialPopup(false);
-                    reload();
-                    setSearch(material.nom);
-                }}
-            />
-            <AssignmentsPopup
-                open={showAffectationPopup}
-                onClose={() => setShowAffectationPopup(false)}
-                onSubmit={() => {
-                    setShowAffectationPopup(false);
-                    reload();
-                }}
-            />
+            {showMaterialPopup && (
+                <MaterialPopup
+                    material={selectedMaterial}
+                    onClose={() => setShowMaterialPopup(false)}
+                    onSubmit={(material) => {
+                        setShowMaterialPopup(false);
+                        reload();
+                        setSearch(material.nom);
+                    }}
+                />
+            )}
+            {showAffectationPopup && (
+                <AssignmentsPopup
+                    onClose={() => setShowAffectationPopup(false)}
+                    onSubmit={() => {
+                        setShowAffectationPopup(false);
+                        reload();
+                    }}
+                />
+            )}
+            {showImportPopup && (
+                <ImportMaterialsPopup
+                    onClose={() => setShowImportPopup(false)}
+                    onSubmit={() => {
+                        setShowImportPopup(false);
+                        reload();
+                    }}
+                />
+            )}
+
             <PageHeader
                 title="Matériels"
                 description="Rechercher et gérer les matériels du centre."
@@ -115,7 +134,7 @@ export default function Materials() {
                     {
                         label: "Importer",
                         icon: "bi-file-earmark-arrow-down",
-                        onClick: () => console.log("importer"),
+                        onClick: () => setShowImportPopup(true),
                     },
                     {
                         label: "Ajouter",

@@ -12,13 +12,12 @@ import usePaginatedList from "../../hooks/usePaginatedList.ts";
 
 
 type Props = {
-    open: boolean;
     onClose: () => void;
     blurBackground?: boolean;
     onSubmit: (material: MaterialAssignmentForm) => void;
 };
 
-export default function AssignmentsPopup({ open, onClose, blurBackground, onSubmit }: Props) {
+export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: Props) {
     const {notify} = useNotification();
     const [values, setValues] = useState<MaterialAssignmentForm>({...materialAssignmentTemplate,});
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -28,7 +27,7 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
 
     useEffect(() => {
         setCanSubmit((formRef.current?.checkValidity() ?? false) && selectedMaterials.length > 0);
-    }, [values, selectedMaterials, open]);
+    }, [values, selectedMaterials]);
 
     const selects = [
         {
@@ -65,7 +64,19 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
         { key: "typeMateriel", label: "Type" }
     ] satisfies Column<Material>[];
 
-    const {search, filters, items: materials, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload} = usePaginatedList({
+    const {
+        search,
+        filters,
+        items: materials,
+        loading,
+        page,
+        totalPages,
+        totalElements,
+        setPage,
+        setSearch,
+        handleFilterChange,
+        resetFilters,
+    } = usePaginatedList({
         load: (params) => materialApi.list({
             ...params,
             excludeSalleId: values.salleId,
@@ -73,26 +84,14 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
+        enabled: values.salleId > 0,
+        loadKey: values.salleId,
     });
 
-    const previousSalleId = useRef(values.salleId);
-
     useEffect(() => {
-        if (previousSalleId.current === values.salleId) {
-            return;
-        }
+        setValues({ ...materialAssignmentTemplate });
+        setSelectedMaterials([]);
 
-        previousSalleId.current = values.salleId;
-        setPage(0);
-        reload();
-    }, [values.salleId, reload, setPage]);
-
-    useEffect(() => {
-        if (!open) {
-            setValues({ ...materialAssignmentTemplate });
-            setSelectedMaterials([]);
-            return;
-        }
         async function loadRooms() {
             try {
                 const response = await roomApi.list();
@@ -107,7 +106,7 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
         const initial: MaterialAssignmentForm = { ...materialAssignmentTemplate };
 
         setValues(initial);
-    }, [open]);
+    }, []);
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const { name, value } = event.target;
@@ -118,6 +117,7 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
                 materielsId: [],
             });
             setSelectedMaterials([]);
+            setPage(0);
             return;
         }
 
@@ -157,7 +157,6 @@ export default function AssignmentsPopup({ open, onClose, blurBackground, onSubm
     return (
         <Popup title={"Affecter du matériel"}
             size={"modal-lg"}
-            open={open}
             onClose={onClose}
             blurBackground={blurBackground}
             actions={

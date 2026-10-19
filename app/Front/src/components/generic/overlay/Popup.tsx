@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 
 type PopupProps = {
     title: string;
-    open: boolean;
     onClose: () => void;
     children: React.ReactNode;
     actions?: React.ReactNode;
@@ -11,12 +10,8 @@ type PopupProps = {
     size?: "modal-sm" | "modal-md" | "modal-lg" | "modal-xl";
 };
 
-export default function Popup({title, open, onClose, children, actions, blurBackground = true, size = "modal-md" }: PopupProps) {
+export default function Popup({title, onClose, children, actions, blurBackground = true, size = "modal-md" }: PopupProps) {
     useEffect(() => {
-        if (!open) {
-            return;
-        }
-
         function handleKeyDown(event: KeyboardEvent) {
             if (event.key === "Escape") {
                 onClose();
@@ -25,11 +20,7 @@ export default function Popup({title, open, onClose, children, actions, blurBack
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [open, onClose]);
-
-    if (!open) {
-        return null;
-    }
+    }, [onClose]);
 
     return createPortal(
         <>

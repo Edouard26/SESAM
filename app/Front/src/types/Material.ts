@@ -36,3 +36,7 @@ export const materialTemplate: MaterialForm = {
 export const materialAssignmentTemplate: MaterialAssignmentForm = {
     salleId: -1, materielsId: []
 };
+
+export type ImportedMaterial = MaterialForm & {
+    salleId: number;
+};

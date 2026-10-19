@@ -12,9 +12,11 @@ type UsePaginatedListOptions<T> = {
     initialFilters: Record<string, string>;
     pageSize: number;
     errorMessage: string;
+    enabled?: boolean;
+    loadKey?: string | number;
 };
 
-export default function usePaginatedList<T>({ load, initialFilters, pageSize, errorMessage,}: UsePaginatedListOptions<T>) {
+export default function usePaginatedList<T>({ load, initialFilters, pageSize, errorMessage, enabled = true, loadKey}: UsePaginatedListOptions<T> ) {
 
     const { notify } = useNotification();
 
@@ -42,6 +44,14 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
     }, [notify]);
 
     useEffect(() => {
+        if (!enabled) {
+            setItems([]);
+            setTotalPages(0);
+            setTotalElements(0);
+            setLoading(false);
+            return;
+        }
+
         let cancelled = false;
 
         const activeFilters = Object.fromEntries(
@@ -77,7 +87,7 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
         return () => {
             cancelled = true;
         };
-    }, [search, filters, page, pageSize, errorMessage, reloadKey]);
+    }, [enabled, loadKey, search, filters, page, pageSize, errorMessage, reloadKey]);
 
     function setSearch(value: string) {
         setSearchState(value);

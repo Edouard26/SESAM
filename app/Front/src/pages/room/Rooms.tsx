@@ -4,13 +4,17 @@ import CardTable from "../../components/generic/display/CardTable.tsx";
 import { useNavigate } from "react-router-dom";
 import { roomApi } from "../../api";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
+import RoomPopup from "../../components/room/RoomPopup.tsx";
+import {useState} from "react";
 
 export default function Rooms() {
     const navigate = useNavigate();
 
+    const [showRoomPopup, setShowRoomPopup] = useState(false);
+
     const selects = [
         {
-            name: "type",
+            name: "typeSalle",
             label: "Type de salle",
             options: [
                 { label: "Tous", value: "" },
@@ -27,13 +31,13 @@ export default function Rooms() {
             ],
         },
         {
-            name: "state",
+            name: "etat",
             label: "État",
             options: [
                 { label: "Tous", value: "" },
                 { label: "Disponible", value: "DISPONIBLE" },
-                { label: "Non disponible", value: "NON_DISPONIBLE" },
-                { label: "Réinstallation en cours", value: "REINSTALLATION_EN_COURS",},
+                { label: "Non disponible", value: "INDISPONIBLE" },
+                { label: "Maintenance", value: "MAINTENANCE",},
             ],
         },
     ];
@@ -48,6 +52,7 @@ export default function Rooms() {
         items: rooms,
         loading,
         page,
+        reload,
         totalPages,
         setPage,
         setSearch,
@@ -62,6 +67,15 @@ export default function Rooms() {
 
     return (
         <>
+            {showRoomPopup && (
+                <RoomPopup
+                    onClose={() => setShowRoomPopup(false)}
+                    onSubmit={() => {
+                        setShowRoomPopup(false);
+                        reload();
+                    }}
+                />
+            )}
             <PageHeader
                 title="Salles"
                 description="Retrouvez les équipements et la disponibilité des salles."
@@ -70,7 +84,7 @@ export default function Rooms() {
                         label: "Ajouter une salle",
                         icon: "bi-plus-lg",
                         variant: "primary",
-                        onClick: () => console.log("Ajouter"),
+                        onClick: () => setShowRoomPopup(true),
                     },
                 ]}
             />

@@ -1,3 +1,5 @@
+import type {Material} from "./Material.ts";
+
 export type RoomType = "STOCKAGE" | "COURS";
 
 export type Room = {
@@ -8,7 +10,8 @@ export type Room = {
     nbPlaces: number;
     nomBatiment: string;
     nbMaterielDispo: number;
-    materielsId: number[];
+    materielsId?: number[];
+    materiels?: Material[];
 };
 
 export type RoomForm = Omit<Room, "id" | "typeSalle"> & {

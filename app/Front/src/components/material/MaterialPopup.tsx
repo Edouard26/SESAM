@@ -10,14 +10,13 @@ import useNotification from "../../hooks/useNotification.ts";
 
 
 type Props = {
-    open: boolean;
     material?: Material;
     onClose: () => void;
     blurBackground?: boolean;
     onSubmit: (material: MaterialForm) => void;
 };
 
-export default function MaterialPopup({ open, material, onClose, blurBackground, onSubmit }: Props) {
+export default function MaterialPopup({ material, onClose, blurBackground, onSubmit }: Props) {
     const {notify} = useNotification();
     const [values, setValues] = useState<MaterialForm>({...materialTemplate});
     const [initialValues, setInitialValues] = useState<MaterialForm>({...materialTemplate});
@@ -26,19 +25,13 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
 
     useEffect(() => {
         setCanSubmit(formRef.current?.checkValidity() ?? false);
-    }, [values, open]);
+    }, [values]);
 
     const isEditing = !!material;
 
 
 
     useEffect(() => {
-        if (!open) {
-            setValues(materialTemplate);
-            setInitialValues({ ...materialTemplate });
-            return;
-        }
-
         let initial: MaterialForm;
 
         if (material) {
@@ -58,7 +51,7 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
 
         setValues(initial);
         setInitialValues({ ...initial });
-    }, [material, open]);
+    }, [material]);
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const { name, value } = event.target;
@@ -151,7 +144,6 @@ export default function MaterialPopup({ open, material, onClose, blurBackground,
 
     return (
         <Popup title={isEditing ? "Modifier un matériel" : "Ajouter un matériel"}
-            open={open}
             onClose={onClose}
             blurBackground={blurBackground}
             actions={

@@ -12,6 +12,12 @@ type TableSelection<T> = {
     selected: T[];
     getId: (item: T) => string | number;
     onChange: (selected: T[]) => void;
+    /**
+     * Ensemble complet des éléments sélectionnables (toutes pages confondues).
+     * Si fourni, la case d'en-tête sélectionne/désélectionne tous ces éléments.
+     * Sinon, elle ne agit que sur la page affichée.
+     */
+    allItems?: T[];
 };
 
 type TableProps<T> = {
@@ -47,10 +53,17 @@ export default function Table<T>({
         selection?.selected.map(selection.getId) ?? [],
     );
 
+    const selectableItems = selection?.allItems ?? data;
+
     const allSelected =
         selection !== undefined &&
-        data.length > 0 &&
-        data.every((item) => selectedIds.has(selection.getId(item)));
+        selectableItems.length > 0 &&
+        selectableItems.every((item) => selectedIds.has(selection.getId(item)));
+
+    const someSelected =
+        selection !== undefined &&
+        !allSelected &&
+        selectableItems.some((item) => selectedIds.has(selection.getId(item)));
 
     function toggleItem(item: T, checked: boolean) {
         if (!selection) return;
@@ -68,17 +81,17 @@ export default function Table<T>({
         selection.onChange(selected);
     }
 
-    function togglePage(checked: boolean) {
+    function toggleAll(checked: boolean) {
         if (!selection) return;
 
-        const pageIds = new Set(data.map(selection.getId));
+        const ids = new Set(selectableItems.map(selection.getId));
 
         const selected = selection.selected.filter(
-            (item) => !pageIds.has(selection.getId(item)),
+            (item) => !ids.has(selection.getId(item)),
         );
 
         if (checked) {
-            selected.push(...data);
+            selected.push(...selectableItems);
         }
 
         selection.onChange(selected);
@@ -96,10 +109,17 @@ export default function Table<T>({
                                     <input
                                         type="checkbox"
                                         className="form-check-input"
-                                        aria-label="Sélectionner tous les éléments de cette page"
+                                        aria-label={
+                                            selection.allItems
+                                                ? "Sélectionner tous les éléments"
+                                                : "Sélectionner tous les éléments de cette page"
+                                        }
                                         checked={allSelected}
+                                        ref={(element) => {
+                                            if (element) element.indeterminate = someSelected;
+                                        }}
                                         onChange={(event) =>
-                                            togglePage(event.target.checked)
+                                            toggleAll(event.target.checked)
                                         }
                                     />
                                 </th>
