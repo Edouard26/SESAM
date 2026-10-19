@@ -1,4 +1,4 @@
-export type MaterialType = "UniteCentral" | "Ecran" | "VideoProjecteur";
+export type MaterialType = "UC" | "ECRAN" | "VIDEO_PROJECTEUR";
 
 export type Material = {
     id: number;

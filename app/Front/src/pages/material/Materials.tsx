@@ -20,13 +20,13 @@ export default function Materials() {
 
     const selects = [
         {
-            name: "dtype",
+            name: "type",
             label: "Type",
             options: [
                 { label: "Tous", value: "" },
-                { label: "UC", value: "UniteCentrale" },
-                { label: "Écran", value: "Ecran" },
-                { label: "Vidéoprojecteur", value: "VideoProjecteur" },
+                { label: "UC", value: "UC" },
+                { label: "Écran", value: "ECRAN" },
+                { label: "Vidéo Projecteur", value: "VIDEO_PROJECTEUR" },
             ],
         },
         {
@@ -64,6 +64,7 @@ export default function Materials() {
         { key: "nom", label: "Nom" },
         { key: "marque", label: "Marque" },
         { key: "modele", label: "Modèle" },
+        { key: "numeroSerie", label: "Numero de série" },
         { key: "typeMateriel", label: "Type" },
         {
             label: "Action", render: (material: Material) => (

@@ -14,9 +14,9 @@ type MaterialDetail = MaterialModel & {
 };
 
 const typeLabels: Record<MaterialType, string> = {
-    UniteCentral: "Unité centrale",
-    Ecran: "Écran",
-    VideoProjecteur: "Projecteur",
+    UC: "Unité centrale",
+    ECRAN: "Écran",
+    VIDEO_PROJECTEUR: "Projecteur",
 };
 
 const formatDate = (value?: Date | string) =>
@@ -117,7 +117,7 @@ export default function Material() {
                     <Row label="Fin de garantie">
                         {formatDate(material.dateFinGarantie)}
                     </Row>
-                    {material.typeMateriel === "UniteCentral" && (
+                    {material.typeMateriel === "UC" && (
                         <>
                             <Row label="Processeur">{material.processeur ?? "—"}</Row>
                             <Row label="Carte graphique">
@@ -126,7 +126,7 @@ export default function Material() {
                         </>
                     )}
 
-                    {material.typeMateriel === "Ecran" && (
+                    {material.typeMateriel === "ECRAN" && (
                         <Row label="Taille">
                             {material.taille ? `${material.taille}"` : "—"}
                         </Row>

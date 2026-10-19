@@ -14,7 +14,7 @@ export default function Rooms() {
 
     const selects = [
         {
-            name: "typeSalle",
+            name: "type",
             label: "Type de salle",
             options: [
                 { label: "Tous", value: "" },

@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        setUser(await authApi.me());
+        setUser(await authApi.refresh());
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
           localStorage.removeItem(TOKEN_KEY);

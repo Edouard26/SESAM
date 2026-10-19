@@ -11,5 +11,5 @@ export type LoginResponse = {
 export const authApi = {
     login: (email: string, password: string) =>
         api.post<LoginResponse>("/api/v1/auth/login/", { email, password }, false),
-    me: () => api.get<User>("/api/v1/auth/me/"),
+    refresh: () => api.get<User>("/api/v1/auth/refresh/"),
 };

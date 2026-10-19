@@ -14,15 +14,15 @@ const MATERIELS_PAGE_SIZE = 6;
 type Badge = { label: string; className: string };
 
 const MATERIAL_ICONS: Record<MaterialType, string> = {
-    UniteCentral: "bi-pc-display",
-    Ecran: "bi-display",
-    VideoProjecteur: "bi-projector",
+    UC: "bi-pc-display",
+    ECRAN: "bi-display",
+    VIDEO_PROJECTEUR: "bi-projector",
 };
 
 const MATERIAL_LABELS: Record<MaterialType, string> = {
-    UniteCentral: "Unité centrale",
-    Ecran: "Écran",
-    VideoProjecteur: "Vidéoprojecteur",
+    UC: "Unité centrale",
+    ECRAN: "Écran",
+    VIDEO_PROJECTEUR: "Vidéoprojecteur",
 };
 
 // Même logique que dans la liste des salles (Rooms.tsx).
@@ -220,6 +220,7 @@ export default function Room() {
                 }}
                 card={{
                     icon: (materiel: Material) => (
+
                         <i
                             className={`bi ${MATERIAL_ICONS[materiel.typeMateriel] ?? "bi-box-seam"} fs-5`}
                             aria-hidden="true"

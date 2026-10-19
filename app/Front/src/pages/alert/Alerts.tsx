@@ -10,6 +10,7 @@ import type {
     AlertStatut,
     AlertUpdateForm,
 } from "../../types/Alert.ts";
+import useNotification from "../../hooks/useNotification.ts";
 
 const statutLabels: Record<AlertStatut, string> = {
     EN_ATTENTE: "En attente",
@@ -20,7 +21,7 @@ const statutLabels: Record<AlertStatut, string> = {
 const statutClasses: Record<AlertStatut, string> = {
     EN_ATTENTE: "text-bg-warning",
     TRAITEE: "text-bg-success",
-    ANNULEE: "text-bg-secondary",
+    ANNULEE: "text-bg-danger",
 };
 
 function formatDate(date: Date): string {
@@ -41,9 +42,9 @@ function formatDate(date: Date): string {
 
 export default function Alerts() {
     const { user } = useAuth();
+    const { notify } = useNotification();
 
     const [updatingId, setUpdatingId] = useState<number | null>(null);
-    const [errorMessage, setErrorMessage] = useState("");
 
     const selects = [
         {
@@ -85,9 +86,7 @@ export default function Alerts() {
         statut: AlertStatut,
     ) {
         if (!user?.id) {
-            setErrorMessage(
-                "Impossible de récupérer l'utilisateur connecté.",
-            );
+            notify("Impossible de récupérer l'utilisateur connecté.", "danger");
             return;
         }
 
@@ -98,15 +97,12 @@ export default function Alerts() {
         };
 
         setUpdatingId(alert.id);
-        setErrorMessage("");
 
         try {
             await alertApi.update(alert.id, update);
             await reload();
         } catch {
-            setErrorMessage(
-                "Impossible de mettre à jour le statut de l'alerte.",
-            );
+            notify("Impossible de mettre à jour le statut de l'alerte.", "danger");
         } finally {
             setUpdatingId(null);
         }
@@ -176,7 +172,7 @@ export default function Alerts() {
                             >
                                 {updatingId === alert.id
                                     ? "Traitement..."
-                                    : "Valider"}
+                                    : "Traiter"}
                             </button>
 
                             <button
@@ -187,7 +183,7 @@ export default function Alerts() {
                                     handleStatusChange(alert, "ANNULEE")
                                 }
                             >
-                                Refuser
+                                Annuler
                             </button>
                         </>
                     )}
@@ -210,16 +206,6 @@ export default function Alerts() {
                 onFilterChange={handleFilterChange}
                 onReset={resetFilters}
             />
-
-            {errorMessage && (
-                <div
-                    className="alert alert-danger mt-3"
-                    role="alert"
-                >
-                    {errorMessage}
-                </div>
-            )}
-
             <Table
                 columns={columns}
                 data={alerts}

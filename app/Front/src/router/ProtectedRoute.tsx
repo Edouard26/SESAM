@@ -3,8 +3,12 @@ import { routes } from "./routes";
 import {useAuth} from "../context/AuthContext.tsx";
 
 export default function ProtectedRoute() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading  } = useAuth();
     const location = useLocation();
+
+    if (isLoading) {
+        return null;
+    }
 
     if (!isAuthenticated) {
         return <Navigate to={routes.login} replace state={{ from: location }} />;
