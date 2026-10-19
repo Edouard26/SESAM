@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.dtos.responses;
 
 import lombok.*;
+import net.ent.etnc.backend.models.enums.StatutStage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +17,7 @@ public class StageResponse {
     private String code;
     private LocalDate dateDebut;
     private LocalDate dateFin;
+    private StatutStage statut;
 
     // Liste des ids des stagiaires affectés au stage
     private List<Long> stagiairesId;

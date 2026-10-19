@@ -27,6 +27,7 @@ public class StageAssembler {
                 .code(stage.getCode())
                 .dateDebut(stage.getDateDebut())
                 .dateFin(stage.getDateFin())
+                .statut(stage.getStatut())
                 .stagiairesId(
                         stage.getStagiaires().stream()
                                 .map(s -> s.getId())

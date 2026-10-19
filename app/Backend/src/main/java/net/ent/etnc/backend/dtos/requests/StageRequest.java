@@ -2,6 +2,7 @@ package net.ent.etnc.backend.dtos.requests;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.ent.etnc.backend.models.enums.StatutStage;
 
 import java.time.LocalDate;
 

@@ -5,12 +5,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.ent.etnc.backend.models.commons.AbstractPersistableWithIdSetter;
+import net.ent.etnc.backend.models.enums.StatutStage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -20,7 +20,12 @@ import java.util.Set;
  * Représente un stage.
  *
  * Règle de gestion:
- *      - le stage est placé dans une salle de cours
+ *      - le stage est placé dans une salle de cours.
+ *      - un stage a le statut:
+ *              . {@code A_AFFECTER} si le stage n'est pas affecté à une salle.
+ *              . {@code AFFECTER} si le stage est affectée à une salle et le stage n'est pas encore commencé.
+ *              . {@code EN_COURS} si le stage est commencé et n'est pas terminé.
+ *              . {@code CLOTURER} si le stage est terminé.
  */
 @Entity
 @Table(
@@ -81,4 +86,14 @@ public class Stage extends AbstractPersistableWithIdSetter<Long> {
         @OneToOne(fetch = FetchType.LAZY) // TODO à réfléchir si @ManyToOne ou @OneToOne
         @JoinColumn(name = "salle_cours_id", foreignKey = @ForeignKey(name = "fk___stage___salle_cours_id"), nullable = true)
         private Salle salleCours;
+
+        //LBK
+        @Getter
+        @Setter
+        //BV
+        @NotNull(message = "statut ne peut pas être null")
+        //JPA
+        @Enumerated(value = EnumType.STRING)
+        @Column(name = "statut", nullable = false, length = 15)
+        private StatutStage statut;
 }
