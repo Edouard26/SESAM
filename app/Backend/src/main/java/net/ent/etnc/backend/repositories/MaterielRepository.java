@@ -2,6 +2,7 @@ package net.ent.etnc.backend.repositories;
 
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
+import net.ent.etnc.backend.repositories.specifications.MaterielSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,19 +12,49 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MaterielRepository extends BaseRepository<Materiel> {
 
-    @Query("""
-        SELECT m
-        FROM Salle s
-        JOIN s.materiels m
-        WHERE s.id = :salleId
-    """)
-    Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId);
+//    @Query("""
+//        SELECT m
+//        FROM Salle s
+//        JOIN s.materiels m
+//        WHERE s.id = :salleId
+//    """)
+    default Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId){
+        Specification<Materiel> combinedSpec;
 
-    @Query("""
-        SELECT m
-        FROM Salle s
-        JOIN s.materiels m
-        WHERE s.id != :salleId
-    """)
-    Page<Materiel> findAllByExcludedSalleId(Specification<Materiel> spec, Pageable pageable, Long salleId);
+        if(spec == null){
+            combinedSpec = Specification.where(
+                    MaterielSpecifications.belongsToSalle(salleId));
+        }
+        else{
+            combinedSpec = Specification.where(
+                    MaterielSpecifications.belongsToSalle(salleId))
+                    .and(spec);
+        }
+
+        return findAll(combinedSpec, pageable);
+    }
+
+
+
+//    @Query("""
+//        SELECT m
+//        FROM Salle s
+//        JOIN s.materiels m
+//        WHERE s.id != :salleId
+//    """)
+    default Page<Materiel> findAllByExcludedSalleId(Specification<Materiel> spec, Pageable pageable, Long salleId){
+        Specification<Materiel> combinedSpec;
+
+        if(spec == null){
+            combinedSpec = Specification.where(
+                    MaterielSpecifications.excludeToSalle(salleId));
+        }
+        else{
+            combinedSpec = Specification.where(
+                            MaterielSpecifications.excludeToSalle(salleId))
+                    .and(spec);
+        }
+
+        return findAll(combinedSpec, pageable);
+    }
 }
