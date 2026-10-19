@@ -36,9 +36,10 @@ public class MaterielController {
             "numeroSerie", "numeroSerie",
             "marque", "marque",
             "modele", "modele",
-            "dataAjout", "dataAjout",
+            "dateAjout", "dateAjout",
             "dateFinGarantie", "dateFinGarantie",
-            "etat", "etat"
+            "etat", "etat",
+            "type", "type"
     );
 
     private final MaterielService materielService;

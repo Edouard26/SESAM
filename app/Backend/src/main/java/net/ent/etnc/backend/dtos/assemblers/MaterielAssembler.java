@@ -8,6 +8,9 @@ import net.ent.etnc.backend.models.entities.UniteCentrale;
 import net.ent.etnc.backend.models.entities.VideoProjecteur;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.List;
+
 @Component
 public class MaterielAssembler {
 
@@ -30,6 +33,7 @@ public class MaterielAssembler {
 
     public MaterielResponse toResponseUniteCentrale(UniteCentrale uniteCentrale){
         return responseBuilder(uniteCentrale)
+                .typeMateriel(uniteCentrale.getType().name())
                 .processeur(uniteCentrale.getProcesseur())
                 .carteGraphique(uniteCentrale.getCarteGraphique())
                 .build();
@@ -37,38 +41,40 @@ public class MaterielAssembler {
 
     public MaterielResponse toResponseEcran(Ecran ecran){
         return responseBuilder(ecran)
+                .typeMateriel(ecran.getType().name())
                 .taille(ecran.getTaille())
                 .build();
     }
 
     public MaterielResponse toResponseVideoProjecteur(VideoProjecteur videoProjecteur){
         return responseBuilder(videoProjecteur)
+                .typeMateriel(videoProjecteur.getType().name())
                 .build();
     }
 
     private MaterielResponse.MaterielResponseBuilder responseBuilder(Materiel materiel) {
         return MaterielResponse.builder()
                 .id(materiel.getId())
-                .typeMateriel(materiel.getClass().getSimpleName())
+//                .typeMateriel(materiel.getClass().getSimpleName())
                 .numeroSerie(materiel.getNumeroSerie())
                 .nom(materiel.getNom())
-                .dateAjout(materiel.getDataAjout())
+                .dateAjout(materiel.getDateAjout())
                 .dateFinGarantie(materiel.getDateFinGarantie())
                 .marque(materiel.getMarque())
                 .modele(materiel.getModele())
                 .etat(materiel.getEtat());
     }
 
-//    public List<MaterielResponse> toResponses(Collection<Materiel> materiels) {
-//        return materiels.stream().map(this::toResponse).toList();
-//    }
+    public List<MaterielResponse> toResponses(Collection<Materiel> materiels) {
+        return materiels.stream().map(this::toResponse).toList();
+    }
 
     public MaterielRequest toRequest(Materiel materiel){
         return MaterielRequest.builder()
                 .typeMateriel(materiel.getClass().getSimpleName())
                 .numeroSerie(materiel.getNumeroSerie())
                 .nom(materiel.getNom())
-                .dateAjout(materiel.getDataAjout())
+                .dateAjout(materiel.getDateAjout())
                 .dateFinGarantie(materiel.getDateFinGarantie())
                 .marque(materiel.getMarque())
                 .modele(materiel.getModele())
@@ -83,7 +89,7 @@ public class MaterielAssembler {
         uc.setNom(materielRequest.getNom());
         uc.setModele(materielRequest.getModele());
         uc.setMarque(materielRequest.getMarque());
-        uc.setDataAjout(materielRequest.getDateAjout());
+        uc.setDateAjout(materielRequest.getDateAjout());
         uc.setDateFinGarantie(materielRequest.getDateFinGarantie());
         uc.setEtat(materielRequest.getEtat());
         uc.setProcesseur(materielRequest.getProcesseur());
@@ -99,7 +105,7 @@ public class MaterielAssembler {
         ecran.setNom(materielRequest.getNom());
         ecran.setModele(materielRequest.getModele());
         ecran.setMarque(materielRequest.getMarque());
-        ecran.setDataAjout(materielRequest.getDateAjout());
+        ecran.setDateAjout(materielRequest.getDateAjout());
         ecran.setDateFinGarantie(materielRequest.getDateFinGarantie());
         ecran.setEtat(materielRequest.getEtat());
         ecran.setTaille(materielRequest.getTaille());
@@ -114,7 +120,7 @@ public class MaterielAssembler {
         videoProjecteur.setNom(materielRequest.getNom());
         videoProjecteur.setModele(materielRequest.getModele());
         videoProjecteur.setMarque(materielRequest.getMarque());
-        videoProjecteur.setDataAjout(materielRequest.getDateAjout());
+        videoProjecteur.setDateAjout(materielRequest.getDateAjout());
         videoProjecteur.setDateFinGarantie(materielRequest.getDateFinGarantie());
         videoProjecteur.setEtat(materielRequest.getEtat());
 

@@ -27,7 +27,7 @@ import java.time.LocalDate;
         )}
 )
 @EqualsAndHashCode(callSuper = false, of = {"numeroSerie"})
-@ToString(callSuper = true, of = {"numeroSerie", "marque", "modele", "dataAjout", "dateFinGarantie"})
+@ToString(callSuper = true, of = {"numeroSerie", "marque", "modele", "dataAjout", "dateFinGarantie", "etat"})
 public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
 
         //LBK
@@ -77,7 +77,7 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @NotNull(message = "date d'ajout ne peut pas être null")
         //JPA
         @Column(name = "date_ajout", nullable = false)
-        private LocalDate dataAjout;
+        private LocalDate dateAjout;
 
         //LBK
         @Getter

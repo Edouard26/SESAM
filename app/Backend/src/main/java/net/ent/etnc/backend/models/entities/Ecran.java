@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.ent.etnc.backend.models.enums.TypeMateriel;
 
 /**
  * TODO
@@ -31,4 +32,14 @@ public class Ecran extends Materiel {
         //JPA
         @Column(name = "taille", nullable = true)
         private Integer taille;
+
+        //LBK
+        @Getter
+        @Setter
+        //BV
+        @NotNull(message = "type ne peut pas être null")
+        //JPA
+        @Enumerated(value = EnumType.STRING)
+        @Column(name = "type", nullable = false, length = 20)
+        private TypeMateriel type = TypeMateriel.ECRAN;
 }

@@ -15,7 +15,6 @@ public class UserAssembler {
                 .id(user.getId())
                 .nid(user.getNid())
                 .email(user.getEmail())
-                .password(user.getPassword())
                 .nom(user.getNom())
                 .prenom(user.getPrenom())
                 .dateNaissance(user.getDateNaissance())

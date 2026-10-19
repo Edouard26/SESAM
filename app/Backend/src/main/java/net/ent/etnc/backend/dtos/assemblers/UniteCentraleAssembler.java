@@ -17,7 +17,7 @@ public class UniteCentraleAssembler {
                 .nom(uniteCentrale.getNom())
                 .marque(uniteCentrale.getMarque())
                 .modele(uniteCentrale.getModele())
-                .dateAjout(uniteCentrale.getDataAjout())
+                .dateAjout(uniteCentrale.getDateAjout())
                 .dateFinGarantie(uniteCentrale.getDateFinGarantie())
                 .CPU(uniteCentrale.getProcesseur())
                 .GPU(uniteCentrale.getCarteGraphique())
@@ -33,7 +33,7 @@ public class UniteCentraleAssembler {
 
         uc.setNumeroSerie(uniteCentraleDto.getNumSerie());
         uc.setNom(uniteCentraleDto.getNom());
-        uc.setDataAjout(uniteCentraleDto.getDateAjout());
+        uc.setDateAjout(uniteCentraleDto.getDateAjout());
         uc.setDateFinGarantie(uniteCentraleDto.getDateFinGarantie());
         uc.setMarque(uniteCentraleDto.getMarque());
         uc.setModele(uniteCentraleDto.getModele());
