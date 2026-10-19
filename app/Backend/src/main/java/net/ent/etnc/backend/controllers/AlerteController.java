@@ -7,15 +7,18 @@ import net.ent.etnc.backend.dtos.requests.AlerteSignalementRequest;
 import net.ent.etnc.backend.dtos.responses.AlerteResponse;
 import net.ent.etnc.backend.dtos.assemblers.AlerteAssembler;
 import net.ent.etnc.backend.models.entities.Alerte;
+import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.services.AlerteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,21 +32,32 @@ public class AlerteController {
             "statut"
     );
 
+    private static final Map<String, String> FILTERABLE = Map.of(
+            "statut", "statut"
+    );
+
     private final AlerteService alerteService;
     private final AlerteAssembler assembler;
+
     private final JsonPatchUtils jsonPatchUtils;
+    private final RsqlFilterUtils rsqlFilterUtils;
 
     @Autowired
-    public AlerteController(AlerteService alerteService, AlerteAssembler assembler, JsonPatchUtils jsonPatchUtils) {
+    public AlerteController(AlerteService alerteService, AlerteAssembler assembler, JsonPatchUtils jsonPatchUtils, RsqlFilterUtils rsqlFilterUtils) {
         this.alerteService = alerteService;
         this.assembler = assembler;
         this.jsonPatchUtils = jsonPatchUtils;
+        this.rsqlFilterUtils = rsqlFilterUtils;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('STAGIAIRE') || hasRole('GESTIONNAIRE')")
-    public ResponseEntity<Page<AlerteResponse>> getAll(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(alerteService.findAll(pageable).map(assembler::toResponse));
+    public ResponseEntity<Page<AlerteResponse>> getAll(
+            @RequestParam(required = false) String filter,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        Specification<Alerte> spec = this.rsqlFilterUtils.build(filter, FILTERABLE);
+        return ResponseEntity.ok(alerteService.findAll(spec, pageable).map(assembler::toResponse));
     }
 
     @GetMapping("{id}/")

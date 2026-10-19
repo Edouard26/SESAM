@@ -43,12 +43,12 @@ public class MaterielController {
     );
 
     private final MaterielService materielService;
+    private final SalleService salleService;
 
     private final MaterielAssembler materielAssembler;
 
     private final RsqlFilterUtils rsqlFilterUtils;
     private final JsonPatchUtils jsonPatchUtils;
-    private final SalleService salleService;
 
     @Autowired
     public MaterielController(MaterielService materielService, MaterielAssembler materielAssembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils, SalleService salleService) {
