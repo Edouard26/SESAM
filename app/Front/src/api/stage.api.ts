@@ -1,5 +1,5 @@
 import { api } from "./client.ts";
-import type {Stage, StageForm} from "../types/Stage.ts";
+import type {ImportStagesPayload, Stage, StageForm} from "../types/Stage.ts";
 import type {Page} from "../types/Page.ts";
 import {toRsqlParams} from "./utils/rsql.ts";
 
@@ -15,5 +15,5 @@ export const stageApi = {
         api.patch<Stage>(`/api/v1/stages/${id}/`, body),
     delete: (id: number) =>
         api.delete<void>(`/api/v1/stages/${id}/`),
-    import: (body: StageForm[])=> api.post<void>("/api/v1/stages/import/", body)
+    import: (body: ImportStagesPayload)=> api.post<void>("/api/v1/stages/import/", body)
 };

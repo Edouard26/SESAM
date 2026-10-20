@@ -37,6 +37,8 @@ export const materialAssignmentTemplate: MaterialAssignmentForm = {
     salleId: -1, materielsId: []
 };
 
-export type ImportedMaterial = MaterialForm & {
+
+export type ImportMaterialsPayload = {
     salleId: number;
+    materiels: MaterialForm[];
 };

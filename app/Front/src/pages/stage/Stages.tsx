@@ -6,6 +6,8 @@ import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import { stageApi } from "../../api";
 import { routes } from "../../router/routes.ts";
 import type { Stage, StageStatut } from "../../types/Stage.ts";
+import ImportStagesPopup from "../../components/stage/ImportStagePopup.tsx";
+import {useState} from "react";
 
 const statutLabels: Record<StageStatut, string> = {
     A_AFFECTER: "À affecter",
@@ -16,6 +18,7 @@ const statutLabels: Record<StageStatut, string> = {
 
 export default function Stages() {
     const navigate = useNavigate();
+    const [showImportPopup, setShowImportPopup] = useState(false);
 
     const selects = [
         {
@@ -47,6 +50,7 @@ export default function Stages() {
         setSearch,
         handleFilterChange,
         resetFilters,
+        reload
     } = usePaginatedList({
         load: stageApi.list,
         initialFilters,
@@ -99,9 +103,25 @@ export default function Stages() {
 
     return (
         <>
+            {showImportPopup && (
+                <ImportStagesPopup
+                    onClose={() => setShowImportPopup(false)}
+                    onSubmit={() => {
+                        setShowImportPopup(false);
+                        reload();
+                    }}
+                />
+            )}
             <PageHeader
                 title="Stages"
                 description="Stages chargés depuis SAGAIE et formations du centre."
+                actions={[
+                    {
+                        label: "Importer",
+                        icon: "bi-file-earmark-arrow-down",
+                        onClick: () => setShowImportPopup(true),
+                    },
+                ]}
             />
 
             <Filters

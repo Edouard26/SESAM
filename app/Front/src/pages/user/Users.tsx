@@ -8,10 +8,12 @@ import { Role } from "../../types/Role.ts";
 import Badge from "../../components/generic/display/Badge.tsx";
 import UserPopup from "../../components/user/UserPopup.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
+import ImportUsersPopup from "../../components/user/ImportUsersPopup.tsx";
 
 export default function Users() {
     const [showUserPopup, setShowUserPopup] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | undefined>();
+    const [showImportPopup, setShowImportPopup] = useState(false);
 
     const selects = [
         {
@@ -119,6 +121,15 @@ export default function Users() {
 
     return (
         <>
+            {showImportPopup && (
+                <ImportUsersPopup
+                    onClose={() => setShowImportPopup(false)}
+                    onSubmit={() => {
+                        setShowImportPopup(false);
+                        reload();
+                    }}
+                />
+            )}
             {showUserPopup && (
                 <UserPopup
                     user={selectedUser}
@@ -143,6 +154,11 @@ export default function Users() {
                             setSelectedUser(undefined);
                             setShowUserPopup(true);
                         },
+                    },
+                    {
+                        label: "Importer",
+                        icon: "bi-file-earmark-arrow-down",
+                        onClick: () => setShowImportPopup(true),
                     },
                 ]}
             />

@@ -1,5 +1,5 @@
 import { api } from "./client.ts";
-import type {ImportedUser, User, UserForm} from "../types/User.ts";
+import type {ImportUsersPayload, User, UserForm} from "../types/User.ts";
 import type {Page} from "../types/Page.ts";
 import {toRsqlParams} from "./utils/rsql.ts";
 
@@ -15,5 +15,5 @@ export const userApi = {
         api.patch<User>(`/api/v1/users/${id}/`, body),
     delete: (id: number) =>
         api.delete<void>(`/api/v1/users/${id}/`),
-    import: (body: ImportedUser[])=> api.post<void>("/api/v1/users/import/", body)
+    import: (body: ImportUsersPayload)=> api.post<void>("/api/v1/users/import/", body)
 };

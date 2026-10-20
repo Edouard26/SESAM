@@ -12,3 +12,9 @@ export type Stage = {
 
 export type StageForm = Omit<Stage, "id" | "stagiairesId" | "statut"> & {
 };
+
+export type StageImport = Omit<StageForm, "salleId">;
+
+export type ImportStagesPayload = {
+    stages: StageImport[];
+};

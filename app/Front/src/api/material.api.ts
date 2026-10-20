@@ -1,5 +1,10 @@
 import { api } from "./client.ts";
-import type {ImportedMaterial, Material, MaterialAssignmentForm, MaterialForm} from "../types/Material.ts";
+import type {
+    ImportMaterialsPayload,
+    Material,
+    MaterialAssignmentForm,
+    MaterialForm
+} from "../types/Material.ts";
 import type {Page} from "../types/Page.ts";
 import {toRsqlParams} from "./utils/rsql.ts";
 
@@ -16,5 +21,5 @@ export const materialApi = {
     delete: (id: number) =>
         api.delete<void>(`/api/v1/materials/${id}/`),
     assignments: (body: MaterialAssignmentForm)=> api.post<void>("/api/v1/materials/assignments/", body),
-    import: (body: ImportedMaterial[])=> api.post<void>("/api/v1/materials/import/", body)
+    import: (body: ImportMaterialsPayload)=> api.post<void>("/api/v1/materials/import/", body)
 };
