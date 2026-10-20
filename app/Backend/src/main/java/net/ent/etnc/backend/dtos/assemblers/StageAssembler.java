@@ -33,7 +33,7 @@ public class StageAssembler {
                                 .map(s -> s.getId())
                                 .toList()
                 )
-                .salleId(stage.getSalleCours().getId())
+                .salleId(stage.getSalleCours() == null ? null : stage.getSalleCours().getId())
                 .build();
     }
 

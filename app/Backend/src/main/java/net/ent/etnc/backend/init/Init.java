@@ -38,8 +38,9 @@ public class Init implements CommandLineRunner {
     private final BatimentService batimentService;
     private final SalleService salleService;
     private final AlerteService alerteService;
+    private final StageService stageService;
 
-    public Init(UserService userService, MaterielService materielService, UniteCentraleService uniteCentraleService, EcranService ecranService, VideoProjecteurService videoProjecteurService, BatimentService batimentService, SalleService salleService, AlerteService alerteService) {
+    public Init(UserService userService, MaterielService materielService, UniteCentraleService uniteCentraleService, EcranService ecranService, VideoProjecteurService videoProjecteurService, BatimentService batimentService, SalleService salleService, AlerteService alerteService, StageService stageService) {
         this.userService = userService;
         this.materielService = materielService;
         this.uniteCentraleService = uniteCentraleService;
@@ -48,6 +49,7 @@ public class Init implements CommandLineRunner {
         this.batimentService = batimentService;
         this.salleService = salleService;
         this.alerteService = alerteService;
+        this.stageService = stageService;
     }
 
     @Override
@@ -60,6 +62,8 @@ public class Init implements CommandLineRunner {
             initBatimentSalle();
         if(alerteService.count() <= 0)
             initAlerte();
+        if(stageService.count() == 0)
+            initStage();
     }
 
     private void initUsers() throws ServiceException {
@@ -220,6 +224,23 @@ public class Init implements CommandLineRunner {
         alerte.setStatut(statut);
 
         return alerte;
+    }
+
+    private void initStage(){
+        stageService.create(buildStage("WB47", LocalDate.now().minusMonths(8), LocalDate.now().plusMonths(1), salleService.findById(1L).get(), StatutStage.EN_COURS));
+        stageService.create(buildStage("WB48", LocalDate.now().plusDays(8), LocalDate.now().plusMonths(8), null, StatutStage.A_AFFECTER));
+    }
+
+    private Stage buildStage(String code, LocalDate dateDebut, LocalDate dateFin, Salle salleCours, StatutStage statut){
+        Stage stage = new Stage();
+
+        stage.setCode(code);
+        stage.setDateDebut(dateDebut);
+        stage.setDateFin(dateFin);
+        stage.setSalleCours(salleCours);
+        stage.setStatut(statut);
+
+        return stage;
     }
 
     /**
