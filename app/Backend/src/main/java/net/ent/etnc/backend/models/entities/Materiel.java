@@ -27,7 +27,7 @@ import java.time.LocalDate;
         )}
 )
 @EqualsAndHashCode(callSuper = false, of = {"numeroSerie"})
-@ToString(callSuper = true, of = {"numeroSerie", "marque", "modele", "dataAjout", "dateFinGarantie", "etat"})
+@ToString(callSuper = true, of = {"numeroSerie", "marque", "modele", "dateAjout", "dateFinGarantie", "etat"})
 public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
 
         //LBK

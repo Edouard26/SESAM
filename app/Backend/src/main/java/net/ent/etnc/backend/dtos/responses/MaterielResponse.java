@@ -2,6 +2,7 @@ package net.ent.etnc.backend.dtos.responses;
 
 import lombok.*;
 import net.ent.etnc.backend.models.enums.EtatMateriel;
+import net.ent.etnc.backend.models.enums.TypeMateriel;
 
 import java.time.LocalDate;
 
@@ -13,7 +14,8 @@ import java.time.LocalDate;
 public class MaterielResponse {
     private long id;
 
-    private String typeMateriel;
+//    private String typeMateriel;
+    private TypeMateriel typeMateriel;
 
     private String numeroSerie;
     private String nom;

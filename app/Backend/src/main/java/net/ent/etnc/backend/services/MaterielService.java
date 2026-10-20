@@ -13,4 +13,7 @@ public interface MaterielService extends Service<Materiel, Long> {
 
     @Transactional(readOnly = true)
     Page<Materiel> findAllByExcludedSalleId(Specification<Materiel> spec, Pageable pageable, Long salleId);
+
+    @Transactional(readOnly = true)
+    Boolean existsByNumeroSerie(String numeroSerie);
 }

@@ -1,6 +1,8 @@
 package net.ent.etnc.backend.dtos.assemblers;
 
+import net.ent.etnc.backend.dtos.requests.MaterielImportRequest;
 import net.ent.etnc.backend.dtos.requests.MaterielRequest;
+import net.ent.etnc.backend.dtos.responses.MaterielImportResponse;
 import net.ent.etnc.backend.dtos.responses.MaterielResponse;
 import net.ent.etnc.backend.models.entities.Ecran;
 import net.ent.etnc.backend.models.entities.Materiel;
@@ -31,9 +33,16 @@ public class MaterielAssembler {
         }
     }
 
+    public MaterielImportResponse toResponseImport(Long salleId, List<Materiel> materiels){
+        return MaterielImportResponse.builder()
+                .salleId(salleId)
+                .materiels(toResponses(materiels))
+                .build();
+    }
+
     public MaterielResponse toResponseUniteCentrale(UniteCentrale uniteCentrale){
         return responseBuilder(uniteCentrale)
-                .typeMateriel(uniteCentrale.getType().name())
+                .typeMateriel(uniteCentrale.getType())
                 .processeur(uniteCentrale.getProcesseur())
                 .carteGraphique(uniteCentrale.getCarteGraphique())
                 .build();
@@ -41,14 +50,14 @@ public class MaterielAssembler {
 
     public MaterielResponse toResponseEcran(Ecran ecran){
         return responseBuilder(ecran)
-                .typeMateriel(ecran.getType().name())
+                .typeMateriel(ecran.getType())
                 .taille(ecran.getTaille())
                 .build();
     }
 
     public MaterielResponse toResponseVideoProjecteur(VideoProjecteur videoProjecteur){
         return responseBuilder(videoProjecteur)
-                .typeMateriel(videoProjecteur.getType().name())
+                .typeMateriel(videoProjecteur.getType())
                 .build();
     }
 
@@ -71,7 +80,6 @@ public class MaterielAssembler {
 
     public MaterielRequest toRequest(Materiel materiel){
         return MaterielRequest.builder()
-                .typeMateriel(materiel.getClass().getSimpleName())
                 .numeroSerie(materiel.getNumeroSerie())
                 .nom(materiel.getNom())
                 .dateAjout(materiel.getDateAjout())
@@ -86,6 +94,7 @@ public class MaterielAssembler {
         UniteCentrale uc = new UniteCentrale();
 
         uc.setNumeroSerie(materielRequest.getNumeroSerie());
+        uc.setType(materielRequest.getTypeMateriel());
         uc.setNom(materielRequest.getNom());
         uc.setModele(materielRequest.getModele());
         uc.setMarque(materielRequest.getMarque());
@@ -102,6 +111,7 @@ public class MaterielAssembler {
         Ecran ecran = new Ecran();
 
         ecran.setNumeroSerie(materielRequest.getNumeroSerie());
+        ecran.setType(materielRequest.getTypeMateriel());
         ecran.setNom(materielRequest.getNom());
         ecran.setModele(materielRequest.getModele());
         ecran.setMarque(materielRequest.getMarque());
@@ -117,6 +127,7 @@ public class MaterielAssembler {
         VideoProjecteur videoProjecteur = new VideoProjecteur();
 
         videoProjecteur.setNumeroSerie(materielRequest.getNumeroSerie());
+        videoProjecteur.setType(materielRequest.getTypeMateriel());
         videoProjecteur.setNom(materielRequest.getNom());
         videoProjecteur.setModele(materielRequest.getModele());
         videoProjecteur.setMarque(materielRequest.getMarque());

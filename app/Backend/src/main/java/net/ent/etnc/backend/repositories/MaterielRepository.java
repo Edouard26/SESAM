@@ -57,4 +57,6 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
 
         return findAll(combinedSpec, pageable);
     }
+
+    Boolean existsByNumeroSerie(String numeroSerie);
 }

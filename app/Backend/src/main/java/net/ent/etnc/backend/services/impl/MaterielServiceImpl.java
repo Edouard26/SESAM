@@ -28,4 +28,10 @@ public class MaterielServiceImpl extends AbstractService<Materiel, MaterielRepos
     public Page<Materiel> findAllByExcludedSalleId(Specification<Materiel> spec, Pageable pageable, Long salleId){
         return repository.findAllByExcludedSalleId(spec, pageable, salleId);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean existsByNumeroSerie(String numeroSerie){
+        return repository.existsByNumeroSerie(numeroSerie);
+    }
 }

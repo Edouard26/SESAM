@@ -4,11 +4,16 @@ import net.ent.etnc.backend.commons.JsonPatchUtils;
 import net.ent.etnc.backend.commons.RsqlFilterUtils;
 import net.ent.etnc.backend.dtos.assemblers.UniteCentraleAssembler;
 import net.ent.etnc.backend.dtos.requests.MaterielAffectationRequest;
+import net.ent.etnc.backend.dtos.requests.MaterielImportRequest;
 import net.ent.etnc.backend.dtos.requests.MaterielRequest;
+import net.ent.etnc.backend.dtos.responses.MaterielImportResponse;
 import net.ent.etnc.backend.dtos.responses.MaterielResponse;
 import net.ent.etnc.backend.dtos.assemblers.MaterielAssembler;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Salle;
+import net.ent.etnc.backend.models.entities.UniteCentrale;
+import net.ent.etnc.backend.models.enums.EtatMateriel;
+import net.ent.etnc.backend.models.enums.TypeMateriel;
 import net.ent.etnc.backend.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -90,13 +95,13 @@ public class MaterielController {
     public ResponseEntity<MaterielResponse> post(@RequestBody MaterielRequest materielRequest) {
 
         switch (materielRequest.getTypeMateriel()) {
-            case "UniteCentrale" -> {
+            case TypeMateriel.UC -> {
                 return ResponseEntity.ok(materielAssembler.toResponse(materielService.create(materielAssembler.toUniteCentrale(materielRequest))));
             }
-            case "Ecran" -> {
+            case TypeMateriel.ECRAN -> {
                 return ResponseEntity.ok(materielAssembler.toResponse(materielService.create(materielAssembler.toEcran(materielRequest))));
             }
-            case "VideoProjecteur" -> {
+            case TypeMateriel.VIDEO_PROJECTEUR -> {
                 return ResponseEntity.ok(materielAssembler.toResponse(materielService.create(materielAssembler.toVideoProjecteur(materielRequest))));
             }
             default -> {
@@ -104,6 +109,44 @@ public class MaterielController {
             }
         }
 
+    }
+
+    @PostMapping("import/")
+    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    public ResponseEntity<MaterielImportResponse> postImport(@RequestBody MaterielImportRequest materielImportRequest){
+        Optional<Salle> optionalSalle = salleService.findById(materielImportRequest.getSalleId());
+        if(optionalSalle.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Materiel> materiels = new ArrayList<>();
+        for(MaterielRequest materielRequest : materielImportRequest.getMateriels()){
+            // TODO code dupliquer, créer une fonction
+            Materiel materiel;
+            switch (materielRequest.getTypeMateriel()) {
+                case TypeMateriel.UC -> {
+                    materiel = materielAssembler.toUniteCentrale(materielRequest);
+                }
+                case TypeMateriel.ECRAN -> {
+                    materiel = materielAssembler.toEcran(materielRequest);
+                }
+                case TypeMateriel.VIDEO_PROJECTEUR -> {
+                    materiel = materielAssembler.toVideoProjecteur(materielRequest);
+                }
+                default -> {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+            materiel.setEtat(EtatMateriel.EN_ETAT);
+            if(!materielService.existsByNumeroSerie(materiel.getNumeroSerie())) {
+                materielService.create(materiel);
+                optionalSalle.get().getMateriels().add(materiel);
+                materiels.add(materiel);
+            }
+        }
+        salleService.update(optionalSalle.get());
+
+        return ResponseEntity.ok(materielAssembler.toResponseImport(optionalSalle.get().getId(), materiels));
     }
 
     @PatchMapping(value = "{id}/")
@@ -115,13 +158,13 @@ public class MaterielController {
 
         Materiel entity;
         switch (patched.getTypeMateriel()){
-            case "UniteCentrale" -> {
+            case TypeMateriel.UC -> {
                 entity = materielAssembler.toUniteCentrale(patched);
             }
-            case "Ecran" -> {
+            case TypeMateriel.ECRAN -> {
                 entity = materielAssembler.toEcran(patched);
             }
-            case "VideoProjecteur" -> {
+            case TypeMateriel.VIDEO_PROJECTEUR -> {
                 entity = materielAssembler.toVideoProjecteur(patched);
             }
             default -> {

@@ -20,7 +20,7 @@ public class UniteCentrale extends Materiel {
         @Setter
         //BV
         //JPA
-        @Column(name = "processeur", nullable = true, length = 20)
+        @Column(name = "processeur", nullable = true, length = 30)
         private String processeur;
 
         //LBK
@@ -28,7 +28,7 @@ public class UniteCentrale extends Materiel {
         @Setter
         //BV
         //JPA
-        @Column(name = "carte_graphique", nullable = true, length = 20)
+        @Column(name = "carte_graphique", nullable = true, length = 30)
         private String carteGraphique;
 
         //LBK
