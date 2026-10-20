@@ -55,6 +55,7 @@ public enum Grade {
     GENERAL_DIVISION("Général de division", "GDA"),
     GENERAL_CORPS_ARMEE("Général de corps d'armée", "GCA"),
     GENERAL_ARMEE("Général d'armée", "GA"),
+    // Marine national
     CONTRE_AMIRAL("Contre-amiral", "CA"),
     VICE_AMIRAL("Vice-amiral", "VA"),
     VICE_AMIRAL_ESCADRE("Vice-amiral d'escadre", "VAE"),

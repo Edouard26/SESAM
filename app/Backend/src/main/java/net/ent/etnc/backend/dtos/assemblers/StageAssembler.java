@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.dtos.assemblers;
 
 import net.ent.etnc.backend.dtos.requests.StageRequest;
+import net.ent.etnc.backend.dtos.responses.StageImportResponse;
 import net.ent.etnc.backend.dtos.responses.StageResponse;
 import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.entities.Stage;
@@ -37,8 +38,10 @@ public class StageAssembler {
                 .build();
     }
 
-    public List<StageResponse> toResponses(Collection<Stage> stages) {
-        return stages.stream().map(this::toResponse).toList();
+    public StageImportResponse toResponses(Collection<Stage> stages) {
+        return StageImportResponse.builder()
+                .stages(stages.stream().map(this::toResponse).toList())
+                .build();
     }
 
     public Stage toEntity(StageRequest stageRequest) {

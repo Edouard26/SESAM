@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * Règle de gestion:
  *      - le stage est placé dans une salle de cours.
- *      - un stage a le statut: TODO
+ *      - un stage a le statut: TODO faire ces RG
  *              . {@code A_AFFECTER} si le stage n'est pas affecté à une salle.
  *              . {@code AFFECTER} si le stage est affectée à une salle et le stage n'est pas encore commencé.
  *              . {@code EN_COURS} si le stage est commencé et n'est pas terminé.

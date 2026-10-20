@@ -2,7 +2,9 @@ package net.ent.etnc.backend.controllers;
 
 import net.ent.etnc.backend.commons.JsonPatchUtils;
 import net.ent.etnc.backend.commons.RsqlFilterUtils;
+import net.ent.etnc.backend.dtos.requests.StageImportRequest;
 import net.ent.etnc.backend.dtos.requests.StageRequest;
+import net.ent.etnc.backend.dtos.responses.StageImportResponse;
 import net.ent.etnc.backend.dtos.responses.StageResponse;
 import net.ent.etnc.backend.dtos.assemblers.StageAssembler;
 import net.ent.etnc.backend.models.entities.Materiel;
@@ -76,16 +78,15 @@ public class StageController {
 
     @PostMapping("import/")
     @PreAuthorize("hasRole('GESTIONNAIRE')")
-    public ResponseEntity<List<StageResponse>> postImport(@RequestBody List<StageRequest> stageRequests) {
+    public ResponseEntity<StageImportResponse> postImport(@RequestBody StageImportRequest stageImportRequest) {
         List<Stage> stages = new ArrayList<>();
-        for(StageRequest stageRequest : stageRequests){
+        for(StageRequest stageRequest : stageImportRequest.getStages()){
             Stage stage = assembler.toEntity(stageRequest);
             if(!stageService.existsByCode(stage.getCode())){
                 stage.setStatut(StatutStage.A_AFFECTER);
                 stageService.create(stage);
             }
         }
-        // TODO ça ne renvoi rien, à résoudre
         return ResponseEntity.ok(assembler.toResponses(stages));
     }
 
@@ -95,8 +96,10 @@ public class StageController {
         Optional<Stage> existing = stageService.findById(id);
         if (existing.isEmpty()) return ResponseEntity.notFound().build();
         StageRequest patched = jsonPatchUtils.apply(patch, assembler.toRequest(existing.get()), StageRequest.class, PATCHABLE);
+
         Stage entity = assembler.toEntity(patched);
         entity.setId(id);
+        // on a attribuer une salle au stage, le stage passe en statut AFFECTER
         entity.setStatut(StatutStage.AFFECTER);
         entity = stageService.update(entity);
         return ResponseEntity.ok(assembler.toResponse(entity));
