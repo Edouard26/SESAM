@@ -1,11 +1,13 @@
 package net.ent.etnc.backend.controllers;
 
+import net.ent.etnc.backend.commons.JsonPatchUtils;
 import net.ent.etnc.backend.commons.RsqlFilterUtils;
 import net.ent.etnc.backend.dtos.requests.StageRequest;
 import net.ent.etnc.backend.dtos.responses.StageResponse;
 import net.ent.etnc.backend.dtos.assemblers.StageAssembler;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Stage;
+import net.ent.etnc.backend.models.enums.StatutStage;
 import net.ent.etnc.backend.services.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * TODO
@@ -30,16 +32,22 @@ public class StageController {
             "statut", "statut"
     );
 
+    private static final Set<String> PATCHABLE = Set.of(
+            "salleId"
+    );
+
     private final StageService stageService;
     private final StageAssembler assembler;
 
     private final RsqlFilterUtils rsqlFilterUtils;
+    private final JsonPatchUtils jsonPatchUtils;
 
     @Autowired
-    public StageController(StageService stageService, StageAssembler assembler, RsqlFilterUtils rsqlFilterUtils) {
+    public StageController(StageService stageService, StageAssembler assembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils) {
         this.stageService = stageService;
         this.assembler = assembler;
         this.rsqlFilterUtils = rsqlFilterUtils;
+        this.jsonPatchUtils = jsonPatchUtils;
     }
 
     @GetMapping
@@ -64,5 +72,33 @@ public class StageController {
     @PreAuthorize("hasRole('GESTIONNAIRE')")
     public ResponseEntity<StageResponse> post(@RequestBody StageRequest stageRequest) {
         return ResponseEntity.ok(assembler.toResponse(stageService.create(assembler.toEntity(stageRequest))));
+    }
+
+    @PostMapping("import/")
+    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    public ResponseEntity<List<StageResponse>> postImport(@RequestBody List<StageRequest> stageRequests) {
+        List<Stage> stages = new ArrayList<>();
+        for(StageRequest stageRequest : stageRequests){
+            Stage stage = assembler.toEntity(stageRequest);
+            if(!stageService.existsByCode(stage.getCode())){
+                stage.setStatut(StatutStage.A_AFFECTER);
+                stageService.create(stage);
+            }
+        }
+        // TODO ça ne renvoi rien, à résoudre
+        return ResponseEntity.ok(assembler.toResponses(stages));
+    }
+
+    @PatchMapping("{id}/")
+    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    public ResponseEntity<StageResponse> patch(@PathVariable Long id, @RequestBody String patch){
+        Optional<Stage> existing = stageService.findById(id);
+        if (existing.isEmpty()) return ResponseEntity.notFound().build();
+        StageRequest patched = jsonPatchUtils.apply(patch, assembler.toRequest(existing.get()), StageRequest.class, PATCHABLE);
+        Stage entity = assembler.toEntity(patched);
+        entity.setId(id);
+        entity.setStatut(StatutStage.AFFECTER);
+        entity = stageService.update(entity);
+        return ResponseEntity.ok(assembler.toResponse(entity));
     }
 }

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StageRepository extends BaseRepository<Stage> {
+
+    Boolean existsByCode(String code);
 }

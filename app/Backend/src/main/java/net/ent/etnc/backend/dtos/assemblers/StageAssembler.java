@@ -37,7 +37,7 @@ public class StageAssembler {
                 .build();
     }
 
-    public List<StageResponse> toDtos(Collection<Stage> stages) {
+    public List<StageResponse> toResponses(Collection<Stage> stages) {
         return stages.stream().map(this::toResponse).toList();
     }
 
@@ -56,5 +56,14 @@ public class StageAssembler {
         }
 
         return stage;
+    }
+
+    public StageRequest toRequest(Stage stage){
+        return StageRequest.builder()
+                .code(stage.getCode())
+                .dateDebut(stage.getDateDebut())
+                .dateFin(stage.getDateFin())
+                .salleId(stage.getSalleCours() == null ? null : stage.getSalleCours().getId())
+                .build();
     }
 }

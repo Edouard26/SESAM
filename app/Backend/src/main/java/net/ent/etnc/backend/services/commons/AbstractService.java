@@ -1,6 +1,8 @@
 package net.ent.etnc.backend.services.commons;
 
+import jakarta.validation.groups.Default;
 import net.ent.etnc.backend.models.commons.AbstractPersistableWithIdSetter;
+import net.ent.etnc.backend.models.validators.groups.UpdateGroup;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +46,7 @@ public class AbstractService<T extends AbstractPersistableWithIdSetter<Long>, R 
 
     @Override
     @Transactional
+    @Validated({Default.class, UpdateGroup.class})
     public T update(T entity) throws ServiceException {
         if (entity.getId() == null) {
             throw new ServiceException("L'ID de l'entité ne peut pas être null pour une mise à jour.");
