@@ -39,4 +39,10 @@ public class UserServiceImpl extends AbstractService<User, UserRepository> imple
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return repository.save(user);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean existsByNid(String nid){
+        return repository.existsByNid(nid);
+    }
 }

@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.dtos.assemblers;
 
 import net.ent.etnc.backend.dtos.UserDto;
+import net.ent.etnc.backend.dtos.requests.StagiaireRequest;
 import net.ent.etnc.backend.models.entities.User;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,19 @@ public class UserAssembler {
         user.setGrade(userDto.getGrade());
         user.setRole(userDto.getRole());
         user.setActive(userDto.getActive());
+
+        return user;
+    }
+
+    public User toEntity(StagiaireRequest stagiaireRequest){
+        User user = new User();
+
+        user.setNom(stagiaireRequest.getNom());
+        user.setPrenom(stagiaireRequest.getPrenom());
+        user.setNid(stagiaireRequest.getNid());
+        user.setEmail(stagiaireRequest.getEmail());
+        user.setDateNaissance(stagiaireRequest.getDateNaissance());
+        user.setGrade(stagiaireRequest.getGrade());
 
         return user;
     }
