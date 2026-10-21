@@ -46,7 +46,6 @@ public class AbstractService<T extends AbstractPersistableWithIdSetter<Long>, R 
 
     @Override
     @Transactional
-    @Validated({Default.class, UpdateGroup.class})
     public T update(T entity) throws ServiceException {
         if (entity.getId() == null) {
             throw new ServiceException("L'ID de l'entité ne peut pas être null pour une mise à jour.");
