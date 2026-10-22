@@ -9,6 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
+
 public interface MaterielService extends Service<Materiel, Long> {
     @Transactional(readOnly = true)
     Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId);
@@ -24,4 +27,7 @@ public interface MaterielService extends Service<Materiel, Long> {
 
     @Transactional(readOnly = true)
     Page<Materiel> findAllMaterielAffectToStagiaire(User stagiaire, Pageable pageable);
+
+    @Transactional(readOnly = true)
+    List<Materiel> findAllByIdIn(Collection<Long> ids);
 }

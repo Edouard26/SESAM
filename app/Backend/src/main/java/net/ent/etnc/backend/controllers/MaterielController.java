@@ -205,13 +205,7 @@ public class MaterielController {
         Optional<Salle> optionalSalle = salleService.findById(materielAffectationRequest.getSalleId());
         if(optionalSalle.isEmpty()) return ResponseEntity.notFound().build();
 
-        // TODO faire qu'une seul requete à la bdd
-        for(Long materielID : materielAffectationRequest.getMaterielsId()){
-            Optional<Materiel> optionalMateriel = materielService.findById(materielID);
-            if(optionalMateriel.isPresent()){
-                optionalSalle.get().getMateriels().add(optionalMateriel.get());
-            }
-        }
+        optionalSalle.get().getMateriels().addAll(materielService.findAllByIdIn(materielAffectationRequest.getMaterielsId()));
         salleService.update(optionalSalle.get());
 
         return ResponseEntity.ok().build();

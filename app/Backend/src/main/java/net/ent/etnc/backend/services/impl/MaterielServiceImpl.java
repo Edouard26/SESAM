@@ -12,6 +12,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
+
 @Service
 public class MaterielServiceImpl extends AbstractService<Materiel, MaterielRepository> implements MaterielService {
 
@@ -47,5 +50,11 @@ public class MaterielServiceImpl extends AbstractService<Materiel, MaterielRepos
     @Override
     public Page<Materiel> findAllMaterielAffectToStagiaire(User stagiaire, Pageable pageable){
         return repository.findAllMaterielAffectToStagiaire(stagiaire, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Materiel> findAllByIdIn(Collection<Long> ids){
+        return repository.findAllByIdIn(ids);
     }
 }

@@ -11,6 +11,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
+
 @Repository
 public interface MaterielRepository extends BaseRepository<Materiel> {
 
@@ -86,4 +89,6 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
         WHERE u = :stagiaire
     """)
     Page<Materiel> findAllMaterielAffectToStagiaire(User stagiaire, Pageable pageable);
+
+    List<Materiel> findAllByIdIn(Collection<Long> ids);
 }
