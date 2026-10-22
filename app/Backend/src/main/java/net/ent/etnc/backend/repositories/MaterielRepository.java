@@ -2,6 +2,7 @@ package net.ent.etnc.backend.repositories;
 
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Salle;
+import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import net.ent.etnc.backend.repositories.specifications.MaterielSpecifications;
 import org.springframework.data.domain.Page;
@@ -77,4 +78,12 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
         WHERE m = :materiel
     """)
     Boolean isAffectedToStagiaire(Materiel materiel);
+
+    @Query("""
+        SELECT m
+        FROM User u
+        JOIN u.materiels m
+        WHERE u = :stagiaire
+    """)
+    Page<Materiel> findAllMaterielAffectToStagiaire(User stagiaire, Pageable pageable);
 }

@@ -12,7 +12,9 @@ import net.ent.etnc.backend.dtos.assemblers.MaterielAssembler;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.entities.UniteCentrale;
+import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.models.enums.EtatMateriel;
+import net.ent.etnc.backend.models.enums.Role;
 import net.ent.etnc.backend.models.enums.TypeMateriel;
 import net.ent.etnc.backend.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -67,12 +70,27 @@ public class MaterielController {
     @GetMapping
     @PreAuthorize("hasRole('GESTIONNAIRE') || hasRole('STAGIAIRE')")
     public ResponseEntity<Page<MaterielResponse>> getAll(
+            Authentication authentication,
             @RequestParam(required = false) String filter,
             @PageableDefault(size = 10) Pageable pageable,
             @RequestParam(required = false) Long salleId,
             @RequestParam(required = false) Long excludeSalleId
     ) {
+        User curentUser = (User) authentication.getPrincipal();
+
+        // Si c'est un stagiaire, on renvoie les matériels affectés au stagiaire.
+        if(curentUser.getRole() == Role.STAGIAIRE){
+            return ResponseEntity.ok(materielService.findAllMaterielAffectToStagiaire(curentUser, pageable).map(materielAssembler::toResponse));
+        }
+
         Specification<Materiel> spec = this.rsqlFilterUtils.build(filter, FILTERABLE);
+
+        // Si c'est un formateur, on renvoie les matériels affectés à la salle dans laquel il est.
+        if(curentUser.getRole() == Role.FORMATEUR){
+            return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId).map(materielAssembler::toResponse));
+        }
+
+        // Si c'est c'est un gestionnaire ou un administrateur, on renvoie les matériels du parc informatique.
         if(salleId != null){
             return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId).map(materielAssembler::toResponse));
         }
