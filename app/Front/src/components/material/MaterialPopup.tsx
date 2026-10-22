@@ -7,6 +7,7 @@ import {
 } from "../../types/Material";
 import {ApiError, materialApi} from "../../api";
 import useNotification from "../../hooks/useNotification.ts";
+import RequiredFieldMessage from "../generic/form/RequiredFieldMessage.tsx";
 
 
 type Props = {
@@ -233,7 +234,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                         />
                     </div>
 
-                    {values.typeMateriel === "UniteCentral" && (
+                    {values.typeMateriel === "UC" && (
                         <>
                             <div className="col-12 col-md-6">
                                 <label htmlFor="processeur" className="form-label">
@@ -261,7 +262,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                         </>
                     )}
 
-                    {values.typeMateriel === "Ecran" && (
+                    {values.typeMateriel === "ECRAN" && (
                         <div className="col-12 col-md-6">
                             <label htmlFor="taille" className="form-label">
                                 Taille (pouces) <span className="text-danger">*</span>
@@ -276,6 +277,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                         </div>
                     )}
                 </div>
+                <RequiredFieldMessage formId="material-form" />
             </form>
         </Popup>
     );

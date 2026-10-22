@@ -11,7 +11,14 @@ import {toRsqlParams} from "./utils/rsql.ts";
 export const materialApi = {
     list: (params?: Record<string, string | number | boolean | undefined>) =>
         api.get<Page<Material>>("/api/v1/materials/", toRsqlParams(params, {
-            orFields: { search: ["numeroSerie", "marque", "modele"] },
+            fieldMap: {
+                salleId: "salle.id",
+                stagiaire: "stagiaire",
+            },
+            nullFields: ["stagiaire"],
+            orFields: {
+                search: ["numeroSerie", "marque", "modele", "nom"],
+            },
         })),
     get: (id: number) => api.get<Material>(`/api/v1/materials/${id}/`),
     create: (body: MaterialForm) =>

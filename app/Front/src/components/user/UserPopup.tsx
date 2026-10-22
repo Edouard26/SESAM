@@ -5,6 +5,7 @@ import { Role } from "../../types/Role.ts";
 import { Grade } from "../../types/Grade.ts";
 import useNotification from "../../hooks/useNotification.ts";
 import Popup from "../generic/overlay/Popup";
+import RequiredFieldMessage from "../generic/form/RequiredFieldMessage.tsx";
 
 type Props = {
     user?: User;
@@ -164,6 +165,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
                             className="form-select"
                             value={form.grade}
                             onChange={(e) => setField("grade", e.target.value as keyof typeof Grade)}
+                            required
                         >
                             {Object.keys(Grade)
                                 .filter((grade) => isNaN(Number(grade)))
@@ -181,6 +183,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
                             className="form-select"
                             value={form.role}
                             onChange={(e) => setField("role", Number(e.target.value) as Role)}
+                            required
                         >
                             {Object.values(Role)
                                 .filter((value): value is Role => typeof value === "number")
@@ -199,6 +202,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
                                 className="form-check-input"
                                 checked={form.active}
                                 onChange={(e) => setField("active", e.target.checked)}
+                                required
                             />
                             <label className="form-check-label" htmlFor="user-active">
                                 Compte actif
@@ -206,6 +210,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
                         </div>
                     </div>
                 </div>
+                <RequiredFieldMessage formId={FORM_ID} />
             </form>
         </Popup>
     );

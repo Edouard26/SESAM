@@ -23,6 +23,11 @@ export type MaterialAssignmentForm = {
     materielsId: number[];
 }
 
+export type MaterialAssignmentUserForm = {
+    stagiaireId: number;
+    materielsId: number[];
+}
+
 export const materialTemplate: MaterialForm = {
     typeMateriel: "",
     numeroSerie: "",
@@ -35,6 +40,10 @@ export const materialTemplate: MaterialForm = {
 
 export const materialAssignmentTemplate: MaterialAssignmentForm = {
     salleId: -1, materielsId: []
+};
+
+export const materialAssignmentUserTemplate: MaterialAssignmentUserForm = {
+    stagiaireId: -1, materielsId: []
 };
 
 

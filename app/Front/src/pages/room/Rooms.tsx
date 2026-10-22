@@ -2,7 +2,7 @@ import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
 import CardTable from "../../components/generic/display/CardTable.tsx";
 import { useNavigate } from "react-router-dom";
-import { roomApi } from "../../api";
+import {roomApi} from "../../api";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import RoomPopup from "../../components/room/RoomPopup.tsx";
 import {useState} from "react";
@@ -14,7 +14,7 @@ export default function Rooms() {
 
     const selects = [
         {
-            name: "type",
+            name: "typeSalle",
             label: "Type de salle",
             options: [
                 { label: "Tous", value: "" },
@@ -23,7 +23,7 @@ export default function Rooms() {
             ],
         },
         {
-            name: "location",
+            name: "batiment",
             label: "Bâtiment",
             options: [
                 { label: "Tous", value: "" },
@@ -59,7 +59,10 @@ export default function Rooms() {
         handleFilterChange,
         resetFilters,
     } = usePaginatedList({
-        load: roomApi.list,
+        load: (params) => roomApi.list({
+            ...params,
+            sort: "nbPlaces,desc",
+        }),
         initialFilters,
         pageSize: 9,
         errorMessage: "Impossible de charger les salles",
@@ -138,24 +141,39 @@ export default function Rooms() {
                             }
                         }
                     },
-                    footer: (room) => (
-                        <div className="d-flex align-items-center justify-content-between gap-3 small">
-                            <span className="text-secondary">
-                                {room.nbMaterielDispo ?? "x"} postes ·{" "}
-                                {room.nbPlaces ?? "-"} places
-                            </span>
+                    footer: (room) => {
+                        const nbPlaces = room.nbPlaces ?? 0;
+                        const nbMaterielDispo = room.nbMaterielDispo ?? 0;
 
-                            <button
-                                type="button"
-                                className="btn btn-link p-0 text-decoration-none text-nowrap"
-                                onClick={() =>
-                                    navigate(`/rooms/${room.id}`)
-                                }
-                            >
-                                Consulter
-                            </button>
-                        </div>
-                    ),
+                        const tauxOccupation =
+                            nbPlaces > 0
+                                ? Math.round((nbMaterielDispo / nbPlaces) * 100)
+                                : 0;
+
+                        return (
+                            <div className="d-flex align-items-center justify-content-between gap-3 small">
+                                <div>
+                                    <span className="text-secondary">
+                                        {room.nbMaterielDispo ?? "x"} postes ·{" "}
+                                        {room.nbPlaces ?? "-"} places
+                                    </span>
+
+                                    <div className="text-secondary mt-1">
+                                        Taux d'occupation :{" "}
+                                        <span className="fw-semibold text-body">{tauxOccupation} %</span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="btn btn-link p-0 text-decoration-none text-nowrap"
+                                    onClick={() => navigate(`/rooms/${room.id}`)}
+                                >
+                                    Consulter
+                                </button>
+                            </div>
+                        );
+                    },
                 }}
             />
         </>

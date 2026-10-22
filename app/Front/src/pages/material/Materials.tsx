@@ -3,18 +3,20 @@ import Filters from "../../components/generic/Filters.tsx";
 import Table, {type Column} from "../../components/generic/display/Table.tsx";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { materialApi } from "../../api";
+import {materialApi, roomApi} from "../../api";
 import { routes } from "../../router/routes.ts";
 import type {Material} from "../../types/Material.ts";
 import MaterialPopup from "../../components/material/MaterialPopup.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import AssignmentsPopup from "../../components/material/AssignmentsPopup.tsx";
 import ImportMaterialsPopup from "../../components/material/ImportMaterialsPopup.tsx";
+import AssignmentsUserPopup from "../../components/material/AssignmentsUserPopup.tsx";
 
 export default function Materials() {
     const navigate = useNavigate();
     const [showMaterialPopup, setShowMaterialPopup] = useState(false);
     const [showAffectationPopup, setShowAffectationPopup] = useState(false);
+    const [showAffectationStagiairePopup, setShowAffectationStagiairePopup] = useState(false);
     const [showImportPopup, setShowImportPopup] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>();
 
@@ -54,7 +56,10 @@ export default function Materials() {
     );
 
     const {search, filters, items: materials, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
-        load: materialApi.list,
+        load: (params) => materialApi.list({
+            ...params,
+            sort: "dateFinGarantie,asc",
+        }),
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
@@ -72,7 +77,7 @@ export default function Materials() {
             render: (material: Material) => {
                 const date = new Date(material.dateFinGarantie);
                 const days = (date.getTime() - Date.now()) / 86400000;
-                return (<span className={days < 0 ? "text-danger" : days <= 365 ? "text-warning" : ""}>{date.toLocaleDateString("fr-FR")}</span>);
+                return (<span className={days < 0 ? "fw-bold text-danger" : days <= 365 ? "fw-bold text-warning" : ""}>{date.toLocaleDateString("fr-FR")}</span>);
             },
         },
         {
@@ -81,7 +86,7 @@ export default function Materials() {
             render: (material: Material) => {
                 const date = new Date(material.dateAjout);
                 const years = (Date.now() - date.getTime()) / (365.25 * 86400000);
-                return (<span className={years >= 5 ? "text-warning" : ""}>{date.toLocaleDateString("fr-FR")}</span>);
+                return (<span className={years >= 5 ? "fw-bold text-warning" : ""}>{date.toLocaleDateString("fr-FR")}</span>);
             },
         },
         {
@@ -140,15 +145,29 @@ export default function Materials() {
                     }}
                 />
             )}
+            {showAffectationStagiairePopup && (
+                <AssignmentsUserPopup
+                    onClose={() => setShowAffectationStagiairePopup(false)}
+                    onSubmit={() => {
+                        setShowAffectationStagiairePopup(false);
+                        reload();
+                    }}
+                />
+            )}
 
             <PageHeader
                 title="Matériels"
                 description="Rechercher et gérer les matériels du centre."
                 actions={[
                     {
-                        label: "Affecter",
+                        label: "Affecter à une salle",
                         icon: "bi-display",
                         onClick: () => setShowAffectationPopup(true),
+                    },
+                    {
+                        label: "Affecter à un stagiaire",
+                        icon: "bi-people ",
+                        onClick: () => setShowAffectationStagiairePopup(true),
                     },
                     {
                         label: "Importer",

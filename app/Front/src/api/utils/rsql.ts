@@ -8,6 +8,7 @@ type RsqlOptions = {
     /** Un filtre UI qui cherche dans plusieurs champs (OU, "contient").
      *  Ex: { search: ["nom", "numeroSerie", "marque"] } */
     orFields?: Record<string, string[]>;
+    nullFields?: string[];
 };
 
 function quote(value: string): string {
@@ -25,22 +26,34 @@ function likeValue(value: string): string {
 
 export function buildRsql(
     filters: Record<string, FilterValue>,
-    { fieldMap = {}, likeFields = [], orFields = {} }: RsqlOptions = {},
+    {
+        fieldMap = {},
+        likeFields = [],
+
+        orFields = {},
+        nullFields = [],
+    }: RsqlOptions = {},
 ): string | undefined {
     const parts = Object.entries(filters)
         .filter(([, v]) => v !== undefined && String(v).trim() !== "")
         .map(([key, v]) => {
-            const raw = String(v).trim();
+            const field = fieldMap[key] ?? key;
 
+            if (nullFields.includes(key)) {
+                return `${field}==null`;
+            }
+
+            const raw = String(v).trim();
             const group = orFields[key];
+
             if (group && group.length > 0) {
                 return `(${group.map((f) => `${f}==${likeValue(raw)}`).join(",")})`;
             }
 
-            const field = fieldMap[key] ?? key;
             if (likeFields.includes(key)) {
                 return `${field}==${likeValue(raw)}`;
             }
+
             return `${field}==${escapeValue(raw)}`;
         });
 
@@ -50,7 +63,7 @@ export function buildRsql(
 export function toRsqlParams(
     params: Record<string, FilterValue> = {},
     options?: RsqlOptions,
-    passthrough: string[] = ["page", "size", "sort", "salleId"],
+    passthrough: string[] = ["page", "size", "sort", "salleId", "selectedStageId", "excludeSalleId"],
 ): Record<string, FilterValue> {
     const result: Record<string, FilterValue> = {};
     const filters: Record<string, FilterValue> = {};

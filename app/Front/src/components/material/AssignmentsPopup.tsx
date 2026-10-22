@@ -41,7 +41,7 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
             ],
         },
         {
-            name: "room",
+            name: "salleId",
             label: "Salle actuelle",
             options: [
                 { label: "Toutes", value: "" },

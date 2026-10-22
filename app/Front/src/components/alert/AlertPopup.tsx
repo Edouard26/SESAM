@@ -149,6 +149,11 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
                             placeholder="Ex. : Matériel défectueux"
                             required
                         />
+                        {!values.typeProbleme.trim() && (
+                            <div className="invalid-feedback">
+                                Le type de problème est obligatoire.
+                            </div>
+                        )}
                     </div>
 
                     <div className="col-12">

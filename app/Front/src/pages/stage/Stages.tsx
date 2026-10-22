@@ -8,6 +8,7 @@ import { routes } from "../../router/routes.ts";
 import type { Stage, StageStatut } from "../../types/Stage.ts";
 import ImportStagesPopup from "../../components/stage/ImportStagePopup.tsx";
 import {useState} from "react";
+import AssignStageRoomPopup from "../../components/stage/AssignStageRoomPopup.tsx";
 
 const statutLabels: Record<StageStatut, string> = {
     A_AFFECTER: "À affecter",
@@ -19,6 +20,7 @@ const statutLabels: Record<StageStatut, string> = {
 export default function Stages() {
     const navigate = useNavigate();
     const [showImportPopup, setShowImportPopup] = useState(false);
+    const [stageAssignment, setStageAssignment] = useState<Stage|undefined>(undefined);
 
     const selects = [
         {
@@ -88,15 +90,19 @@ export default function Stages() {
         {
             label: "Action",
             render: (stage: Stage) => (
-                <button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() =>
-                        navigate(`${routes.stages}/${stage.id}`)
-                    }
-                >
-                    Voir
-                </button>
+                <div className="d-flex gap-2">
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => navigate(`${routes.stages}/${stage.id}`)}
+                    >
+                        Voir
+                    </button>
+
+                    <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => setStageAssignment(stage)}>
+                        Assigner
+                    </button>
+                </div>
             ),
         },
     ] satisfies Column<Stage>[];
@@ -108,6 +114,16 @@ export default function Stages() {
                     onClose={() => setShowImportPopup(false)}
                     onSubmit={() => {
                         setShowImportPopup(false);
+                        reload();
+                    }}
+                />
+            )}
+            {stageAssignment && (
+                <AssignStageRoomPopup
+                    stage={stageAssignment}
+                    onClose={() => setStageAssignment(undefined)}
+                    onSubmit={() => {
+                        setStageAssignment(undefined)
                         reload();
                     }}
                 />
