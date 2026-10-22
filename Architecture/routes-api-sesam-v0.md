@@ -119,6 +119,7 @@ La maquette ne présente pas de page de détail dédiée à une alerte : un `GET
 GET    /api/v1/users
 POST   /api/v1/users
 PATCH  /api/v1/users/{userId}
+POST   /api/v1/users/assignments
 ```
 
 Filtres à prévoir pour `GET /api/v1/users` : `search`, `role`, `active`, `stageId`, `page`, `size`.
