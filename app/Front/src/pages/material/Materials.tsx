@@ -67,6 +67,24 @@ export default function Materials() {
         { key: "numeroSerie", label: "Numero de série" },
         { key: "typeMateriel", label: "Type" },
         {
+            key: "dateFinGarantie",
+            label: "Fin garantie",
+            render: (material: Material) => {
+                const date = new Date(material.dateFinGarantie);
+                const days = (date.getTime() - Date.now()) / 86400000;
+                return (<span className={days < 0 ? "text-danger" : days <= 365 ? "text-warning" : ""}>{date.toLocaleDateString("fr-FR")}</span>);
+            },
+        },
+        {
+            key: "dateAjout",
+            label: "Ajout",
+            render: (material: Material) => {
+                const date = new Date(material.dateAjout);
+                const years = (Date.now() - date.getTime()) / (365.25 * 86400000);
+                return (<span className={years >= 5 ? "text-warning" : ""}>{date.toLocaleDateString("fr-FR")}</span>);
+            },
+        },
+        {
             label: "Action", render: (material: Material) => (
                 <div className="d-flex gap-2">
                     <button

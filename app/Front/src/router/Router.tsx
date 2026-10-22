@@ -9,11 +9,12 @@ import Room from "../pages/room/Room.tsx";
 import Monitoring from "../pages/monitoring/Monitoring.tsx";
 import Stages from "../pages/stage/Stages.tsx";
 import Alerts from "../pages/alert/Alerts.tsx";
-import Process from "../pages/process/Process.tsx";
+import Processus from "../pages/process/Processus.tsx";
 import Login from "../pages/login/Login.tsx";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 import Layout from "../components/layout/Layout.tsx";
 import Users from "../pages/user/Users.tsx";
+import Process from "../pages/process/Process.tsx";
 
 export default function Router() {
 
@@ -31,6 +32,7 @@ export default function Router() {
                     <Route path={`${routes.rooms}/:id`} element={<Room />} />
                     <Route path={routes.monitoring} element={<Monitoring />} />
                     <Route path={routes.process} element={<Process />} />
+                    <Route path={`${routes.process}/:id`} element={<Processus />} />
                     <Route path={routes.stages} element={<Stages />} />
                     <Route path={routes.alerts} element={<Alerts />} />
                     <Route path={routes.users} element={<Users />} />

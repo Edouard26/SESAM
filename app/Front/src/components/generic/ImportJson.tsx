@@ -14,7 +14,7 @@ type ImportJsonProps<T> = {
     columns: Column<T & { key: number }>[];
 };
 
-const pageSize = 10;
+const pageSize = 5;
 
 export default function ImportJson<T>({ validate, onSelectionChange, columns }: ImportJsonProps<T>) {
     const { notify } = useNotification();
@@ -24,6 +24,7 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
     const [selectedRows, setSelectedRows] = useState<(T & { key: number })[]>([]);
+    const [showErrors, setShowErrors] = useState(false);
 
     const rows = useMemo(() => sourceItems.map((raw, key) => ({ key, ...validate(raw) })), [sourceItems, validate]);
 
@@ -34,7 +35,31 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
         ),
         [rows]
     );
-    const invalidCount = rows.length - validRows.length;
+    const invalidRows = useMemo(() => rows.filter((row) => row.errors.length > 0), [rows]);
+    const invalidCount = invalidRows.length;
+
+    const errorGroups = useMemo(() => {
+        const groups = new Map<string, number[]>();
+        for (const row of invalidRows) {
+            for (const error of row.errors) {
+                groups.set(error, [...(groups.get(error) ?? []), row.key + 1]);
+            }
+        }
+        return [...groups].map(([message, lines]) => ({ message, lines }));
+    }, [invalidRows]);
+
+    function formatRanges(numbers: number[]): string {
+        const ranges: string[] = [];
+        let start = numbers[0];
+        for (let i = 1; i <= numbers.length; i++) {
+            if (numbers[i] !== numbers[i - 1] + 1) {
+                const end = numbers[i - 1];
+                ranges.push(start === end ? `${start}` : `${start}-${end}`);
+                start = numbers[i];
+            }
+        }
+        return ranges.join(", ");
+    }
 
     const filteredRows = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -109,12 +134,32 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
 
             {sourceItems.length > 0 && (
                 <>
-                    <div className="d-flex flex-wrap gap-3 small">
+                    <div className="d-flex flex-wrap align-items-center gap-3 small">
                         <span>{validRows.length} élément(s) valide(s)</span>
                         {invalidCount > 0 && (
-                            <span className="text-danger">{invalidCount} ignoré(s) (invalides)</span>
+                            <>
+                                <span className="text-danger">{invalidCount} ignoré(s) (invalides)</span>
+                                {validRows.length > 0 && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-link btn-sm p-0"
+                                        onClick={() => setShowErrors((current) => !current)}
+                                    >
+                                        {showErrors ? "Masquer les erreurs" : "Voir les erreurs"}
+                                    </button>
+                                )}
+                            </>
                         )}
                     </div>
+                    {invalidCount > 0 && (showErrors || validRows.length === 0) && (
+                        <ul className="small mb-0 ps-3 overflow-auto" style={{ maxHeight: "12rem" }}>
+                            {errorGroups.map(({ message, lines }) => (
+                                <li key={message}>
+                                    <strong>{lines.length > 1 ? "Éléments" : "Élément"} {formatRanges(lines)}</strong> : {message}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                     {validRows.length !== 0 && (
                         <>
                             <Filters

@@ -1,10 +1,11 @@
-import { NavLink } from "react-router-dom";
+import {NavLink, useLocation} from "react-router-dom";
 import { routes } from "../../router/routes";
 import { useAuth } from "../../context/AuthContext";
 import { Role } from "../../types/Role";
 
 export default function Sidebar() {
     const { user } = useAuth();
+    const location = useLocation();
 
     if (user === null) {
         return null;
@@ -48,7 +49,11 @@ export default function Sidebar() {
 
                 {user.role >= Role.FORMATEUR && (
                     <li>
-                        <NavLink to={routes.monitoring} className="nav-link text-white">
+                        <NavLink to={routes.monitoring}
+                            className={({ isActive }) =>
+                                `nav-link text-white ${isActive || location.pathname.startsWith(routes.process) ? "active" : ""}`
+                            }
+                        >
                             <i className="bi bi-graph-up me-3" />
                             Supervision
                         </NavLink>

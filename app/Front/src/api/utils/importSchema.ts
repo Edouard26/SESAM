@@ -53,6 +53,12 @@ export const optional = <T,>(field: Field<T>): Field<T | undefined> => ({
     parse: field.parse,
 });
 
+export const pattern = (regex: RegExp, description: string): Field<string> => ({
+    parse: (v) => typeof v === "string" && regex.test(v)
+        ? { value: v }
+        : { error: `doit respecter le format ${description}` },
+});
+
 const isEmpty = (v: unknown) => v === undefined || v === null || v === "";
 
 // check : règles entre plusieurs champs (ex. dateFin >= dateDebut), renvoie un message d'erreur ou undefined

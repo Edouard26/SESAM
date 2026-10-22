@@ -4,7 +4,7 @@ import { ApiError, stageApi } from "../../api";
 import useNotification from "../../hooks/useNotification";
 import type { ImportStagesPayload, StageImport } from "../../types/Stage";
 import ImportJson from "../generic/ImportJson.tsx";
-import {createValidator, date, type Schema, text} from "../../api/utils/importSchema.ts";
+import {createValidator, date, pattern, type Schema} from "../../api/utils/importSchema.ts";
 import {createColumns} from "../../api/utils/importColumns.tsx";
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 };
 
 const stageSchema: Schema<StageImport> = {
-    code: text(),
+    code: pattern(/^[A-Za-z]{2}\d{2}$/, "2 lettres suivies de 2 chiffres (ex. AB12)"),
     dateDebut: date(),
     dateFin: date(),
 };

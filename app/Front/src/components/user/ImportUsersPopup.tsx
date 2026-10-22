@@ -6,7 +6,7 @@ import type { ImportUsersPayload, UserImport } from "../../types/User";
 import type { Stage } from "../../types/Stage";
 import ImportJson from "../generic/ImportJson.tsx";
 import {Grade} from "../../types/Grade.ts";
-import {createValidator, email, oneOf, pastDate, type Schema, text} from "../../api/utils/importSchema.ts";
+import {createValidator, email, oneOf, pastDate, pattern, type Schema, text} from "../../api/utils/importSchema.ts";
 import {createColumns} from "../../api/utils/importColumns.tsx";
 
 type Props = {
@@ -20,7 +20,7 @@ const grades = Object.keys(Grade).filter((key) => Number.isNaN(Number(key))) as 
 const userSchema: Schema<UserImport> = {
     nom: text(),
     prenom: text(),
-    nid: text(),
+    nid: pattern(/^\d{10}$/, "NID doit contenir 10 chiffres"),
     email: email(),
     dateNaissance: pastDate(),
     grade: oneOf(grades),

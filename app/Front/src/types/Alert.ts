@@ -17,7 +17,7 @@ export type AlertForm = {
     dateSignalement: Date;
     typeProbleme: string;
     description: string;
-    materielsId: number[];
+    materielsId?: number[];
 };
 
 export type AlertUpdateForm = {
