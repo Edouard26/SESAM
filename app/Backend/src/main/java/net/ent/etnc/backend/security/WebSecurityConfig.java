@@ -94,8 +94,6 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> auth
             // Login public (pas besoin de token pour se connecter)
             .requestMatchers("/api/v1/auth/**").permitAll()
-                // TODO Mettre les requetes publique
-                //  .requestMatchers(HttpMethod.GET, "/api/v1/<chose>/**").permitAll()
             // Requêtes OPTIONS (preflight CORS) toujours autorisées
             .requestMatchers(HttpMethod.OPTIONS).permitAll()
 

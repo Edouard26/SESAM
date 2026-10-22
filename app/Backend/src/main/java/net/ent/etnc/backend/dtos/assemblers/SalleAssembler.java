@@ -15,10 +15,12 @@ import java.util.List;
 public class SalleAssembler {
 
     private final BatimentService batimentService;
+    private final MaterielAssembler materielAssembler;
 
     @Autowired
-    public SalleAssembler(BatimentService batimentService) {
+    public SalleAssembler(BatimentService batimentService, MaterielAssembler materielAssembler) {
         this.batimentService = batimentService;
+        this.materielAssembler = materielAssembler;
     }
 
     public SalleResponse toResponse(Salle salle) {
@@ -34,10 +36,8 @@ public class SalleAssembler {
                                 .filter(m -> m.getEtat() == EtatMateriel.EN_ETAT)
                                 .count()
                 )
-                .materielsId(
-                        salle.getMateriels().stream()
-                                .map(m -> m.getId())
-                                .toList()
+                .materiels(
+                        materielAssembler.toResponses(salle.getMateriels())
                 )
                 .build();
     }

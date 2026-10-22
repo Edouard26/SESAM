@@ -9,6 +9,7 @@ import java.util.Set;
 /**
  * Rôles des utilisateurs de la plateforme, organisés en hiérarchie cumulative.
  *
+ * TODO
  * <p>Chaque rôle hérite des permissions de tous les rôles inférieurs :
  * APPRENANT &lt; CORRECTEUR &lt; FORMATEUR &lt; RESPONSABLE &lt; ADMIN.
  *

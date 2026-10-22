@@ -17,4 +17,6 @@ public interface BatimentRepository extends BaseRepository<Batiment> {
         WHERE s.id = :salleId
     """)
     Optional<Batiment> findBySallesId(Long salleId);
+
+    Optional<Batiment> findBatimentByNom(String nom);
 }

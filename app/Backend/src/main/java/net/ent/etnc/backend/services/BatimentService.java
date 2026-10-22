@@ -8,4 +8,7 @@ public interface BatimentService extends Service<Batiment, Long> {
 
     @Transactional(readOnly = true)
     String findNomBySalleId(Long salleId);
+
+    @Transactional(readOnly = true)
+    Batiment findByNom(String nom);
 }
