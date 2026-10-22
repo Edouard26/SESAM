@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.models.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,14 +21,14 @@ import java.time.LocalDate;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(
-        name = "materiel",
+        name = "materiels",
         uniqueConstraints = {@UniqueConstraint(
                 name = "uk___materiel___numero_serie",
                 columnNames = {"numero_serie"}
         )}
 )
 @EqualsAndHashCode(callSuper = false, of = {"numeroSerie"})
-@ToString(callSuper = true, of = {"numeroSerie", "marque", "modele", "dataAjout", "dateFinGarantie"})
+@ToString(callSuper = true, of = {"numeroSerie", "marque", "modele", "dateAjout", "dateFinGarantie", "etat"})
 public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
 
         //LBK
@@ -77,7 +78,7 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @NotNull(message = "date d'ajout ne peut pas être null")
         //JPA
         @Column(name = "date_ajout", nullable = false)
-        private LocalDate dataAjout;
+        private LocalDate dateAjout;
 
         //LBK
         @Getter
@@ -97,4 +98,14 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @Enumerated(value = EnumType.STRING)
         @Column(name = "etat", nullable = false, length = 15)
         private EtatMateriel etat;
+        
+        //LBK
+        @Getter
+        @Setter
+        //BV
+        @Valid
+        //JPA
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "stagiaire_id", foreignKey = @ForeignKey(name = "fk___materiels___stagiaire_id"))
+        private User stagiaire;
 }

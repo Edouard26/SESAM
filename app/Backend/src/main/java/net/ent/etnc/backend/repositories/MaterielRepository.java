@@ -1,6 +1,8 @@
 package net.ent.etnc.backend.repositories;
 
 import net.ent.etnc.backend.models.entities.Materiel;
+import net.ent.etnc.backend.models.entities.Salle;
+import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import net.ent.etnc.backend.repositories.specifications.MaterielSpecifications;
 import org.springframework.data.domain.Page;
@@ -8,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
+import java.util.List;
 
 @Repository
 public interface MaterielRepository extends BaseRepository<Materiel> {
@@ -57,4 +62,33 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
 
         return findAll(combinedSpec, pageable);
     }
+
+    Boolean existsByNumeroSerie(String numeroSerie);
+
+    @Query("""
+        SELECT COUNT(*) > 0
+        FROM Salle s
+        JOIN s.materiels m
+        WHERE m = :materiel
+        AND s = :salle
+    """)
+    Boolean isInSalle(Materiel materiel, Salle salle);
+
+    @Query("""
+        SELECT COUNT(*) > 0
+        FROM Materiel m
+        JOIN m.stagiaire s
+        WHERE m = :materiel
+    """)
+    Boolean isAffectedToStagiaire(Materiel materiel);
+
+    @Query("""
+        SELECT m
+        FROM Materiel m
+        JOIN m.stagiaire s
+        WHERE s = :stagiaire
+    """)
+    Page<Materiel> findAllMaterielAffectToStagiaire(User stagiaire, Pageable pageable);
+
+    List<Materiel> findAllByIdIn(Collection<Long> ids);
 }

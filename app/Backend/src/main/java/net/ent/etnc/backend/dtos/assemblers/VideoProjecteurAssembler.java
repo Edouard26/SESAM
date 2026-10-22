@@ -16,7 +16,7 @@ public class VideoProjecteurAssembler {
                 .numSerie(videoProjecteur.getNumeroSerie())
                 .marque(videoProjecteur.getMarque())
                 .modele(videoProjecteur.getModele())
-                .dateAjout(videoProjecteur.getDataAjout())
+                .dateAjout(videoProjecteur.getDateAjout())
                 .dateFinGarantie(videoProjecteur.getDateFinGarantie())
                 .build();
     }
@@ -29,7 +29,7 @@ public class VideoProjecteurAssembler {
         VideoProjecteur videoProjecteur = new VideoProjecteur();
 
         videoProjecteur.setNumeroSerie(videoProjecteurDto.getNumSerie());
-        videoProjecteur.setDataAjout(videoProjecteurDto.getDateAjout());
+        videoProjecteur.setDateAjout(videoProjecteurDto.getDateAjout());
         videoProjecteur.setDateFinGarantie(videoProjecteurDto.getDateFinGarantie());
         videoProjecteur.setMarque(videoProjecteurDto.getMarque());
         videoProjecteur.setModele(videoProjecteurDto.getModele());

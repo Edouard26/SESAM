@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.dtos.responses;
 
 import lombok.*;
+import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.enums.EtatSalle;
 import net.ent.etnc.backend.models.enums.TypeSalle;
 
@@ -25,7 +26,6 @@ public class SalleResponse {
     // nombre de matériel en état de fonctionner dans la salle
     private Long nbMaterielDispo;
 
-
-    // Liste des id des matériels dans la salle
-    private List<Long> materielsId;
+    // Liste des matériels dans la salle
+    private List<MaterielResponse> materiels;
 }

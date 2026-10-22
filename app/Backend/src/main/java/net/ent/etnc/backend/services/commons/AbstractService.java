@@ -1,6 +1,8 @@
 package net.ent.etnc.backend.services.commons;
 
+import jakarta.validation.groups.Default;
 import net.ent.etnc.backend.models.commons.AbstractPersistableWithIdSetter;
+import net.ent.etnc.backend.models.validators.groups.UpdateGroup;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

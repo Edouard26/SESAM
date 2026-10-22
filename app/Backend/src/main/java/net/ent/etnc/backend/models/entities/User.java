@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.models.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entité représentant un utilisateur de la plateforme.
@@ -114,6 +117,16 @@ public class User extends AbstractPersistableWithIdSetter<Long> implements UserD
     @Setter
     @Column(name = "active", nullable = false)
     private boolean active = true;
+
+//    //LBK
+//    @Getter
+//    @Setter
+//    //BV
+//    @Valid
+//    //JPA
+//    @OneToMany(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "stagiaire_id", foreignKey = @ForeignKey(name = "fk___materiels___stagiaire_id"))
+//    private Set<Materiel> materiels = new HashSet<>();
 
     /**
      * Retourne les autorités Spring Security de cet utilisateur.

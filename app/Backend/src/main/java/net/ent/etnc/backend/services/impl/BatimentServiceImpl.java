@@ -23,8 +23,19 @@ public class BatimentServiceImpl extends AbstractService<Batiment, BatimentRepos
     @Override
     public String findNomBySalleId(Long salleId){
         Optional<Batiment> batiment = repository.findBySallesId(salleId);
-        if(batiment.isEmpty())
-            throw new ServiceException("Batiment Not found with salleId");
+        if(batiment.isEmpty()) {
+            throw new ServiceException("Batiment Not found with salleId: " + salleId);
+        }
         return batiment.get().getNom();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Batiment findByNom(String nom){
+        Optional<Batiment> batiment = repository.findBatimentByNom(nom);
+        if(batiment.isEmpty()){
+            throw new ServiceException("Batiment " + nom + " Not found");
+        }
+        return batiment.get();
     }
 }

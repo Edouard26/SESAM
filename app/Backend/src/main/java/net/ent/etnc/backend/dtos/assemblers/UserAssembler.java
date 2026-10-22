@@ -1,6 +1,8 @@
 package net.ent.etnc.backend.dtos.assemblers;
 
 import net.ent.etnc.backend.dtos.UserDto;
+import net.ent.etnc.backend.dtos.requests.StagiaireRequest;
+import net.ent.etnc.backend.dtos.responses.StagiaireResponse;
 import net.ent.etnc.backend.models.entities.User;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +17,26 @@ public class UserAssembler {
                 .id(user.getId())
                 .nid(user.getNid())
                 .email(user.getEmail())
-                .password(user.getPassword())
                 .nom(user.getNom())
                 .prenom(user.getPrenom())
                 .dateNaissance(user.getDateNaissance())
                 .grade(user.getGrade())
                 .role(user.getRole())
                 .active(user.isActive())
+                .build();
+    }
+
+    public StagiaireResponse toStagiaireResponse(User stagiaire){
+        return StagiaireResponse.builder()
+                .id(stagiaire.getId())
+                .nid(stagiaire.getNid())
+                .email(stagiaire.getEmail())
+                .nom(stagiaire.getNom())
+                .prenom(stagiaire.getPrenom())
+                .dateNaissance(stagiaire.getDateNaissance())
+                .grade(stagiaire.getGrade())
+                .role(stagiaire.getRole())
+                .active(stagiaire.isActive())
                 .build();
     }
 
@@ -42,6 +57,19 @@ public class UserAssembler {
         user.setGrade(userDto.getGrade());
         user.setRole(userDto.getRole());
         user.setActive(userDto.getActive());
+
+        return user;
+    }
+
+    public User toEntity(StagiaireRequest stagiaireRequest){
+        User user = new User();
+
+        user.setNom(stagiaireRequest.getNom());
+        user.setPrenom(stagiaireRequest.getPrenom());
+        user.setNid(stagiaireRequest.getNid());
+        user.setEmail(stagiaireRequest.getEmail());
+        user.setDateNaissance(stagiaireRequest.getDateNaissance());
+        user.setGrade(stagiaireRequest.getGrade());
 
         return user;
     }

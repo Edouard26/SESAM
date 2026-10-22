@@ -2,6 +2,7 @@ package net.ent.etnc.backend.dtos.requests;
 
 import lombok.*;
 import net.ent.etnc.backend.models.enums.EtatMateriel;
+import net.ent.etnc.backend.models.enums.TypeMateriel;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class MaterielRequest {
 
-    private String typeMateriel;
+//    private String typeMateriel;
+    private TypeMateriel typeMateriel;
 
     private String numeroSerie;
     private String nom;

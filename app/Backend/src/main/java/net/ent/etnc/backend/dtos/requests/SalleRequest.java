@@ -11,4 +11,6 @@ public class SalleRequest {
     private Integer nbPlaces;
     private TypeSalle typeSalle;
     private EtatSalle etat;
+
+    private String nomBatiment;
 }
