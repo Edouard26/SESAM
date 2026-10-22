@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.models.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -97,4 +98,14 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @Enumerated(value = EnumType.STRING)
         @Column(name = "etat", nullable = false, length = 15)
         private EtatMateriel etat;
+        
+        //LBK
+        @Getter
+        @Setter
+        //BV
+        @Valid
+        //JPA
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "stagiaire_id", foreignKey = @ForeignKey(name = "fk___materiels___stagiaire_id"))
+        private User stagiaire;
 }

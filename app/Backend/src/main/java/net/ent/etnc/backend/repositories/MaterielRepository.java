@@ -76,17 +76,17 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
 
     @Query("""
         SELECT COUNT(*) > 0
-        FROM User u
-        JOIN u.materiels m
+        FROM Materiel m
+        JOIN m.stagiaire s
         WHERE m = :materiel
     """)
     Boolean isAffectedToStagiaire(Materiel materiel);
 
     @Query("""
         SELECT m
-        FROM User u
-        JOIN u.materiels m
-        WHERE u = :stagiaire
+        FROM Materiel m
+        JOIN m.stagiaire s
+        WHERE s = :stagiaire
     """)
     Page<Materiel> findAllMaterielAffectToStagiaire(User stagiaire, Pageable pageable);
 

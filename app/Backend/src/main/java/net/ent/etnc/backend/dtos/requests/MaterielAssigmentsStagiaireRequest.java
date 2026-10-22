@@ -9,5 +9,5 @@ import java.util.List;
 @Setter
 public class MaterielAssigmentsStagiaireRequest {
     private Long stagiaireId;
-    private List<Long> materiels;
+    private List<Long> materielsId;
 }

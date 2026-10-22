@@ -37,11 +37,6 @@ public class UserAssembler {
                 .grade(stagiaire.getGrade())
                 .role(stagiaire.getRole())
                 .active(stagiaire.isActive())
-                .materiels(
-                        stagiaire.getMateriels().stream()
-                                .map(m -> m.getId())
-                                .toList()
-                )
                 .build();
     }
 

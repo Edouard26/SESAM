@@ -24,5 +24,5 @@ public class StagiaireResponse {
     private Role role;
     private Boolean active;
 
-    private List<Long> materiels;
+    private Long Stagiaire;
 }

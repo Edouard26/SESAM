@@ -114,8 +114,9 @@ public class UserController {
         return ResponseEntity.ok(stageAssembler.toResponse(stageService.update(optionalStage.get())));
     }
 
-    @PostMapping("assigments/")
+    @PostMapping("assignments/")
     @PreAuthorize("hasRole('GESTIONNAIRE')")
+    // TODO remplacer le return StagiaireResponse
     public ResponseEntity<StagiaireResponse> postAssigmentsStagiaire(@RequestBody MaterielAssigmentsStagiaireRequest materielAssigmentsStagiaireRequest){
         Optional<User> optionalStagiaire = userService.findById(materielAssigmentsStagiaireRequest.getStagiaireId());
         if(optionalStagiaire.isEmpty()){
@@ -126,12 +127,13 @@ public class UserController {
             return ResponseEntity.badRequest().build();// TODO mettre dans le service RG
         }
 
-        for(Long materielId : materielAssigmentsStagiaireRequest.getMateriels()){
+        for(Long materielId : materielAssigmentsStagiaireRequest.getMaterielsId()){
             Optional<Materiel> optionalMateriel = materielService.findById(materielId);
             // RG: le matériel ne peut pas déjà être affecter un autre stagiaire
             // RG: le matériel doit être dans la salle du stage du stagiaire
             if(optionalMateriel.isPresent() && materielService.isAssignableToStagiaire(optionalMateriel.get(), salleService.findByStagiaire(optionalStagiaire.get()))){
-                optionalStagiaire.get().getMateriels().add(optionalMateriel.get());
+//                optionalStagiaire.get().getMateriels().add(optionalMateriel.get());
+                optionalMateriel.get().setStagiaire(optionalStagiaire.get());
             }
         }
         // TODO peut être renvoyer pour chaque matériel si il a bien été affecté

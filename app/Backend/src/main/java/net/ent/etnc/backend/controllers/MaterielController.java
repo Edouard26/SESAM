@@ -47,7 +47,8 @@ public class MaterielController {
             "dateAjout", "dateAjout",
             "dateFinGarantie", "dateFinGarantie",
             "etat", "etat",
-            "type", "type"
+            "type", "type",
+            "stagiaire", "stagiaire"
     );
 
     private final MaterielService materielService;

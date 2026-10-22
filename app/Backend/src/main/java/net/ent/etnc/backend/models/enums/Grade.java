@@ -6,73 +6,73 @@ public enum Grade {
     //-------------------//
     // Militaire du rang //
     //-------------------//
-    SOLDAT("Soldat", "SLT"),
-    AVIATEUR("Aviateur", "AVT"),
-    CAPORAL("Caporal", "CPL"),
-    CAPORAL_CHEF("Caporal-chef", "CCH"),
-    CAPORAL_CHEF_PREMIERE_CLASSE("Caporal-chef de première classe", "CC1"),
+    SOLDAT,
+    AVIATEUR,
+    CAPORAL,
+    CAPORAL_CHEF,
+    CAPORAL_CHEF_PREMIERE_CLASSE,
     // Marine national
-    MATELOT("Matelot", "MAT"),
-    QUARTIER_MAITRE_2("Quartier-maître de deuxième classe", "QM2"),
-    QUARTIER_MAITRE_1("Quartier-maître de première classe", "QM1"),
+    MATELOT,
+    QUARTIER_MAITRE_2,
+    QUARTIER_MAITRE_1,
 
     //---------------//
     // Sous-officier //
     //---------------//
-    SERGENT("Sergent", "SGT"),
-    SERGENT_CHEF("Sergent-chef", "SCH"),
-    ADJUDANT("Adjudant", "ADJ"),
-    ADJUDANT_CHEF("Adjudant-chef", "ADC"),
-    MAJOR("Major", "MAJ"),
+    SERGENT,
+    SERGENT_CHEF,
+    ADJUDANT,
+    ADJUDANT_CHEF,
+    MAJOR,
     // Marine national
-    SECOND_MAITRE("Second maître", "SM"),
-    MAITRE("Maître", "MT"),
-    PREMIER_MAITRE("Premier maître", "PM"),
-    MAITRE_PRINCIPAL("Maître principal", "MP"),
+    SECOND_MAITRE,
+    MAITRE,
+    PREMIER_MAITRE,
+    MAITRE_PRINCIPAL,
 
     //----------//
     // Officier //
     //----------//
-    ASPIRANT("Aspirant", "ASP"),
-    SOUS_LIEUTENANT("Sous-lieutenant", "SLT"),
-    LIEUTENANT("Lieutenant", "LTN"),
-    CAPITAINE("Capitaine", "CNE"),
-    COMMANDANT("Commandant", "CDT"),
-    LIEUTENANT_COLONEL("Lieutenant-colonel", "LCL"),
-    COLONEL("Colonel", "COL"),
+    ASPIRANT,
+    SOUS_LIEUTENANT,
+    LIEUTENANT,
+    CAPITAINE,
+    COMMANDANT,
+    LIEUTENANT_COLONEL,
+    COLONEL,
     // Marine national
-    ENSEIGNE_VAISSEAU_2("Enseigne de vaisseau de deuxième classe", "EV2"),
-    ENSEIGNE_VAISSEAU_1("Enseigne de vaisseau de première classe", "EV1"),
-    LIEUTENANT_VAISSEAU("Lieutenant de vaisseau", "LV"),
-    CAPITAINE_CORVETTE("Capitaine de corvette", "CC"),
-    CAPITAINE_FREGATE("Capitaine de frégate", "CF"),
-    CAPITAINE_VAISSEAU("Capitaine de vaisseau", "CV"),
+    ENSEIGNE_VAISSEAU_2,
+    ENSEIGNE_VAISSEAU_1,
+    LIEUTENANT_VAISSEAU,
+    CAPITAINE_CORVETTE,
+    CAPITAINE_FREGATE,
+    CAPITAINE_VAISSEAU,
 
     //----------//
     // Généraux //
     //----------//
-    GENERAL_BRIGADE("Général de brigade", "GDI"),
-    GENERAL_DIVISION("Général de division", "GDA"),
-    GENERAL_CORPS_ARMEE("Général de corps d'armée", "GCA"),
-    GENERAL_ARMEE("Général d'armée", "GA"),
+    GENERAL_BRIGADE,
+    GENERAL_DIVISION,
+    GENERAL_CORPS_ARMEE,
+    GENERAL_ARMEE,
     // Marine national
-    CONTRE_AMIRAL("Contre-amiral", "CA"),
-    VICE_AMIRAL("Vice-amiral", "VA"),
-    VICE_AMIRAL_ESCADRE("Vice-amiral d'escadre", "VAE"),
-    AMIRAL("Amiral", "AM");
+    CONTRE_AMIRAL,
+    VICE_AMIRAL,
+    VICE_AMIRAL_ESCADRE,
+    AMIRAL
 
-    @Getter
-    private final String libelle;
-    @Getter
-    private final String abreviation;
-
-    Grade(String libelle, String abreviation) {
-        this.libelle = libelle;
-        this.abreviation = abreviation;
-    }
-
-    @Override
-    public String toString() {
-        return libelle;
-    }
+//    @Getter
+//    private final String libelle;
+//    @Getter
+//    private final String abreviation;
+//
+//    Grade(String libelle, String abreviation) {
+//        this.libelle = libelle;
+//        this.abreviation = abreviation;
+//    }
+//
+//    @Override
+//    public String toString() {
+////        return libelle;
+////    }
 }
