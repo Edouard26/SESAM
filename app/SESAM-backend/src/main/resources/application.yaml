@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: sesam
+
+  datasource:
+    # À adapter si PostgreSQL utilise une autre adresse ou un autre port.
+    url: jdbc:postgresql://localhost:5432/sesam
+    username: postgres
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      # Pour le développement : crée/met à jour les tables.
+      ddl-auto: update
+    show-sql: true
