@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.services.impl;
 
 import net.ent.etnc.backend.models.entities.Materiel;
+import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.repositories.MaterielRepository;
 import net.ent.etnc.backend.services.MaterielService;
 import net.ent.etnc.backend.services.commons.AbstractService;
@@ -33,5 +34,11 @@ public class MaterielServiceImpl extends AbstractService<Materiel, MaterielRepos
     @Override
     public Boolean existsByNumeroSerie(String numeroSerie){
         return repository.existsByNumeroSerie(numeroSerie);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean isAssignableToStagiaire(Materiel materiel, Salle salle){
+        return repository.isInSalle(materiel, salle) && !repository.isAffectedToStagiaire(materiel);
     }
 }

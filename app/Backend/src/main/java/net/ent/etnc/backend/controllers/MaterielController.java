@@ -65,7 +65,7 @@ public class MaterielController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasRole('GESTIONNAIRE') || hasRole('STAGIAIRE')")
     public ResponseEntity<Page<MaterielResponse>> getAll(
             @RequestParam(required = false) String filter,
             @PageableDefault(size = 10) Pageable pageable,

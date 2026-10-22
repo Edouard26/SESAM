@@ -4,15 +4,17 @@ import net.ent.etnc.backend.commons.RsqlFilterUtils;
 import net.ent.etnc.backend.dtos.UserDto;
 import net.ent.etnc.backend.dtos.assemblers.StageAssembler;
 import net.ent.etnc.backend.dtos.assemblers.UserAssembler;
-import net.ent.etnc.backend.dtos.requests.StageRequest;
+import net.ent.etnc.backend.dtos.requests.MaterielAssigmentsStagiaireRequest;
 import net.ent.etnc.backend.dtos.requests.StagiaireImportRequest;
 import net.ent.etnc.backend.dtos.requests.StagiaireRequest;
 import net.ent.etnc.backend.dtos.responses.StageResponse;
+import net.ent.etnc.backend.dtos.responses.StagiaireResponse;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Stage;
 import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.models.enums.Role;
-import net.ent.etnc.backend.models.enums.StatutStage;
+import net.ent.etnc.backend.services.MaterielService;
+import net.ent.etnc.backend.services.SalleService;
 import net.ent.etnc.backend.services.StageService;
 import net.ent.etnc.backend.services.UserService;
 import org.springframework.data.domain.Page;
@@ -50,14 +52,18 @@ public class UserController {
 
     private final UserService userService;
     private final StageService stageService;
+    private final MaterielService materielService;
+    private final SalleService salleService;
     private final UserAssembler assembler;
     private final StageAssembler stageAssembler;
 
     private final RsqlFilterUtils rsqlFilterUtils;
 
-    public UserController(UserService userService, StageService stageService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils) {
+    public UserController(UserService userService, StageService stageService, MaterielService materielService, SalleService salleService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils) {
         this.userService = userService;
         this.stageService = stageService;
+        this.materielService = materielService;
+        this.salleService = salleService;
         this.assembler = assembler;
         this.stageAssembler = stageAssembler;
         this.rsqlFilterUtils = rsqlFilterUtils;
@@ -106,6 +112,30 @@ public class UserController {
         }
 
         return ResponseEntity.ok(stageAssembler.toResponse(stageService.update(optionalStage.get())));
+    }
+
+    @PostMapping("assigments/")
+    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    public ResponseEntity<StagiaireResponse> postAssigmentsStagiaire(@RequestBody MaterielAssigmentsStagiaireRequest materielAssigmentsStagiaireRequest){
+        Optional<User> optionalStagiaire = userService.findById(materielAssigmentsStagiaireRequest.getStagiaireId());
+        if(optionalStagiaire.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        if(optionalStagiaire.get().getRole() != Role.STAGIAIRE){
+            return ResponseEntity.badRequest().build();// TODO mettre dans le service RG
+        }
+
+        for(Long materielId : materielAssigmentsStagiaireRequest.getMateriels()){
+            Optional<Materiel> optionalMateriel = materielService.findById(materielId);
+            // RG: le matériel ne peut pas déjà être affecter un autre stagiaire
+            // RG: le matériel doit être dans la salle du stage du stagiaire
+            if(optionalMateriel.isPresent() && materielService.isAssignableToStagiaire(optionalMateriel.get(), salleService.findByStagiaire(optionalStagiaire.get()))){
+                optionalStagiaire.get().getMateriels().add(optionalMateriel.get());
+            }
+        }
+        // TODO peut être renvoyer pour chaque matériel si il a bien été affecté
+        return ResponseEntity.ok(assembler.toStagiaireResponse(userService.update(optionalStagiaire.get())));
     }
 
     @PutMapping("{id}/")

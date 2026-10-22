@@ -2,6 +2,7 @@ package net.ent.etnc.backend.dtos.assemblers;
 
 import net.ent.etnc.backend.dtos.UserDto;
 import net.ent.etnc.backend.dtos.requests.StagiaireRequest;
+import net.ent.etnc.backend.dtos.responses.StagiaireResponse;
 import net.ent.etnc.backend.models.entities.User;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,25 @@ public class UserAssembler {
                 .grade(user.getGrade())
                 .role(user.getRole())
                 .active(user.isActive())
+                .build();
+    }
+
+    public StagiaireResponse toStagiaireResponse(User stagiaire){
+        return StagiaireResponse.builder()
+                .id(stagiaire.getId())
+                .nid(stagiaire.getNid())
+                .email(stagiaire.getEmail())
+                .nom(stagiaire.getNom())
+                .prenom(stagiaire.getPrenom())
+                .dateNaissance(stagiaire.getDateNaissance())
+                .grade(stagiaire.getGrade())
+                .role(stagiaire.getRole())
+                .active(stagiaire.isActive())
+                .materiels(
+                        stagiaire.getMateriels().stream()
+                                .map(m -> m.getId())
+                                .toList()
+                )
                 .build();
     }
 

@@ -13,9 +13,9 @@ public interface StageRepository extends BaseRepository<Stage> {
     Boolean existsByCode(String code);
 
     @Query("""
-        SELECT COUNT(*) = 0
+        SELECT COUNT(*) > 0
         FROM Stage s
-        WHERE s.salleCours.id == :salleId
+        WHERE s.salleCours.id = :salleId
         AND(s.dateDebut > :dateFin OR s.dateFin < :dateDebut)
     """)
     Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin);

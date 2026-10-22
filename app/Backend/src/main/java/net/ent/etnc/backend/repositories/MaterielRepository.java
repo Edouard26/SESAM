@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.repositories;
 
 import net.ent.etnc.backend.models.entities.Materiel;
+import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import net.ent.etnc.backend.repositories.specifications.MaterielSpecifications;
 import org.springframework.data.domain.Page;
@@ -59,4 +60,21 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
     }
 
     Boolean existsByNumeroSerie(String numeroSerie);
+
+    @Query("""
+        SELECT COUNT(*) > 0
+        FROM Salle s
+        JOIN s.materiels m
+        WHERE m = :materiel
+        AND s = :salle
+    """)
+    Boolean isInSalle(Materiel materiel, Salle salle);
+
+    @Query("""
+        SELECT COUNT(*) > 0
+        FROM User u
+        JOIN u.materiels m
+        WHERE m = :materiel
+    """)
+    Boolean isAffectedToStagiaire(Materiel materiel);
 }

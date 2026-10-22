@@ -20,7 +20,7 @@ import java.time.LocalDate;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(
-        name = "materiel",
+        name = "materiels",
         uniqueConstraints = {@UniqueConstraint(
                 name = "uk___materiel___numero_serie",
                 columnNames = {"numero_serie"}
