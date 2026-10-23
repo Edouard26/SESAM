@@ -23,17 +23,30 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
 //        JOIN s.materiels m
 //        WHERE s.id = :salleId
 //    """)
-    default Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId){
+    default Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId, Boolean excludeStagiaire){
         Specification<Materiel> combinedSpec;
 
-        if(spec == null){
-            combinedSpec = Specification.where(
-                    MaterielSpecifications.belongsToSalle(salleId));
+        if(excludeStagiaire){
+            if (spec == null) {
+                combinedSpec = Specification.where(
+                        MaterielSpecifications.belongsToSalle(salleId)
+                                .and(MaterielSpecifications.notAssignToStagiaire()));
+            } else {
+                combinedSpec = Specification.where(
+                                MaterielSpecifications.belongsToSalle(salleId)
+                        .and(spec)
+                        .and(MaterielSpecifications.notAssignToStagiaire()));
+            }
         }
-        else{
-            combinedSpec = Specification.where(
-                    MaterielSpecifications.belongsToSalle(salleId))
-                    .and(spec);
+        else {
+            if (spec == null) {
+                combinedSpec = Specification.where(
+                        MaterielSpecifications.belongsToSalle(salleId));
+            } else {
+                combinedSpec = Specification.where(
+                                MaterielSpecifications.belongsToSalle(salleId))
+                        .and(spec);
+            }
         }
 
         return findAll(combinedSpec, pageable);
@@ -89,6 +102,14 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
         WHERE s = :stagiaire
     """)
     Page<Materiel> findAllMaterielAffectToStagiaire(User stagiaire, Pageable pageable);
+
+    @Query("""
+        SELECT m
+        FROM Materiel m
+        JOIN m.stagiaire s
+        WHERE s <> :stagiaire
+    """)
+    Page<Materiel> findAllMaterielNotAffectToStagiaire(User stagiaire, Pageable pageable);
 
     List<Materiel> findAllByIdIn(Collection<Long> ids);
 }

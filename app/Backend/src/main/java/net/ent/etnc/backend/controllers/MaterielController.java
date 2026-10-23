@@ -37,7 +37,16 @@ import java.util.*;
 public class MaterielController {
 
     private static final Set<String> PATCHABLE = Set.of(
-            "nom"
+            "numeroSerie",
+            "nom",
+            "marque",
+            "modele",
+            "dateAjout",
+            "dateFinGarantie",
+            "etat",
+            "processeur",
+            "carteGraphique",
+            "taille"
     );
 
     private static final Map<String, String> FILTERABLE = Map.of(
@@ -76,7 +85,8 @@ public class MaterielController {
             @RequestParam(required = false) String filter,
             @PageableDefault(size = 10) Pageable pageable,
             @RequestParam(required = false) Long salleId,
-            @RequestParam(required = false) Long excludeSalleId
+            @RequestParam(required = false) Long excludeSalleId,
+            @RequestParam(required = false) Boolean excludeStagiaire
     ) {
         User curentUser = (User) authentication.getPrincipal();
 
@@ -89,12 +99,12 @@ public class MaterielController {
 
         // Si c'est un formateur, on renvoie les matériels affectés à la salle dans laquel il est.
         if(curentUser.getRole() == Role.FORMATEUR){
-            return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId).map(materielAssembler::toResponse));
+            return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId, excludeStagiaire).map(materielAssembler::toResponse));
         }
 
         // Si c'est c'est un gestionnaire ou un administrateur, on renvoie les matériels du parc informatique.
         if(salleId != null){
-            return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId).map(materielAssembler::toResponse));
+            return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId, excludeStagiaire).map(materielAssembler::toResponse));
         }
         if(excludeSalleId != null){
             return ResponseEntity.ok(materielService.findAllByExcludedSalleId(spec, pageable, excludeSalleId).map(materielAssembler::toResponse));

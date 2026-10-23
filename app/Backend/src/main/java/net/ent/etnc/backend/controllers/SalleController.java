@@ -57,7 +57,7 @@ public class SalleController {
     public ResponseEntity<Page<SalleResponse>> getAll(
             @RequestParam(required = false) String filter,
             @RequestParam(required = false) Long selectedStageId,
-            @RequestParam(required = false) Long batimentid,
+            @RequestParam(required = false) Long batimentId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         if(selectedStageId != null){
@@ -69,8 +69,8 @@ public class SalleController {
         }
         Specification<Salle> spec = this.rsqlFilterUtils.build(filter, FILTERABLE);
 
-        if(batimentid != null){
-            return ResponseEntity.ok(salleService.findAllByBatimentId(spec, pageable, batimentid).map(assembler::toResponse));
+        if(batimentId != null){
+            return ResponseEntity.ok(salleService.findAllByBatimentId(spec, pageable, batimentId).map(assembler::toResponse));
         }
 
         return ResponseEntity.ok(salleService.findAll(spec, pageable).map(assembler::toResponse));

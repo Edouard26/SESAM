@@ -26,6 +26,19 @@ public class MaterielSpecifications {
         };
     }
 
+    public static Specification<Materiel> notAssignToStagiaire(){
+        return (root, query, cb) -> {
+            Subquery<Long> subquery = query.subquery(Long.class);
+
+            Root<Materiel> materiel = subquery.from(Materiel.class);
+
+            subquery.select(materiel.get("id"))
+                    .where(cb.equal(materiel.get("stagiaire"), null));
+
+            return root.get("id").in(subquery);
+        };
+    }
+
     public static Specification<Materiel> excludeToSalle(Long salleId){
         return (root, query, cb) -> {
             Subquery<Long> subquery = query.subquery(Long.class);
