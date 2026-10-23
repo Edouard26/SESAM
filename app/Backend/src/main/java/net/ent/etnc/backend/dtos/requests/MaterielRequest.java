@@ -22,7 +22,7 @@ public class MaterielRequest {
     private String modele;
     private LocalDate dateAjout;
     private LocalDate dateFinGarantie;
-    private EtatMateriel etat;
+    private EtatMateriel etat = EtatMateriel.EN_ETAT;
 
     // si c'est un UC
     private String processeur;

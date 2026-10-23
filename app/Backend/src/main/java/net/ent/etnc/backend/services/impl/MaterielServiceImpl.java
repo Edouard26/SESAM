@@ -24,8 +24,8 @@ public class MaterielServiceImpl extends AbstractService<Materiel, MaterielRepos
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId){
-        return repository.findAllBySalleId(spec, pageable, salleId);
+    public Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId, Boolean excludeStagiaire){
+        return repository.findAllBySalleId(spec, pageable, salleId, excludeStagiaire);
     }
 
     @Transactional(readOnly = true)

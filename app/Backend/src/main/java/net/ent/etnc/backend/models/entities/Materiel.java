@@ -46,9 +46,9 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @Setter
         //BV
         @NotBlank(message = "nom ne peut pas être vide")
-        @Size(min = 2, max = 20, message = "nom doit faire 2 caractères minimum et 20 maximum")
+        @Size(min = 1, max = 40, message = "nom doit faire 1 caractères minimum et 40 maximum")
         //JPA
-        @Column(name = "nom", nullable = false, length = 20)
+        @Column(name = "nom", nullable = false, length = 40)
         private String nom;
 
         //LBK
@@ -97,7 +97,7 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         //JPA
         @Enumerated(value = EnumType.STRING)
         @Column(name = "etat", nullable = false, length = 15)
-        private EtatMateriel etat;
+        private EtatMateriel etat = EtatMateriel.EN_ETAT;
         
         //LBK
         @Getter

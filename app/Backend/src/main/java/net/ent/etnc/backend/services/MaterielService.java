@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface MaterielService extends Service<Materiel, Long> {
     @Transactional(readOnly = true)
-    Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId);
+    Page<Materiel> findAllBySalleId(Specification<Materiel> spec, Pageable pageable, Long salleId, Boolean excludeStagiaire);
 
     @Transactional(readOnly = true)
     Page<Materiel> findAllByExcludedSalleId(Specification<Materiel> spec, Pageable pageable, Long salleId);
