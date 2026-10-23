@@ -5,13 +5,42 @@ import { useNavigate } from "react-router-dom";
 import {roomApi} from "../../api";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import RoomPopup from "../../components/room/RoomPopup.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import type {Building} from "../../types/Building.ts";
+import {buildingApi} from "../../api/building.api.ts";
+import type {RoomForm} from "../../types/Room.ts";
 
 export default function Rooms() {
     const navigate = useNavigate();
 
     const [showRoomPopup, setShowRoomPopup] = useState(false);
+    const [buildings, setBuildings] = useState<Building[]>([]);
 
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadBuildings = async () => {
+            try {
+                const response = await buildingApi.list({
+                    page: 0,
+                    size: 100,
+                    sort: "nom,asc",
+                });
+
+                if (!cancelled) {
+                    setBuildings(response.content);
+                }
+            } catch (error) {
+                console.error("Impossible de charger les bâtiments", error);
+            }
+        };
+
+        void loadBuildings();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
     const selects = [
         {
             name: "typeSalle",
@@ -23,11 +52,14 @@ export default function Rooms() {
             ],
         },
         {
-            name: "batiment",
+            name: "batimentId",
             label: "Bâtiment",
             options: [
                 { label: "Tous", value: "" },
-                { label: "Bâtiment A", value: "A" },
+                ...buildings.map((building) => ({
+                    label: building.nom,
+                    value: String(building.id),
+                })),
             ],
         },
         {
@@ -68,14 +100,16 @@ export default function Rooms() {
         errorMessage: "Impossible de charger les salles",
     });
 
+
     return (
         <>
             {showRoomPopup && (
                 <RoomPopup
                     onClose={() => setShowRoomPopup(false)}
-                    onSubmit={() => {
+                    onSubmit={(room: RoomForm) => {
                         setShowRoomPopup(false);
                         reload();
+                        setSearch(room.nom);
                     }}
                 />
             )}

@@ -25,13 +25,6 @@ export default function AssignStageRoomPopup({
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (rooms.length <= 0) {
-            notify("Aucune salle disponible", "warning");
-            onClose();
-        }
-    }, [rooms]);
-
-    useEffect(() => {
         async function loadRooms() {
             try {
                 const response = await roomApi.list({

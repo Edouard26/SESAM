@@ -3,7 +3,7 @@ import Filters from "../../components/generic/Filters.tsx";
 import Table, {type Column} from "../../components/generic/display/Table.tsx";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {materialApi, roomApi} from "../../api";
+import {materialApi} from "../../api";
 import { routes } from "../../router/routes.ts";
 import type {Material} from "../../types/Material.ts";
 import MaterialPopup from "../../components/material/MaterialPopup.tsx";
@@ -69,6 +69,7 @@ export default function Materials() {
         { key: "nom", label: "Nom" },
         { key: "marque", label: "Marque" },
         { key: "modele", label: "Modèle" },
+        { key: "etat", label: "Etat" },
         { key: "numeroSerie", label: "Numero de série" },
         { key: "typeMateriel", label: "Type" },
         {

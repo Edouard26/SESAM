@@ -31,13 +31,13 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
 
     const selects = [
         {
-            name: "type",
+            name: "typeMateriel",
             label: "Type de matériel",
             options: [
                 { label: "Tous", value: "" },
                 { label: "UC", value: "UC" },
                 { label: "Écran", value: "ECRAN" },
-                { label: "Vidéoprojecteur", value: "PROJECTEUR" },
+                { label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR" },
             ],
         },
         {
@@ -94,7 +94,10 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
 
         async function loadRooms() {
             try {
-                const response = await roomApi.list();
+                const response = await roomApi.list({
+                    page: 0,
+                    size: 1000,
+                });
                 setRooms(response.content);
             } catch {
                 notify("Impossible de charger les salles", "danger");
@@ -164,7 +167,6 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
                     {"Affecter"}
                 </button>
             }
-
         >
             <form id="material-form" onSubmit={handleSubmit} ref={formRef}>
                 <div className="mb-4">

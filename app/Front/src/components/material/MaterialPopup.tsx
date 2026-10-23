@@ -64,12 +64,12 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                     typeMateriel: value as MaterialType | "",
                 };
 
-                if (value !== "UniteCentral") {
+                if (value !== "UC") {
                     delete next.processeur;
                     delete next.carteGraphique;
                 }
 
-                if (value !== "Ecran") {
+                if (value !== "ECRAN") {
                     delete next.taille;
                 }
 
@@ -175,9 +175,29 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                         </label>
                         <select id="marque" name="marque" className="form-select" value={values.marque} onChange={handleChange} required>
                             <option value="" disabled>Choisir une marque</option>
-                            <option value="marque1">Marque 1</option>
-                            <option value="marque2">Marque 2</option>
-                            <option value="marque3">Marque 3</option>
+                            <option value="Acer">Acer</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Asus">Asus</option>
+                            <option value="BenQ">BenQ</option>
+                            <option value="Dell">Dell</option>
+                            <option value="Epson">Epson</option>
+                            <option value="Gigabyte">Gigabyte</option>
+                            <option value="HP">HP</option>
+                            <option value="Huawei">Huawei</option>
+                            <option value="iiyama">iiyama</option>
+                            <option value="Intel">Intel</option>
+                            <option value="Lenovo">Lenovo</option>
+                            <option value="LG">LG</option>
+                            <option value="Microsoft">Microsoft</option>
+                            <option value="MSI">MSI</option>
+                            <option value="NEC">NEC</option>
+                            <option value="Optoma">Optoma</option>
+                            <option value="Philips">Philips</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Sony">Sony</option>
+                            <option value="Toshiba">Toshiba</option>
+                            <option value="ViewSonic">ViewSonic</option>
+                            <option value="Xiaomi">Xiaomi</option>
                         </select>
                     </div>
 
@@ -206,9 +226,9 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                             required
                         >
                             <option value="" disabled>Choisir un type</option>
-                            <option value="UniteCentral">Unité centrale</option>
-                            <option value="Ecran">Écran</option>
-                            <option value="VideoProjecteur">Vidéoprojecteur</option>
+                            <option value="UC">Unité Centrale</option>
+                            <option value="ECRAN">Écran</option>
+                            <option value="VIDEO_PROJECTEUR">Vidéo Projecteur</option>
                         </select>
                     </div>
 

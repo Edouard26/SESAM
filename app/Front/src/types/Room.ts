@@ -1,11 +1,11 @@
-import type {Material} from "./Material.ts";
+import type { Material } from "./Material.ts";
 
 export type RoomType = "STOCKAGE" | "COURS";
 
 export type Room = {
     id: number;
     typeSalle: RoomType;
-    etat: string; // dispo/non dispo/maintenance
+    etat: string;
     nom: string;
     nbPlaces: number;
     nomBatiment: string;
@@ -14,8 +14,12 @@ export type Room = {
     materiels?: Material[];
 };
 
-export type RoomForm = Omit<Room, "id" | "typeSalle"> & {
+export type RoomForm = {
     typeSalle: RoomType | "";
+    etat: string;
+    nom: string;
+    nbPlaces: number;
+    nomBatiment: string;
 };
 
 export const roomTemplate: RoomForm = {
@@ -24,6 +28,4 @@ export const roomTemplate: RoomForm = {
     nom: "",
     nbPlaces: 0,
     nomBatiment: "",
-    nbMaterielDispo: 0,
-    materielsId: []
 };

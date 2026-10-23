@@ -63,7 +63,7 @@ export function buildRsql(
 export function toRsqlParams(
     params: Record<string, FilterValue> = {},
     options?: RsqlOptions,
-    passthrough: string[] = ["page", "size", "sort", "salleId", "selectedStageId", "excludeSalleId"],
+    passthrough: string[] = ["page", "size", "sort", "salleId", "selectedStageId", "excludeSalleId", "batimentId", "excludeStagiaire", "roomFromUserId"],
 ): Record<string, FilterValue> {
     const result: Record<string, FilterValue> = {};
     const filters: Record<string, FilterValue> = {};

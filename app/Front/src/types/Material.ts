@@ -1,8 +1,10 @@
 export type MaterialType = "UC" | "ECRAN" | "VIDEO_PROJECTEUR";
+export type EtatType = "EN_ETAT" | "EN_MAINTENANCE" | "DEPRECIER";
 
 export type Material = {
     id: number;
     typeMateriel: MaterialType;
+    etat: EtatType;
     numeroSerie: string;
     marque: string;
     modele: string;
@@ -33,6 +35,7 @@ export const materialTemplate: MaterialForm = {
     numeroSerie: "",
     marque: "",
     modele: "",
+    etat: "EN_ETAT",
     dateAjout: new Date(),
     dateFinGarantie: new Date(),
     nom: "",

@@ -13,9 +13,7 @@ export const materialApi = {
         api.get<Page<Material>>("/api/v1/materials/", toRsqlParams(params, {
             fieldMap: {
                 salleId: "salle.id",
-                stagiaire: "stagiaire",
             },
-            nullFields: ["stagiaire"],
             orFields: {
                 search: ["numeroSerie", "marque", "modele", "nom"],
             },

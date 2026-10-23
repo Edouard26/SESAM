@@ -52,11 +52,10 @@ export default function AssignmentsUserPopup({
     useEffect(() => {
         async function loadUsers() {
             try {
-                const response = await userApi.list(
-                    // stagiaire
-                    // actif
-                    // stage != null
-                );
+                const response = await userApi.list({
+                    page: 0,
+                    size: 1000,
+                });
 
                 setUsers(response.content);
             } catch {
@@ -88,6 +87,7 @@ export default function AssignmentsUserPopup({
         { key: "nom", label: "Nom" },
         { key: "marque", label: "Marque" },
         { key: "modele", label: "Modèle" },
+        { key: "numeroSerie", label: "Num série" },
         { key: "typeMateriel", label: "Type" },
     ] satisfies Column<Material>[];
 
@@ -107,7 +107,8 @@ export default function AssignmentsUserPopup({
         load: (params) =>
             materialApi.list({
                 ...params,
-                stagiaire: true,
+                excludeStagiaire: true,
+                roomFromUserId: values.user?.id ?? 0,
             }),
         initialFilters,
         pageSize: 10,
