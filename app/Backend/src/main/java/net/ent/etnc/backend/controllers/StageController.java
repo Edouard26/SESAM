@@ -9,7 +9,9 @@ import net.ent.etnc.backend.dtos.responses.StageResponse;
 import net.ent.etnc.backend.dtos.assemblers.StageAssembler;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Stage;
+import net.ent.etnc.backend.models.enums.EtatSalle;
 import net.ent.etnc.backend.models.enums.StatutStage;
+import net.ent.etnc.backend.services.SalleService;
 import net.ent.etnc.backend.services.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +32,7 @@ import java.util.*;
 public class StageController {
 
     private static final Map<String, String> FILTERABLE = Map.of(
-            "nom", "nom",
+            "code", "code",
             "statut", "statut"
     );
 
@@ -43,13 +45,15 @@ public class StageController {
 
     private final RsqlFilterUtils rsqlFilterUtils;
     private final JsonPatchUtils jsonPatchUtils;
+    private final SalleService salleService;
 
     @Autowired
-    public StageController(StageService stageService, StageAssembler assembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils) {
+    public StageController(StageService stageService, StageAssembler assembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils, SalleService salleService) {
         this.stageService = stageService;
         this.assembler = assembler;
         this.rsqlFilterUtils = rsqlFilterUtils;
         this.jsonPatchUtils = jsonPatchUtils;
+        this.salleService = salleService;
     }
 
     @GetMapping
@@ -101,6 +105,10 @@ public class StageController {
         entity.setId(id);
         // on a attribuer une salle au stage, le stage passe en statut AFFECTER
         entity.setStatut(StatutStage.AFFECTER);
+        // salle passe en Etat Indisponible
+        entity.getSalleCours().setEtat(EtatSalle.INDISPONIBLE);
+        salleService.update(entity.getSalleCours());
+
         entity = stageService.update(entity);
         return ResponseEntity.ok(assembler.toResponse(entity));
     }

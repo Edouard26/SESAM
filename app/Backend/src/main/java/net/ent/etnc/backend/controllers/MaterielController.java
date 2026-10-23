@@ -42,12 +42,13 @@ public class MaterielController {
 
     private static final Map<String, String> FILTERABLE = Map.of(
             "numeroSerie", "numeroSerie",
+            "nom", "nom",
             "marque", "marque",
             "modele", "modele",
             "dateAjout", "dateAjout",
             "dateFinGarantie", "dateFinGarantie",
             "etat", "etat",
-            "type", "type",
+            "typeMateriel", "type",
             "stagiaire", "stagiaire"
     );
 

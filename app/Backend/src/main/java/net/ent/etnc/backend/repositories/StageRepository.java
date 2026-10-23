@@ -12,6 +12,7 @@ public interface StageRepository extends BaseRepository<Stage> {
 
     Boolean existsByCode(String code);
 
+    // TODO Peut être la mettre dans SalleRepository
     @Query("""
         SELECT COUNT(*) > 0
         FROM Stage s

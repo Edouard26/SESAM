@@ -86,7 +86,7 @@ public class MaterielAssembler {
                 .dateFinGarantie(materiel.getDateFinGarantie())
                 .marque(materiel.getMarque())
                 .modele(materiel.getModele())
-                .etat(materiel.getEtat())
+//                .etat(materiel.getEtat())
                 .build();
     }
 
@@ -100,7 +100,7 @@ public class MaterielAssembler {
         uc.setMarque(materielRequest.getMarque());
         uc.setDateAjout(materielRequest.getDateAjout());
         uc.setDateFinGarantie(materielRequest.getDateFinGarantie());
-        uc.setEtat(materielRequest.getEtat());
+//        uc.setEtat(materielRequest.getEtat());
         uc.setProcesseur(materielRequest.getProcesseur());
         uc.setCarteGraphique(materielRequest.getCarteGraphique());
 
@@ -117,7 +117,7 @@ public class MaterielAssembler {
         ecran.setMarque(materielRequest.getMarque());
         ecran.setDateAjout(materielRequest.getDateAjout());
         ecran.setDateFinGarantie(materielRequest.getDateFinGarantie());
-        ecran.setEtat(materielRequest.getEtat());
+//        ecran.setEtat(materielRequest.getEtat());
         ecran.setTaille(materielRequest.getTaille());
 
         return ecran;
@@ -133,7 +133,7 @@ public class MaterielAssembler {
         videoProjecteur.setMarque(materielRequest.getMarque());
         videoProjecteur.setDateAjout(materielRequest.getDateAjout());
         videoProjecteur.setDateFinGarantie(materielRequest.getDateFinGarantie());
-        videoProjecteur.setEtat(materielRequest.getEtat());
+//        videoProjecteur.setEtat(materielRequest.getEtat());
 
         return videoProjecteur;
     }
