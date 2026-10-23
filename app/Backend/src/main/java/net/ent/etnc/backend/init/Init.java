@@ -6,6 +6,7 @@ import net.ent.etnc.backend.services.*;
 import net.ent.etnc.backend.services.commons.ServiceException;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,21 +15,28 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.HashSet;
+import java.util.Comparator;
 
 /**
- * Jeu de test SESAM pour une base initialement vide :
- * 500 matériels (250 UC, 200 écrans, 50 vidéoprojecteurs),
- * 5 bâtiments, 100 salles et 100 utilisateurs fictifs.
+ * Jeu de test SESAM : 500 matériels, 5 bâtiments, 100 salles,
+ * 100 utilisateurs dont 70 stagiaires.
  *
- * Chaque catégorie est initialisée uniquement si son compteur est nul,
- * comme dans la version initiale. Les données existantes ne sont pas complétées.
- * Les matériels nouvellement créés sont répartis à raison de 5 par salle.
+ * Relations CODASYL respectées : Batiment.salles, Salle.materiels,
+ * Stage.salleCours, Stage.stagiaires et Materiel.stagiaire.
+ * Groupes de 20, 20, 20 et 10 stagiaires sur une base initialement vide.
+ * 60 stagiaires reçoivent chacun une UC et un écran EN_ETAT dans leur salle.
  *
- * Comptes principaux : admin, gestionnaire, formateur, stagiaire
- * suivis de @intradef.gouv.fr. Mots de passe : respectivement
- * admin, gestionnaire, formateur, stagiaire.
- * Les 96 autres comptes utilisent Test@1234.
- * Les noms commerciaux sont réels ; les numéros de série sont fictifs.
+ * Les créations restent conditionnées à des catégories vides.
+ * Les relations manquantes sont aussi complétées sur l'ancien jeu de test.
+ * Aucun utilisateur n'est retiré de son stage, aucun matériel déjà attribué
+ * n'est repris et les salles des autres stages ne sont pas prélevées.
+ *
+ * Comptes principaux : admin, gestionnaire, formateur, stagiaire,
+ * suivis de @intradef.gouv.fr ; mots de passe identiques aux identifiants.
+ * Autres comptes : Test@1234. Noms commerciaux réels, séries fictives.
  */
 @Component
 public class Init implements CommandLineRunner {
@@ -43,11 +51,8 @@ public class Init implements CommandLineRunner {
     private final AlerteService alerteService;
     private final StageService stageService;
 
-    // Références retournées par les services : aucun ID supposé pour les créations.
-    private final List<Materiel> materielsCrees = new ArrayList<>();
     private User gestionnaireCree;
     private User stagiaireCree;
-    private Salle premiereSalleCreee;
 
     public Init(UserService userService, MaterielService materielService,
                 UniteCentraleService uniteCentraleService, EcranService ecranService,
@@ -66,7 +71,10 @@ public class Init implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
+        // Une seule transaction : les associations JPA chargées restent gérées
+        // et toutes les modifications sont annulées si l'initialisation échoue.
         if (userService.count() == 0) {
             initUsers();
         }
@@ -76,11 +84,25 @@ public class Init implements CommandLineRunner {
         if (batimentService.count() == 0) {
             initBatimentSalle();
         }
+
+        List<User> utilisateurs = new ArrayList<>(userService.findAll());
+        List<Salle> salles = new ArrayList<>(salleService.findAll());
+        List<Materiel> materiels = new ArrayList<>(materielService.findAll());
+        salles.sort(Comparator.comparing(Salle::getNom));
+        materiels.sort(Comparator.comparing(Materiel::getNumeroSerie));
+
+        rattacherSallesAuxBatiments(salles);
+        List<Stage> groupes = initStagesEtGroupes(utilisateurs, salles);
+        affecterMateriels(groupes, salles, materiels);
+
         if (alerteService.count() == 0) {
+            gestionnaireCree = utilisateurs.stream()
+                    .filter(u -> u.getRole() == Role.GESTIONNAIRE)
+                    .findFirst().orElseThrow(() -> new IllegalStateException("Aucun gestionnaire."));
+            stagiaireCree = utilisateurs.stream()
+                    .filter(u -> u.getRole() == Role.STAGIAIRE)
+                    .findFirst().orElseThrow(() -> new IllegalStateException("Aucun stagiaire."));
             initAlerte();
-        }
-        if (stageService.count() == 0) {
-            initStage();
         }
     }
 
@@ -185,9 +207,8 @@ public class Init implements CommandLineRunner {
         int numeroVP = 0;
         LocalDate aujourdHui = LocalDate.now();
 
-        // Un lot de 5 matériels par salle :
-        // salles 1 à 50 : 3 UC + 2 écrans ;
-        // salles 51 à 100 : 2 UC + 2 écrans + 1 vidéoprojecteur.
+        // Production de 250 UC, 200 écrans et 50 vidéoprojecteurs.
+        // La localisation et la dotation sont effectuées après les stages.
         for (int numeroSalle = 1; numeroSalle <= 100; numeroSalle++) {
             int nombreUC = numeroSalle <= 50 ? 3 : 2;
 
@@ -197,12 +218,12 @@ public class Init implements CommandLineRunner {
                 LocalDate ajout = aujourdHui.minusMonths(1 + numeroUC % 48);
                 UniteCentrale uc = new UniteCentrale();
                 remplirMateriel(uc, numeroSerie("UC", numeroUC),
-                        modele[0] + " " + modele[1] + " - UC " + numeroUC,
+                        modele[1],
                         ajout, ajout.plusYears(3), modele[0], modele[1],
                         etatMateriel(numeroUC));
                 uc.setProcesseur(modele[2]);
                 uc.setCarteGraphique(modele[3]);
-                materielsCrees.add(uniteCentraleService.create(uc));
+                uniteCentraleService.create(uc);
             }
 
             for (int j = 0; j < 2; j++) {
@@ -211,11 +232,11 @@ public class Init implements CommandLineRunner {
                 LocalDate ajout = aujourdHui.minusMonths(1 + numeroEcran % 48);
                 Ecran ecran = new Ecran();
                 remplirMateriel(ecran, numeroSerie("ECR", numeroEcran),
-                        modele[0] + " " + modele[1] + " - Ecran " + numeroEcran,
+                        modele[1],
                         ajout, ajout.plusYears(3), modele[0], modele[1],
                         etatMateriel(numeroEcran));
                 ecran.setTaille(Integer.parseInt(modele[2]));
-                materielsCrees.add(ecranService.create(ecran));
+                ecranService.create(ecran);
             }
 
             if (numeroSalle > 50) {
@@ -224,10 +245,10 @@ public class Init implements CommandLineRunner {
                 LocalDate ajout = aujourdHui.minusMonths(1 + numeroVP % 48);
                 VideoProjecteur vp = new VideoProjecteur();
                 remplirMateriel(vp, numeroSerie("VP", numeroVP),
-                        modele[0] + " " + modele[1] + " - Videoprojecteur " + numeroVP,
+                        modele[1],
                         ajout, ajout.plusYears(3), modele[0], modele[1],
                         etatMateriel(numeroVP));
-                materielsCrees.add(videoProjecteurService.create(vp));
+                videoProjecteurService.create(vp);
             }
         }
     }
@@ -260,18 +281,12 @@ public class Init implements CommandLineRunner {
 
     private void initBatimentSalle() throws ServiceException {
         String[] nomsBatiments = {"201", "202", "203", "320", "321"};
-        int indexMateriel = 0;
 
         for (String nomBatiment : nomsBatiments) {
             Set<Salle> salles = new LinkedHashSet<>();
 
             for (int numeroSalle = 1; numeroSalle <= 20; numeroSalle++) {
                 Set<Materiel> materiels = new LinkedHashSet<>();
-                // Si les matériels existaient avant ce lancement, ils ne sont
-                // pas réaffectés : seules les nouvelles créations sont réparties.
-                for (int j = 0; j < 5 && indexMateriel < materielsCrees.size(); j++) {
-                    materiels.add(materielsCrees.get(indexMateriel++));
-                }
 
                 Salle salle = new Salle();
                 salle.setNom(String.format(Locale.ROOT, "%s-%03d", nomBatiment, numeroSalle));
@@ -282,9 +297,6 @@ public class Init implements CommandLineRunner {
 
                 Salle salleCreee = salleService.create(salle);
                 salles.add(salleCreee);
-                if (premiereSalleCreee == null) {
-                    premiereSalleCreee = salleCreee;
-                }
             }
 
             Batiment batiment = new Batiment();
@@ -295,14 +307,8 @@ public class Init implements CommandLineRunner {
     }
 
     private void initAlerte() throws ServiceException {
-        // Les recherches par ID ne servent que de repli pour une base déjà
-        // partiellement initialisée avec l'ancien jeu de test.
-        User signaleur = stagiaireCree != null ? stagiaireCree
-                : userService.findById(4L).orElseThrow(() ->
-                                                       new IllegalStateException("Utilisateur signaleur introuvable (ancien ID 4)."));
-        User resolveur = gestionnaireCree != null ? gestionnaireCree
-                : userService.findById(2L).orElseThrow(() ->
-                                                       new IllegalStateException("Utilisateur resolveur introuvable (ancien ID 2)."));
+        User signaleur = stagiaireCree;
+        User resolveur = gestionnaireCree;
 
         LocalDateTime maintenant = LocalDateTime.now();
         alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2),
@@ -331,15 +337,219 @@ public class Init implements CommandLineRunner {
         return alerte;
     }
 
-    private void initStage() throws ServiceException {
-        Salle salle = premiereSalleCreee != null ? premiereSalleCreee
-                : salleService.findById(1L).orElseThrow(() ->
-                                                        new IllegalStateException("Salle de cours introuvable (ancien ID 1)."));
+    private void rattacherSallesAuxBatiments(List<Salle> salles) {
+        Map<Long, Batiment> proprietaires = new LinkedHashMap<>();
+        List<Batiment> batiments = new ArrayList<>(batimentService.findAll());
+        for (Batiment batiment : batiments) {
+            for (Salle salle : batiment.getSalles()) {
+                Batiment precedent = proprietaires.put(salle.getId(), batiment);
+                if (precedent != null && !precedent.getId().equals(batiment.getId())) {
+                    throw new IllegalStateException("Salle rattachee a deux batiments : " + salle.getNom());
+                }
+            }
+        }
+        for (Batiment batiment : batiments) {
+            for (Salle salle : salles) {
+                if (salle.getNom().startsWith(batiment.getNom() + "-")
+                        && !proprietaires.containsKey(salle.getId())) {
+                    // Batiment.salles porte la FK batiment_id : pas de setBatiment fictif.
+                    batiment.getSalles().add(salle);
+                    proprietaires.put(salle.getId(), batiment);
+                }
+            }
+        }
+    }
 
-        stageService.create(buildStage("WB47", LocalDate.now().minusMonths(8),
-                LocalDate.now().plusMonths(1), salle, StatutStage.EN_COURS));
-        stageService.create(buildStage("WB48", LocalDate.now().plusDays(8),
-                LocalDate.now().plusMonths(8), null, StatutStage.A_AFFECTER));
+    private List<Stage> initStagesEtGroupes(List<User> utilisateurs, List<Salle> salles) {
+        List<Stage> stages = new ArrayList<>(stageService.findAll());
+        Set<Long> stagiairesDejaInscrits = new HashSet<>();
+        Set<Long> sallesOccupees = new HashSet<>();
+        for (Stage stage : stages) {
+            for (User stagiaire : stage.getStagiaires()) {
+                if (!stagiairesDejaInscrits.add(stagiaire.getId())) {
+                    throw new IllegalStateException("Stagiaire inscrit a plusieurs stages : " + stagiaire.getNid());
+                }
+            }
+            if (stage.getSalleCours() != null) {
+                sallesOccupees.add(stage.getSalleCours().getId());
+            }
+        }
+
+        List<User> disponibles = utilisateurs.stream()
+                .filter(u -> u.getRole() == Role.STAGIAIRE && u.isActive())
+                .filter(u -> !stagiairesDejaInscrits.contains(u.getId()))
+                // Le compte de démonstration est inclus dans le premier groupe.
+                .sorted(Comparator.comparing((User u) -> !"stagiaire@intradef.gouv.fr".equals(u.getEmail()))
+                        .thenComparing(User::getNid))
+                .toList();
+
+        String[] codes = {"WB47", "WB49", "WB50", "WB51"};
+        List<Stage> groupes = new ArrayList<>();
+        int index = 0;
+        for (String code : codes) {
+            Stage stage = stages.stream().filter(s -> code.equals(s.getCode())).findFirst().orElse(null);
+            if (stage == null && index >= disponibles.size()) {
+                continue;
+            }
+            Salle salle = stage != null ? stage.getSalleCours() : null;
+            if (salle == null) {
+                salle = salles.stream()
+                        .filter(s -> s.getTypeSalle() == TypeSalle.COURS)
+                        .filter(s -> s.getEtat() == EtatSalle.DISPONIBLE && s.getNbPlaces() >= 20)
+                        .filter(s -> !sallesOccupees.contains(s.getId()))
+                        .findFirst().orElseThrow(() -> new IllegalStateException("Aucune salle de cours disponible."));
+                sallesOccupees.add(salle.getId());
+            }
+            if (salle.getTypeSalle() != TypeSalle.COURS) {
+                throw new IllegalStateException("Un stage doit occuper une salle de cours : " + code);
+            }
+
+            boolean nouveau = stage == null;
+            if (nouveau) {
+                stage = buildStage(code, LocalDate.now().minusMonths(2),
+                        LocalDate.now().plusMonths(1), salle, StatutStage.EN_COURS);
+            } else {
+                stage.setSalleCours(salle);
+                if (stage.getStatut() == StatutStage.A_AFFECTER) {
+                    stage.setStatut(StatutStage.EN_COURS);
+                }
+            }
+            int capaciteGroupe = Math.min(20, salle.getNbPlaces());
+            while (stage.getStagiaires().size() < capaciteGroupe && index < disponibles.size()) {
+                stage.getStagiaires().add(disponibles.get(index++));
+            }
+            if (stage.getStagiaires().size() > salle.getNbPlaces()) {
+                throw new IllegalStateException("Capacite de salle depassee pour " + code);
+            }
+            if (nouveau) {
+                stage = stageService.create(stage);
+                stages.add(stage);
+            }
+            // Pour un stage existant, la collection est gérée dans la transaction
+            // de run(). Sa modification persiste users.stage_id au commit.
+            groupes.add(stage);
+        }
+        if (index < disponibles.size()) {
+            throw new IllegalStateException("Plus de stagiaires que de places dans les quatre groupes de test.");
+        }
+        if (stages.stream().noneMatch(s -> "WB48".equals(s.getCode()))) {
+            stageService.create(buildStage("WB48", LocalDate.now().plusDays(8),
+                    LocalDate.now().plusMonths(8), null, StatutStage.A_AFFECTER));
+        }
+        return groupes;
+    }
+
+    private void affecterMateriels(List<Stage> groupes, List<Salle> salles, List<Materiel> materiels) {
+        Map<Long, Salle> localisations = new LinkedHashMap<>();
+        for (Salle salle : salles) {
+            for (Materiel materiel : salle.getMateriels()) {
+                Salle precedente = localisations.put(materiel.getId(), salle);
+                if (precedente != null && !precedente.getId().equals(salle.getId())) {
+                    throw new IllegalStateException("Materiel present dans deux salles : " + materiel.getNumeroSerie());
+                }
+            }
+        }
+        // Les salles de tous les stages sont protégées : aucun prélèvement
+        // dans une autre salle de formation, même hors des groupes de test.
+        Set<Long> sallesStages = new HashSet<>();
+        for (Stage stage : stageService.findAll()) {
+            if (stage.getSalleCours() != null) {
+                sallesStages.add(stage.getSalleCours().getId());
+            }
+        }
+
+        int indexStagiaire = 0;
+        for (Stage stage : groupes) {
+            Salle salle = stage.getSalleCours();
+            List<User> stagiaires = stage.getStagiaires().stream()
+                    .sorted(Comparator.comparing((User u) -> !"stagiaire@intradef.gouv.fr".equals(u.getEmail()))
+                            .thenComparing(User::getNid))
+                    .toList();
+            for (User stagiaire : stagiaires) {
+                // 1 stagiaire sur 7 sans dotation : 60 équipés sur 70 à neuf.
+                boolean equiper = indexStagiaire++ % 7 != 6;
+                boolean dejaEquipe = materiels.stream().anyMatch(m ->
+                        m.getStagiaire() != null && m.getStagiaire().getId().equals(stagiaire.getId()));
+                if (!equiper || dejaEquipe) {
+                    continue;
+                }
+                Materiel uc = trouverMateriel(UniteCentrale.class, salle, materiels, localisations, sallesStages);
+                Materiel ecran = trouverMateriel(Ecran.class, salle, materiels, localisations, sallesStages);
+                if (uc == null || ecran == null) {
+                    throw new IllegalStateException("Pas assez d'UC/ecrans disponibles pour " + stage.getCode());
+                }
+                localiser(uc, salle, localisations);
+                localiser(ecran, salle, localisations);
+                // Materiel.stagiaire porte la FK : User n'a pas de setMateriels.
+                uc.setStagiaire(stagiaire);
+                ecran.setStagiaire(stagiaire);
+            }
+        }
+
+        // Tout le reliquat reçoit aussi une salle. Aucun matériel n'est
+        // laissé sans localisation et un matériel a un seul propriétaire.
+        if (!materiels.isEmpty() && salles.isEmpty()) {
+            throw new IllegalStateException("Aucune salle pour localiser les materiels.");
+        }
+        Map<Long, Salle> sallesStagiaires = new LinkedHashMap<>();
+        for (Stage stage : stageService.findAll()) {
+            if (stage.getSalleCours() != null) {
+                for (User stagiaire : stage.getStagiaires()) {
+                    sallesStagiaires.put(stagiaire.getId(), stage.getSalleCours());
+                }
+            }
+        }
+        int indexSalle = 0;
+        for (Materiel materiel : materiels) {
+            Salle salleStagiaire = materiel.getStagiaire() == null ? null
+                    : sallesStagiaires.get(materiel.getStagiaire().getId());
+            if (materiel.getStagiaire() != null && salleStagiaire == null) {
+                throw new IllegalStateException("Materiel attribue a un stagiaire sans salle de stage : "
+                        + materiel.getNumeroSerie());
+            }
+            if (salleStagiaire != null) {
+                localiser(materiel, salleStagiaire, localisations);
+            } else if (!localisations.containsKey(materiel.getId())) {
+                localiser(materiel, salles.get(indexSalle++ % salles.size()), localisations);
+            }
+        }
+    }
+
+    private Materiel trouverMateriel(Class<? extends Materiel> type, Salle cible,
+                                    List<Materiel> materiels, Map<Long, Salle> localisations,
+                                    Set<Long> sallesStages) {
+        // On utilise d'abord le matériel déjà dans la salle du stage.
+        for (int passage = 0; passage < 2; passage++) {
+            for (Materiel materiel : materiels) {
+                if (!type.isInstance(materiel) || materiel.getEtat() != EtatMateriel.EN_ETAT
+                        || materiel.getStagiaire() != null) {
+                    continue;
+                }
+                Salle origine = localisations.get(materiel.getId());
+                boolean dansSalle = origine != null && origine.getId().equals(cible.getId());
+                if (passage == 0 && dansSalle) {
+                    return materiel;
+                }
+                if (passage == 1 && (origine == null
+                        || (!sallesStages.contains(origine.getId()) && origine.getMateriels().size() > 1))) {
+                    return materiel;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void localiser(Materiel materiel, Salle destination, Map<Long, Salle> localisations) {
+        Salle origine = localisations.get(materiel.getId());
+        if (origine != null && origine.getId().equals(destination.getId())) {
+            return;
+        }
+        if (origine != null) {
+            origine.getMateriels().remove(materiel);
+        }
+        // Salle.materiels porte la FK salle_id, pas Materiel.setSalle().
+        destination.getMateriels().add(materiel);
+        localisations.put(materiel.getId(), destination);
     }
 
     private Stage buildStage(String code, LocalDate dateDebut, LocalDate dateFin,
