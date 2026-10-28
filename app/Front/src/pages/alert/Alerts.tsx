@@ -116,13 +116,13 @@ export default function Alerts() {
             label: "Matériel",
             render: (alert: Alert) => (
                 <div className="d-flex flex-wrap gap-1">
-                    {alert.materielsId.length > 0 ? (
-                        alert.materielsId.map((materielId) => (
+                    {alert.materiels.length > 0 ? (
+                        alert.materiels.map((materiel) => (
                             <span
-                                key={materielId}
+                                key={materiel.id}
                                 className="badge text-bg-light border"
                             >
-                                #{materielId}
+                                #{materiel.id} · {materiel.numeroSerie}
                             </span>
                         ))
                     ) : (
