@@ -229,6 +229,7 @@ export default function Room() {
                                 getOptionLabel={(rule) => rule.nom}
                                 value={selectedRuleIds}
                                 onChange={setSelectedRuleIds}
+                                selectedOptions={room.regles ?? []}
                             />
                         </div>
                         <button type="button" className="btn btn-primary" disabled={savingRules} onClick={() => void saveRoomRules()}>

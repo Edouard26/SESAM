@@ -18,7 +18,12 @@ export default function RuleFormPopup({ rule, processes, saving, onClose, onSubm
     const [processusId, setProcessusId] = useState(rule?.processusId ?? []);
 
     return (
-        <Popup title={rule ? "Modifier la règle" : "Ajouter une règle"} onClose={onClose} confirmOnSubmit={false}
+        <Popup
+            title={rule ? "Modifier la règle" : "Ajouter une règle"}
+            onClose={onClose}
+            confirmationTitle={rule ? "Modifier la règle ?" : "Créer la règle ?"}
+            confirmationMessage="Confirmer l’enregistrement de cette règle ?"
+            confirmationLabel="Confirmer"
             actions={<button type="submit" form="rule-form" className="btn btn-primary" disabled={saving}>{saving ? "Enregistrement..." : "Enregistrer"}</button>}>
             <form id="rule-form" onSubmit={(event) => {
                 event.preventDefault();
