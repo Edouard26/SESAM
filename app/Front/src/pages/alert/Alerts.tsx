@@ -70,6 +70,8 @@ export default function Alerts() {
         page,
         totalPages,
         totalElements,
+        sort,
+        setSort,
         setPage,
         handleFilterChange,
         resetFilters,
@@ -79,6 +81,7 @@ export default function Alerts() {
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les alertes",
+        initialSort: "dateSignalement,desc",
     });
 
     async function handleStatusChange(
@@ -130,6 +133,7 @@ export default function Alerts() {
         },
         {
             label: "Signalement",
+            sortKey: "dateSignalement",
             render: (alert: Alert) => (
                 <div>
                     <div className="fw-semibold">
@@ -148,6 +152,7 @@ export default function Alerts() {
         },
         {
             label: "Statut",
+            sortKey: "statut",
             render: (alert: Alert) => (
                 <span
                     className={`badge ${statutClasses[alert.statut]}`}
@@ -214,6 +219,8 @@ export default function Alerts() {
                 totalElements={totalElements}
                 onPageChange={setPage}
                 loading={loading}
+                sort={sort}
+                onSortChange={setSort}
             />
         </>
     );

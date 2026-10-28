@@ -6,6 +6,8 @@ export type Column<T> = {
     key?: keyof T;
     label: string;
     render?: (item: T) => ReactNode;
+    /** Propriété de tri comprise par l'API. */
+    sortKey?: string;
 };
 
 type TableSelection<T> = {
@@ -29,6 +31,8 @@ type TableProps<T> = {
     onPageChange: (page: number) => void;
     loading?: boolean;
     selection?: TableSelection<T>;
+    sort?: string;
+    onSortChange?: (sort: string) => void;
 };
 
 export default function Table<T>({
@@ -38,9 +42,11 @@ export default function Table<T>({
                                      totalElements,
                                      totalPages,
                                      onPageChange,
-                                     loading = false,
-                                     selection,
-                                 }: TableProps<T>) {
+                                      loading = false,
+                                      selection,
+                                      sort,
+                                      onSortChange,
+                                  }: TableProps<T>) {
     const pages = Array.from({ length: totalPages }, (_, index) => index).filter((page) => {
         if (totalPages <= 5) {
             return true;
@@ -125,11 +131,29 @@ export default function Table<T>({
                                 </th>
                             )}
 
-                            {columns.map((column) => (
-                                <th key={String(column.key ?? column.label)}>
-                                    {column.label}
-                                </th>
-                            ))}
+                            {columns.map((column) => {
+                                const [activeKey, activeDirection] = (sort ?? "").split(",");
+                                const direction = activeKey === column.sortKey ? activeDirection : undefined;
+                                const nextSort = direction === "asc" ? "desc" : "asc";
+
+                                return (
+                                    <th key={String(column.key ?? column.label)} scope="col">
+                                        {column.sortKey && onSortChange ? (
+                                            <button
+                                                type="button"
+                                                className="btn btn-link p-0 text-body text-decoration-none fw-semibold"
+                                                disabled={loading}
+                                                onClick={() => onSortChange(`${column.sortKey},${nextSort}`)}
+                                                aria-label={`Trier par ${column.label} ${nextSort === "asc" ? "croissant" : "décroissant"}`}
+                                                aria-sort={direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none"}
+                                            >
+                                                {column.label}{" "}
+                                                <i className={`bi ${direction === "asc" ? "bi-arrow-up" : direction === "desc" ? "bi-arrow-down" : "bi-arrow-down-up"}`} aria-hidden="true" />
+                                            </button>
+                                        ) : column.label}
+                                    </th>
+                                );
+                            })}
                         </tr>
                         </thead>
 
