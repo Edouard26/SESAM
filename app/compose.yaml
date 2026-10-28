@@ -1,3 +1,5 @@
+name: sesam-dev
+
 services:
     db:
         image: postgres:17-alpine
@@ -16,6 +18,12 @@ services:
     backend:
         build:
             context: ./Backend
+            dockerfile: Dockerfile
+        working_dir: /workspace
+        command: sh -c 'find src -print | entr -nr mvn spring-boot:run'
+        volumes:
+            - ./Backend:/workspace
+            - maven_cache:/root/.m2
         ports:
             - "8080:8080"
         environment:
@@ -31,12 +39,17 @@ services:
     front:
         build:
             context: ./Front
-            args:
-                VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+        volumes:
+            - ./Front:/workspace
+            - front_node_modules:/workspace/node_modules
         ports:
-            - "${FRONT_PORT:-8081}:80"
+            - "${FRONT_PORT:-8081}:5173"
+        environment:
+            VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
         depends_on:
             - backend
 
 volumes:
     postgres_data:
+    maven_cache:
+    front_node_modules:
