@@ -72,7 +72,7 @@ public class WebSecurityConfig {
         config.setAllowedOrigins(List.of(frontOrigin));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
