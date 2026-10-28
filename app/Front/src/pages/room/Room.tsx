@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { roomApi } from "../../api";
+import { roomApi, ruleApi } from "../../api";
 import type { Room } from "../../types/Room.ts";
 import type { Material, MaterialType } from "../../types/Material.ts";
 import PageHeader from "../../components/layout/PageHeader.tsx";
@@ -8,6 +8,9 @@ import CardTable from "../../components/generic/display/CardTable.tsx";
 import Loader from "../../components/generic/Loader.tsx";
 import AssignmentsPopup from "../../components/material/AssignmentsPopup.tsx";
 import { routes } from "../../router/routes.ts";
+import MultiSelect from "../../components/generic/display/MultiSelect.tsx";
+import type { Rule } from "../../types/Rule.ts";
+import useNotification from "../../hooks/useNotification.ts";
 
 const MATERIELS_PAGE_SIZE = 6;
 
@@ -63,6 +66,9 @@ export default function Room() {
     const [reloadKey, setReloadKey] = useState(0);
 
     const [materielsPage, setMaterielsPage] = useState(0);
+    const [selectedRuleIds, setSelectedRuleIds] = useState<number[]>([]);
+    const [savingRules, setSavingRules] = useState(false);
+    const { notify } = useNotification();
 
     const allMateriels = room?.materiels ?? [];
     const totalElements = allMateriels.length;
@@ -85,6 +91,7 @@ export default function Room() {
             .then((data) => {
                 if (!cancelled) {
                     setRoom(data);
+                    setSelectedRuleIds(data.regles?.map((rule) => rule.id) ?? []);
                     setMaterielsPage(0);
                 }
             })
@@ -123,6 +130,20 @@ export default function Room() {
 
     const isCours = room.typeSalle === "COURS";
     const status = getStatus(room.etat);
+
+    async function saveRoomRules() {
+        setSavingRules(true);
+        try {
+            const updated = await roomApi.updateRules(roomId, selectedRuleIds);
+            setRoom(updated);
+            setSelectedRuleIds(updated.regles?.map((rule) => rule.id) ?? []);
+            notify("Règles de la salle mises à jour.", "success");
+        } catch {
+            notify("Impossible de mettre à jour les règles de la salle.", "danger");
+        } finally {
+            setSavingRules(false);
+        }
+    }
 
     const actions: {
         label: string;
@@ -192,6 +213,30 @@ export default function Room() {
                 />
                 <StatCard label="Bâtiment" value={room.nomBatiment ?? "-"} />
             </div>
+
+            <section className="card border mb-4">
+                <div className="card-body">
+                    <h2 className="h5 mb-3">Règles de la salle</h2>
+                    <div className="d-flex flex-column flex-md-row align-items-md-end gap-3">
+                        <div className="flex-grow-1">
+                            <label className="form-label">Règles appliquées aux matériels de cette salle</label>
+                            <MultiSelect<Rule, number>
+                                searchOptions={async (query) => {
+                                    const result = await ruleApi.list({ page: 0, size: 1000, sort: "nom,asc" });
+                                    return { content: result.content.filter((rule) => rule.nom.toLocaleLowerCase("fr").includes(query.toLocaleLowerCase("fr"))) };
+                                }}
+                                getOptionValue={(rule) => rule.id}
+                                getOptionLabel={(rule) => rule.nom}
+                                value={selectedRuleIds}
+                                onChange={setSelectedRuleIds}
+                            />
+                        </div>
+                        <button type="button" className="btn btn-primary" disabled={savingRules} onClick={() => void saveRoomRules()}>
+                            {savingRules ? "Enregistrement..." : "Enregistrer"}
+                        </button>
+                    </div>
+                </div>
+            </section>
 
             {/*
               TODO (à reprendre plus tard) : section « Affectation des stages ».

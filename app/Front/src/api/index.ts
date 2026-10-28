@@ -5,3 +5,5 @@ export { roomApi } from "./room.api.ts";
 export { userApi } from "./user.api.ts";
 export { alertApi } from "./alert.api.ts";
 export { stageApi } from "./stage.api.ts";
+export { ruleApi } from "./rule.api.ts";
+export { processApi } from "./process.api.ts";

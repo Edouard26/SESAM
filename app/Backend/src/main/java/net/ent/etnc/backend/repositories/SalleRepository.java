@@ -14,9 +14,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface SalleRepository extends BaseRepository<Salle> {
+
+    List<Salle> findAllByRegles_Id(Long regleId);
 
     @Query("""
         SELECT stage.salleCours

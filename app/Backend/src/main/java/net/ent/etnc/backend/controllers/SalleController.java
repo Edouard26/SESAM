@@ -2,6 +2,7 @@ package net.ent.etnc.backend.controllers;
 
 import net.ent.etnc.backend.commons.RsqlFilterUtils;
 import net.ent.etnc.backend.dtos.requests.SalleRequest;
+import net.ent.etnc.backend.dtos.requests.SalleReglesRequest;
 import net.ent.etnc.backend.dtos.responses.SalleResponse;
 import net.ent.etnc.backend.dtos.assemblers.SalleAssembler;
 import net.ent.etnc.backend.models.entities.Batiment;
@@ -53,7 +54,7 @@ public class SalleController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('GESTIONNAIRE') || hasRole('FORMATEUR')")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE', 'FORMATEUR', 'ADMINISTRATEUR')")
     public ResponseEntity<Page<SalleResponse>> getAll(
             @RequestParam(required = false) String filter,
             @RequestParam(required = false) Long selectedStageId,
@@ -77,11 +78,17 @@ public class SalleController {
     }
 
     @GetMapping("{id}/")
-    @PreAuthorize("hasRole('GESTIONNAIRE') || hasRole('FORMATEUR')")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE', 'FORMATEUR', 'ADMINISTRATEUR')")
     public ResponseEntity<SalleResponse> getById(@PathVariable Long id) {
         return salleService.findById(id)
                 .map(a -> ResponseEntity.ok(assembler.toResponse(a)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("{id}/rules/")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE', 'FORMATEUR', 'ADMINISTRATEUR')")
+    public ResponseEntity<SalleResponse> updateRegles(@PathVariable Long id, @RequestBody SalleReglesRequest request) {
+        return ResponseEntity.ok(assembler.toResponse(salleService.updateRegles(id, request.getReglesId())));
     }
 
     @PostMapping

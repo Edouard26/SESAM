@@ -28,4 +28,6 @@ public class SalleResponse {
 
     // Liste des matériels dans la salle
     private List<MaterielResponse> materiels;
+
+    private List<RegleResponse> regles;
 }
