@@ -43,7 +43,7 @@ public class Alerte extends AbstractPersistableWithIdSetter<Long> {
         @Valid
         //JPA
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "signaleur_id", foreignKey = @ForeignKey(name = "fk___alertes___signaleur_id"), nullable = false, unique = false)
+        @JoinColumn(name = "signaleur_id", foreignKey = @ForeignKey(name = "fk___alertes___signaleur_id"), nullable = false)
         private User signaleur;
 
         //LBK
@@ -62,7 +62,7 @@ public class Alerte extends AbstractPersistableWithIdSetter<Long> {
         @Valid
         //JPA
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "resolveur_id", foreignKey = @ForeignKey(name = "fk___alertes___resolveur_id"), nullable = true, unique = false)
+        @JoinColumn(name = "resolveur_id", foreignKey = @ForeignKey(name = "fk___alertes___resolveur_id"), nullable = true)
         private User resolveur;
 
         //LBK

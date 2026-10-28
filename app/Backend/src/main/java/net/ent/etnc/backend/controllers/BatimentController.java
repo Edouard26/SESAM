@@ -55,7 +55,7 @@ public class BatimentController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRATEUR')")
-    public ResponseEntity<BatimentResponse> post(@RequestBody BatimentResponse batimentResponse) {
+    public ResponseEntity<BatimentResponse> post(@RequestBody BatimentResponse batimentResponse) {// TODO changer en batimentRequest
         return ResponseEntity.ok(assembler.toResponse(batimentService.create(assembler.toEntity(batimentResponse))));
     }
 
