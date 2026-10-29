@@ -26,6 +26,12 @@ public class SalleServiceImpl extends AbstractService<Salle, SalleRepository> im
 
     @Transactional(readOnly = true)
     @Override
+    public Page<Salle> findAllOrderByAlertesEnAttente(Specification<Salle> specification, Pageable pageable){
+        return repository.findAllOrderByAlertesEnAttente(specification, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Salle findByStagiaire(User stagiaire){
         Optional<Salle> optionalSalle = repository.findByStagiaire(stagiaire);
         if(optionalSalle.isEmpty()){

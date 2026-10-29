@@ -311,21 +311,36 @@ public class Init implements CommandLineRunner {
         User resolveur = gestionnaireCree;
 
         LocalDateTime maintenant = LocalDateTime.now();
-        alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2),
-                null, null, "Ecran sans affichage",
-                "L'ecran reste noir apres le demarrage du poste.", StatutAlerte.EN_ATTENTE));
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(15),
-                resolveur, maintenant.minusDays(10), "Probleme de demarrage",
-                "Le poste ne demarrait plus. Alimentation remplacee.", StatutAlerte.TRAITEE));
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(20),
-                resolveur, maintenant.minusDays(19), "Signalement en double",
-                "Signalement annule car le probleme etait deja declare.", StatutAlerte.ANNULEE));
+        // salleid: 3
+        alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2), null, null, "Ecran sans affichage", "L'ecran reste noir apres le demarrage du poste.", StatutAlerte.EN_ATTENTE,
+                materielService.findById(144L).get()));
+
+        // salleid: 1
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(15), resolveur, maintenant.minusDays(10), "Probleme de demarrage", "Le poste ne demarrait plus. Alimentation remplacee.", StatutAlerte.TRAITEE,
+                materielService.findById(1L).get()));
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(20), resolveur, maintenant.minusDays(19), "Signalement en double", "Signalement annule car le probleme etait deja declare.", StatutAlerte.ANNULEE,
+                materielService.findById(2L).get()));
+
+        // salleid: 62
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(21), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+                materielService.findById(304L).get()));
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(24), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+                materielService.findById(136L).get()));
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(25), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+                materielService.findById(327L).get()));
+
+        // salleid: 19
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(22), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+                materielService.findById(231L).get()));
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(23), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+                materielService.findById(471L).get()));
+
     }
 
     private Alerte buildAlerte(User signaleur, LocalDateTime dateSignalement,
                                User resolveur, LocalDateTime dateResolution,
                                String typeProbleme, String description,
-                               StatutAlerte statut) {
+                               StatutAlerte statut, Materiel materiel) {
         Alerte alerte = new Alerte();
         alerte.setSignaleur(signaleur);
         alerte.setDateSignalement(dateSignalement);
@@ -334,6 +349,7 @@ public class Init implements CommandLineRunner {
         alerte.setTypeProbleme(typeProbleme);
         alerte.setDescription(description);
         alerte.setStatut(statut);
+        alerte.getMateriels().add(materiel);
         return alerte;
     }
 

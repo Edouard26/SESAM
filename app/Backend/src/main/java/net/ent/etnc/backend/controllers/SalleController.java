@@ -73,7 +73,7 @@ public class SalleController {
             return ResponseEntity.ok(salleService.findAllByBatimentId(spec, pageable, batimentId).map(assembler::toResponse));
         }
 
-        return ResponseEntity.ok(salleService.findAll(spec, pageable).map(assembler::toResponse));
+        return ResponseEntity.ok(salleService.findAllOrderByAlertesEnAttente(spec, pageable).map(assembler::toResponse));
     }
 
     @GetMapping("{id}/")
