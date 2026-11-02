@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/v1/process/")
 public class ProcessusController {
@@ -27,8 +30,15 @@ public class ProcessusController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('FORMATEUR', 'GESTIONNAIRE', 'ADMINISTRATEUR')")
-    public ResponseEntity<Page<ProcessusResponse>> getAll(@PageableDefault(size = 20) Pageable pageable){
-        return ResponseEntity.ok(processusService.findAll(pageable).map(assembler::toResponse));
+    public ResponseEntity<Page<ProcessusResponse>> getAll(
+            @PageableDefault(size = 20) Pageable pageable,
+            @RequestParam(required = true) Long uniteCentralId
+    ){
+//        return ResponseEntity.ok(processusService.findAll(pageable).map(assembler::toResponse));
+        if(uniteCentralId == null){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(processusService.findAllByUC(pageable, uniteCentralId).map(assembler::toResponse));
     }
 
     @GetMapping("{id}/")
