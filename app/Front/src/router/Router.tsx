@@ -16,6 +16,7 @@ import Layout from "../components/layout/Layout.tsx";
 import Users from "../pages/user/Users.tsx";
 import Process from "../pages/process/Process.tsx";
 import Stage from "../pages/stage/Stage.tsx";
+import Rules from "../pages/rule/Rules.tsx";
 
 export default function Router() {
 
@@ -32,6 +33,7 @@ export default function Router() {
                     <Route path={routes.rooms} element={<Rooms />} />
                     <Route path={`${routes.rooms}/:id`} element={<Room />} />
                     <Route path={routes.monitoring} element={<Monitoring />} />
+                    <Route path={routes.rules} element={<Rules />} />
                     <Route path={routes.process} element={<Process />} />
                     <Route path={`${routes.process}/:id`} element={<Processus />} />
                     <Route path={routes.stages} element={<Stages />} />

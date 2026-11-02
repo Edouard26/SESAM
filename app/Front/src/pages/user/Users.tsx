@@ -41,11 +41,12 @@ export default function Users() {
         selects.map(({ name }) => [name, ""])
     );
 
-    const {search, filters, items: users, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
+    const {search, filters, items: users, loading, page, totalPages, totalElements, sort, setSort, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
         load: userApi.list,
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les utilisateurs",
+        initialSort: "nom,asc",
     });
 
     const toggleActive = async (user: User) => {
@@ -60,6 +61,7 @@ export default function Users() {
     const columns = [
         {
             label: "Utilisateur",
+            sortKey: "nom",
             render: (user: User) => (
                 <div>
                     <div className="fw-semibold">{getUserFullName(user)}</div>
@@ -67,19 +69,22 @@ export default function Users() {
                 </div>
             ),
         },
-        { key: "email", label: "Adresse e-mail" },
+        { key: "email", label: "Adresse e-mail", sortKey: "email" },
         {
             label: "Rôle",
+            sortKey: "role",
             render: (user: User) => <Badge variant="primary">{user.role}</Badge>,
         },
         {
             label: "Grade",
+            sortKey: "grade",
             render: (user: User) => (
                 <Badge variant="secondary">{user.grade.replaceAll("_", " ")}</Badge>
             ),
         },
         {
             label: "État",
+            sortKey: "active",
             render: (user: User) => (
                 <span
                     className={`badge rounded-pill ${
@@ -181,6 +186,8 @@ export default function Users() {
                 totalElements={totalElements}
                 onPageChange={setPage}
                 loading={loading}
+                sort={sort}
+                onSortChange={setSort}
             />
         </>
     );

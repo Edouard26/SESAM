@@ -3,9 +3,9 @@ spring:
     name: Backend
   # === BASE DE DONNÉES ===
   datasource:
-    url: jdbc:postgresql://localhost:5432/db_sesam
-    username: postgres
-    password: azerty+35
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/db_sesam}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:azerty+35}
 
   # === JPA / HIBERNATE ===
   jpa:
@@ -34,7 +34,7 @@ app:
   security:
     jwt:
       # Clé secrète pour signer les tokens JWT (min. 64 caractères en production)
-      secret: squelette-secret-key-very-long-at-least-64-characters-long-for-security
+      secret: ${APP_SECURITY_JWT_SECRET:squelette-secret-key-very-long-at-least-64-characters-long-for-security}
       # Access token : 15 minutes (courte durée = fenêtre de vol réduite)
       #      expiration: 900000
       expiration: 90000000000

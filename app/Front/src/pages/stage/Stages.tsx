@@ -48,6 +48,8 @@ export default function Stages() {
         page,
         totalPages,
         totalElements,
+        sort,
+        setSort,
         setPage,
         setSearch,
         handleFilterChange,
@@ -64,23 +66,32 @@ export default function Stages() {
         {
             key: "code",
             label: "Code",
+            sortKey: "code",
         },
         {
+            key: "dateDebut",
             label: "Date de début",
+            sortKey: "dateDebut",
             render: (stage: Stage) =>
                 new Date(stage.dateDebut).toLocaleDateString("fr-FR"),
         },
         {
+            key: "dateFin",
             label: "Date de fin",
+            sortKey: "dateFin",
             render: (stage: Stage) =>
                 new Date(stage.dateFin).toLocaleDateString("fr-FR"),
         },
         {
+            key: "statut",
             label: "Statut",
+            sortKey: "statut",
             render: (stage: Stage) => statutLabels[stage.statut],
         },
         {
+            key: "salleId",
             label: "Salle",
+            sortKey: "salleId",
             render: (stage: Stage) => stage.salleId,
         },
         {
@@ -159,6 +170,8 @@ export default function Stages() {
                 totalElements={totalElements}
                 onPageChange={setPage}
                 loading={loading}
+                sort={sort}
+                onSortChange={setSort}
             />
         </>
     );

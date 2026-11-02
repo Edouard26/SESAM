@@ -84,11 +84,11 @@ export default function AssignmentsUserPopup({
     );
 
     const columns = [
-        { key: "nom", label: "Nom" },
-        { key: "marque", label: "Marque" },
-        { key: "modele", label: "Modèle" },
-        { key: "numeroSerie", label: "Num série" },
-        { key: "typeMateriel", label: "Type" },
+        { key: "nom", label: "Nom", sortKey: "nom" },
+        { key: "marque", label: "Marque", sortKey: "marque" },
+        { key: "modele", label: "Modèle", sortKey: "modele" },
+        { key: "numeroSerie", label: "Num série", sortKey: "numeroSerie" },
+        { key: "typeMateriel", label: "Type", sortKey: "typeMateriel" },
     ] satisfies Column<Material>[];
 
     const {
@@ -99,6 +99,8 @@ export default function AssignmentsUserPopup({
         page,
         totalPages,
         totalElements,
+        sort,
+        setSort,
         setPage,
         setSearch,
         handleFilterChange,
@@ -262,6 +264,8 @@ export default function AssignmentsUserPopup({
                             onPageChange={setPage}
                             loading={loading}
                             totalElements={totalElements}
+                            sort={sort}
+                            onSortChange={setSort}
                             selection={{
                                 selected: selectedMaterials,
                                 getId: (material) => material.id,

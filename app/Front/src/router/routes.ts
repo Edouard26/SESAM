@@ -5,6 +5,7 @@ export const routes = {
     rooms: "/rooms",
     monitoring: "/monitoring",
     process: "/process",
+    rules: "/rules",
     stages: "/stages",
     alerts: "/alerts",
     users: "/users"

@@ -1,4 +1,5 @@
 import type { Material } from "./Material.ts";
+import type { Rule } from "./Rule.ts";
 
 export type RoomType = "STOCKAGE" | "COURS";
 
@@ -12,6 +13,7 @@ export type Room = {
     nbMaterielDispo: number;
     materielsId?: number[];
     materiels?: Material[];
+    regles?: Rule[];
 };
 
 export type RoomForm = {

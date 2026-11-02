@@ -50,6 +50,8 @@ public class Init implements CommandLineRunner {
     private final SalleService salleService;
     private final AlerteService alerteService;
     private final StageService stageService;
+    private final ProcessusService processusService;
+    private final RegleService regleService;
 
     private User gestionnaireCree;
     private User stagiaireCree;
@@ -58,7 +60,8 @@ public class Init implements CommandLineRunner {
                 UniteCentraleService uniteCentraleService, EcranService ecranService,
                 VideoProjecteurService videoProjecteurService,
                 BatimentService batimentService, SalleService salleService,
-                AlerteService alerteService, StageService stageService) {
+                AlerteService alerteService, StageService stageService,
+                ProcessusService processusService, RegleService regleService) {
         this.userService = userService;
         this.materielService = materielService;
         this.uniteCentraleService = uniteCentraleService;
@@ -68,6 +71,8 @@ public class Init implements CommandLineRunner {
         this.salleService = salleService;
         this.alerteService = alerteService;
         this.stageService = stageService;
+        this.processusService = processusService;
+        this.regleService = regleService;
     }
 
     @Override
@@ -91,6 +96,8 @@ public class Init implements CommandLineRunner {
         salles.sort(Comparator.comparing(Salle::getNom));
         materiels.sort(Comparator.comparing(Materiel::getNumeroSerie));
 
+        initRegles(salles);
+
         rattacherSallesAuxBatiments(salles);
         List<Stage> groupes = initStagesEtGroupes(utilisateurs, salles);
         affecterMateriels(groupes, salles, materiels);
@@ -102,8 +109,9 @@ public class Init implements CommandLineRunner {
             stagiaireCree = utilisateurs.stream()
                     .filter(u -> u.getRole() == Role.STAGIAIRE)
                     .findFirst().orElseThrow(() -> new IllegalStateException("Aucun stagiaire."));
-            initAlerte();
+            initAlerte(materiels);
         }
+        rattacherMaterielsAuxAlertes(materiels);
     }
 
     private void initUsers() throws ServiceException {
@@ -306,11 +314,33 @@ public class Init implements CommandLineRunner {
         }
     }
 
-    private void initAlerte() throws ServiceException {
+    private void initAlerte(List<Materiel> materiels) throws ServiceException {
         User signaleur = stagiaireCree;
         User resolveur = gestionnaireCree;
+        Materiel ecran = materiels.stream().filter(Ecran.class::isInstance).findFirst()
+                .orElseThrow(() -> new IllegalStateException("Aucun ecran pour les alertes de test."));
+        Materiel uniteCentrale = materiels.stream().filter(UniteCentrale.class::isInstance).findFirst()
+                .orElseThrow(() -> new IllegalStateException("Aucune unite centrale pour les alertes de test."));
 
         LocalDateTime maintenant = LocalDateTime.now();
+        alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2),
+                null, null, "Ecran sans affichage",
+                "L'ecran reste noir apres le demarrage du poste.", StatutAlerte.EN_ATTENTE,
+                List.of(ecran)));
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(15),
+                resolveur, maintenant.minusDays(10), "Probleme de demarrage",
+                "Le poste ne demarrait plus. Alimentation remplacee.", StatutAlerte.TRAITEE,
+                List.of(uniteCentrale)));
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(20),
+                resolveur, maintenant.minusDays(19), "Signalement en double",
+                "Signalement annule car le probleme etait deja declare.", StatutAlerte.ANNULEE,
+                List.of(ecran, uniteCentrale)));
+    }
+
+    private Alerte buildAlerte(User signaleur, LocalDateTime dateSignalement,
+                                User resolveur, LocalDateTime dateResolution,
+                                String typeProbleme, String description,
+                                StatutAlerte statut, List<Materiel> materiels) {
         // salleid: 3
         alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2), null, null, "Ecran sans affichage", "L'ecran reste noir apres le demarrage du poste.", StatutAlerte.EN_ATTENTE,
                 materielService.findById(144L).get()));
@@ -349,8 +379,81 @@ public class Init implements CommandLineRunner {
         alerte.setTypeProbleme(typeProbleme);
         alerte.setDescription(description);
         alerte.setStatut(statut);
-        alerte.getMateriels().add(materiel);
+        alerte.setMateriels(new ArrayList<>(materiels));
         return alerte;
+    }
+
+    private void rattacherMaterielsAuxAlertes(List<Materiel> materiels) {
+        Materiel ecran = materiels.stream().filter(Ecran.class::isInstance).findFirst().orElse(null);
+        Materiel uniteCentrale = materiels.stream().filter(UniteCentrale.class::isInstance).findFirst().orElse(null);
+        if (ecran == null || uniteCentrale == null) {
+            return;
+        }
+
+        for (Alerte alerte : alerteService.findAll()) {
+            if (!alerte.getMateriels().isEmpty()) {
+                continue;
+            }
+            switch (alerte.getTypeProbleme()) {
+                case "Ecran sans affichage" -> alerte.getMateriels().add(ecran);
+                case "Probleme de demarrage" -> alerte.getMateriels().add(uniteCentrale);
+                case "Signalement en double" -> {
+                    alerte.getMateriels().add(ecran);
+                    alerte.getMateriels().add(uniteCentrale);
+                }
+                default -> { }
+            }
+        }
+    }
+
+    private void initRegles(List<Salle> salles) throws ServiceException {
+        Map<String, Processus> processusExistants = new LinkedHashMap<>();
+        for (Processus processus : processusService.findAll()) {
+            processusExistants.put(processus.getNom(), processus);
+        }
+
+        for (String nom : List.of("steam.exe", "discord.exe", "powershell.exe")) {
+            if (!processusExistants.containsKey(nom)) {
+                Processus processus = new Processus();
+                processus.setNom(nom);
+                processusExistants.put(nom, processusService.create(processus));
+            }
+        }
+
+        Map<String, Regle> reglesExistantes = new LinkedHashMap<>();
+        for (Regle regle : regleService.findAll()) {
+            reglesExistantes.put(regle.getNom(), regle);
+        }
+
+        Map<String, List<String>> definitions = new LinkedHashMap<>();
+        definitions.put("Jeux interdits", List.of("steam.exe"));
+        definitions.put("Messagerie", List.of("discord.exe"));
+        definitions.put("Outils système", List.of("powershell.exe"));
+
+        Map<String, Regle> reglesTest = new LinkedHashMap<>();
+        for (Map.Entry<String, List<String>> definition : definitions.entrySet()) {
+            Regle regle = reglesExistantes.get(definition.getKey());
+            if (regle == null) {
+                regle = new Regle();
+                regle.setNom(definition.getKey());
+                for (String nomProcessus : definition.getValue()) {
+                    regle.getProcessuss().add(processusExistants.get(nomProcessus));
+                }
+                regle = regleService.create(regle);
+            }
+            reglesTest.put(definition.getKey(), regle);
+        }
+
+        List<Salle> sallesCours = salles.stream()
+                .filter(salle -> salle.getTypeSalle() == TypeSalle.COURS)
+                .toList();
+        List<Regle> regles = new ArrayList<>(reglesTest.values());
+        for (int i = 0; i < Math.min(sallesCours.size(), regles.size()); i++) {
+            Salle salle = sallesCours.get(i);
+            if (salle.getRegles().add(regles.get(i))) {
+                salleService.update(salle);
+            }
+        }
     }
 
     private void rattacherSallesAuxBatiments(List<Salle> salles) {

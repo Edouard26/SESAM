@@ -22,5 +22,5 @@ public class AlerteResponse {
     private String description;
     private StatutAlerte statut;
 
-    private List<Long> materielsId;
+    private List<MaterielAlerteResponse> materiels;
 }

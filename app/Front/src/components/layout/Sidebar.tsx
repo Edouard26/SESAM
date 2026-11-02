@@ -38,10 +38,21 @@ export default function Sidebar() {
                             </NavLink>
                         </li>
 
+                    </>
+                )}
+
+                {user.role >= Role.FORMATEUR && (
+                    <>
                         <li>
                             <NavLink to={routes.rooms} className="nav-link text-white">
                                 <i className="bi bi-display me-3" />
                                 Salles
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to={routes.rules} className="nav-link text-white">
+                                <i className="bi bi-shield-exclamation me-3" />
+                                Règles
                             </NavLink>
                         </li>
                     </>

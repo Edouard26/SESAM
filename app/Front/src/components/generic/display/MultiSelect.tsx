@@ -6,11 +6,12 @@ type MultiSelectProps<TOption, TValue extends string | number> = {
     getOptionLabel: (option: TOption) => string;
     value: TValue[];
     onChange: (value: TValue[]) => void;
+    selectedOptions?: TOption[];
     maxOptions?: number;
     disabled?: boolean;
 };
 
-export default function MultiSelect<TOption, TValue extends string | number>({searchOptions, getOptionValue, getOptionLabel, value, onChange, disabled = false, maxOptions = 10 }: MultiSelectProps<TOption, TValue>) {
+export default function MultiSelect<TOption, TValue extends string | number>({searchOptions, getOptionValue, getOptionLabel, value, onChange, selectedOptions = [], disabled = false, maxOptions = 10 }: MultiSelectProps<TOption, TValue>) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [options, setOptions] = useState<TOption[]>([]);
@@ -67,7 +68,9 @@ export default function MultiSelect<TOption, TValue extends string | number>({se
         };
     }, [open, search]);
 
-    const selected = value.map(optionValue => optionCache.get(optionValue)).filter((option): option is TOption => option !== undefined);
+    const selected = value.map((optionValue) =>
+        selectedOptions.find((option) => getOptionValue(option) === optionValue) ?? optionCache.get(optionValue),
+    ).filter((option): option is TOption => option !== undefined);
     const visible = options.slice(0, Math.max(1, Math.floor(maxOptions)));
 
     function toggleOption(option: TOption) {

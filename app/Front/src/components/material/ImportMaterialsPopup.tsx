@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Popup from "../generic/overlay/Popup";
 import { ApiError, materialApi, roomApi } from "../../api";
 import useNotification from "../../hooks/useNotification";
-import type {ImportMaterialsPayload, MaterialForm, MaterialType} from "../../types/Material";
+import type {ImportMaterialsPayload, MaterialForm, MaterialType, EtatType} from "../../types/Material";
 import type { Room } from "../../types/Room.ts";
 import ImportJson from "../generic/ImportJson.tsx";
 import {createColumns} from "../../api/utils/importColumns.tsx";
@@ -23,10 +23,12 @@ type Props = {
 };
 
 const materialTypes: MaterialType[] = ["UC", "ECRAN", "VIDEO_PROJECTEUR"];
+const materialStates: EtatType[] = ["EN_ETAT", "EN_MAINTENANCE", "DEPRECIER"];
 
 const materialSchema: Schema<MaterialForm> = {
     nom: text(),
     typeMateriel: oneOf(materialTypes),
+    etat: oneOf(materialStates),
     numeroSerie: text(),
     marque: text(),
     modele: text(),
@@ -51,6 +53,7 @@ const columns = createColumns<MaterialForm>(
     {
         nom: "Nom",
         typeMateriel: "Type",
+        etat: "État",
         numeroSerie: "N° de série",
         marque: "Marque",
         modele: "Modèle",

@@ -29,7 +29,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        setUser(await authApi.refresh());
+        const response = await authApi.refresh();
+        localStorage.setItem(TOKEN_KEY, response.accessToken);
+        setUser(normalizeUser(response.userDto));
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
           localStorage.removeItem(TOKEN_KEY);
@@ -46,10 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await authApi.login(username, password);
 
     localStorage.setItem(TOKEN_KEY, response.accessToken);
-    setUser({
-      ...response.userDto,
-      role: Role[response.userDto.role.toString().toUpperCase() as keyof typeof Role],
-    });
+    setUser(normalizeUser(response.userDto));
 
     navigate(routes.dashboard, { replace: true });
   }
@@ -74,6 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         {children}
       </AuthContext.Provider>
   );
+}
+
+function normalizeUser(user: User): User {
+  return {
+    ...user,
+    role: Role[user.role.toString().toUpperCase() as keyof typeof Role],
+  };
 }
 
 export function useAuth(): AuthContextType {

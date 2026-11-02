@@ -14,9 +14,10 @@ type UsePaginatedListOptions<T> = {
     errorMessage: string;
     enabled?: boolean;
     loadKey?: string | number;
+    initialSort?: string;
 };
 
-export default function usePaginatedList<T>({ load, initialFilters, pageSize, errorMessage, enabled = true, loadKey}: UsePaginatedListOptions<T> ) {
+export default function usePaginatedList<T>({ load, initialFilters, pageSize, errorMessage, enabled = true, loadKey, initialSort = ""}: UsePaginatedListOptions<T> ) {
 
     const { notify } = useNotification();
 
@@ -31,6 +32,7 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
     const [items, setItems] = useState<T[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(0);
+    const [sort, setSortState] = useState(initialSort);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [reloadKey, setReloadKey] = useState(0);
@@ -60,7 +62,7 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
             ),
         );
 
-        const params = { search, ...activeFilters, page, size: pageSize,};
+        const params = { search, ...activeFilters, page, size: pageSize, ...(sort ? { sort } : {}) };
 
         setLoading(true);
 
@@ -87,7 +89,12 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
         return () => {
             cancelled = true;
         };
-    }, [enabled, loadKey, search, filters, page, pageSize, errorMessage, reloadKey]);
+    }, [enabled, loadKey, search, filters, page, pageSize, errorMessage, reloadKey, sort]);
+
+    function setSort(value: string) {
+        setSortState(value);
+        setPage(0);
+    }
 
     function setSearch(value: string) {
         setSearchState(value);
@@ -109,5 +116,5 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
         setReloadKey((previous) => previous + 1);
     }
 
-    return {search, filters, items, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload };
+    return {search, filters, items, loading, page, totalPages, totalElements, sort, setSort, setPage, setSearch, handleFilterChange, resetFilters, reload };
 }
