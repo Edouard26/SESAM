@@ -62,16 +62,6 @@ export default function Process() {
                 back
             />
 
-            <div className="mb-3">
-                <Link
-                    to={`${routes.materials}/${id}`}
-                    className="btn btn-outline-secondary"
-                >
-                    <i className="bi bi-arrow-left me-2" />
-                    Retour au matériel
-                </Link>
-            </div>
-
             {loading ? (
                 <div className="d-flex justify-content-center py-5">
                     <div className="spinner-border text-primary" role="status">
