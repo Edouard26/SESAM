@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface SalleService extends Service<Salle, Long> {
 
     @Transactional(readOnly = true)
+    Page<Salle> findAllOrderByAlertesEnAttente(Specification<Salle> specification, Pageable pageable);
+
+    @Transactional(readOnly = true)
     Salle findByStagiaire(User stagiaire);
 
     @Transactional(readOnly = true)

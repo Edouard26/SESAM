@@ -1,10 +1,9 @@
 package net.ent.etnc.backend.repositories;
 
-import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
-import net.ent.etnc.backend.repositories.specifications.MaterielSpecifications;
+import net.ent.etnc.backend.repositories.customs.SalleRepositoryCustom;
 import net.ent.etnc.backend.repositories.specifications.SalleSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,7 @@ import java.util.Optional;
 import java.util.List;
 
 @Repository
-public interface SalleRepository extends BaseRepository<Salle> {
+public interface SalleRepository extends BaseRepository<Salle>, SalleRepositoryCustom {
 
     List<Salle> findAllByRegles_Id(Long regleId);
 
@@ -52,6 +51,6 @@ public interface SalleRepository extends BaseRepository<Salle> {
                     .and(spec);
         }
 
-        return findAll(combinedSpec, pageable);
+        return findAllOrderByAlertesEnAttente(combinedSpec, pageable);
     }
 }

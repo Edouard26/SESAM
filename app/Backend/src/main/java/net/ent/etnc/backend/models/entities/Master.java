@@ -41,9 +41,9 @@ public class Master extends AbstractPersistableWithIdSetter<Long> {
     @Valid
     //JPA
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "master_processus",
-            joinColumns = @JoinColumn(name = "master_id", foreignKey = @ForeignKey(name = "fk___master_processus___regle_id")),
-            inverseJoinColumns = @JoinColumn(name = "processus_id", foreignKey = @ForeignKey(name = "fk___master_processus___processus_id"))
+    @JoinTable(name = "masters_processus",
+            joinColumns = @JoinColumn(name = "master_id", foreignKey = @ForeignKey(name = "fk___masters_processus___regle_id")),
+            inverseJoinColumns = @JoinColumn(name = "processus_id", foreignKey = @ForeignKey(name = "fk___masters_processus___processus_id"))
     )
     private List<Processus> processuss = new ArrayList<>();
 }
