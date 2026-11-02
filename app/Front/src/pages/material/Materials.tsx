@@ -55,26 +55,25 @@ export default function Materials() {
         selects.map(({ name }) => [name, ""])
     );
 
-    const {search, filters, items: materials, loading, page, totalPages, totalElements, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
-        load: (params) => materialApi.list({
-            ...params,
-            sort: "dateFinGarantie,asc",
-        }),
+    const {search, filters, items: materials, loading, page, totalPages, totalElements, sort, setSort, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
+        load: materialApi.list,
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
+        initialSort: "dateFinGarantie,asc",
     });
 
     const columns = [
-        { key: "nom", label: "Nom" },
-        { key: "marque", label: "Marque" },
-        { key: "modele", label: "Modèle" },
-        { key: "etat", label: "Etat" },
-        { key: "numeroSerie", label: "Numero de série" },
-        { key: "typeMateriel", label: "Type" },
+        { key: "nom", label: "Nom", sortKey: "nom" },
+        { key: "marque", label: "Marque", sortKey: "marque" },
+        { key: "modele", label: "Modèle", sortKey: "modele" },
+        { key: "etat", label: "Etat", sortKey: "etat" },
+        { key: "numeroSerie", label: "Numero de série", sortKey: "numeroSerie" },
+        { key: "typeMateriel", label: "Type", sortKey: "typeMateriel" },
         {
             key: "dateFinGarantie",
             label: "Fin garantie",
+            sortKey: "dateFinGarantie",
             render: (material: Material) => {
                 const date = new Date(material.dateFinGarantie);
                 const days = (date.getTime() - Date.now()) / 86400000;
@@ -84,6 +83,7 @@ export default function Materials() {
         {
             key: "dateAjout",
             label: "Ajout",
+            sortKey: "dateAjout",
             render: (material: Material) => {
                 const date = new Date(material.dateAjout);
                 const years = (Date.now() - date.getTime()) / (365.25 * 86400000);
@@ -205,6 +205,8 @@ export default function Materials() {
                 totalElements={totalElements}
                 onPageChange={setPage}
                 loading={loading}
+                sort={sort}
+                onSortChange={setSort}
             />
         </>
     );

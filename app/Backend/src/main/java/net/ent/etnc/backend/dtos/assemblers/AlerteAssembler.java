@@ -3,6 +3,7 @@ package net.ent.etnc.backend.dtos.assemblers;
 import net.ent.etnc.backend.dtos.requests.AlerteResolutionRequest;
 import net.ent.etnc.backend.dtos.requests.AlerteSignalementRequest;
 import net.ent.etnc.backend.dtos.responses.AlerteResponse;
+import net.ent.etnc.backend.dtos.responses.MaterielAlerteResponse;
 import net.ent.etnc.backend.models.entities.Alerte;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.User;
@@ -37,9 +38,12 @@ public class AlerteAssembler {
                 .typeProbleme(alerte.getTypeProbleme())
                 .description(alerte.getDescription())
                 .statut(alerte.getStatut())
-                .materielsId(
+                .materiels(
                         alerte.getMateriels().stream()
-                                .map(m -> m.getId())
+                                .map(m -> MaterielAlerteResponse.builder()
+                                        .id(m.getId())
+                                        .numeroSerie(m.getNumeroSerie())
+                                        .build())
                                 .toList()
                 )
                 .build();

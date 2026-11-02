@@ -1,3 +1,4 @@
+
 import { useEffect, useId, useRef, useState } from "react";
 
 type MultiSelectProps<TOption, TValue extends string | number> = {
@@ -6,17 +7,28 @@ type MultiSelectProps<TOption, TValue extends string | number> = {
     getOptionLabel: (option: TOption) => string;
     value: TValue[];
     onChange: (value: TValue[]) => void;
+    selectedOptions?: TOption[];
     maxOptions?: number;
     disabled?: boolean;
 };
 
-export default function MultiSelect<TOption, TValue extends string | number>({searchOptions, getOptionValue, getOptionLabel, value, onChange, disabled = false, maxOptions = 10 }: MultiSelectProps<TOption, TValue>) {
+export default function MultiSelect<TOption, TValue extends string | number>({
+                                                                                 searchOptions,
+                                                                                 getOptionValue,
+                                                                                 getOptionLabel,
+                                                                                 value,
+                                                                                 onChange,
+                                                                                 selectedOptions = [],
+                                                                                 disabled = false,
+                                                                                 maxOptions = 10,
+                                                                             }: MultiSelectProps<TOption, TValue>) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [options, setOptions] = useState<TOption[]>([]);
     const [optionCache, setOptionCache] = useState<Map<TValue, TOption>>(new Map());
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+
     const root = useRef<HTMLDivElement>(null);
     const searchOptionsRef = useRef(searchOptions);
     const getOptionValueRef = useRef(getOptionValue);
@@ -36,38 +48,94 @@ export default function MultiSelect<TOption, TValue extends string | number>({se
         setError(false);
         setOptions([]);
 
-        Promise.resolve()
-            .then(() => searchOptionsRef.current(search))
-            .then(result => {
+        async function loadOptions() {
+            try {
+                const result = await searchOptions(search);
+
                 if (!active) return;
 
                 setOptions(result.content);
+
                 setOptionCache(previous => {
                     const next = new Map(previous);
 
                     result.content.forEach(option => {
-                        next.set(getOptionValueRef.current(option), option);
+                        next.set(getOptionValue(option), option);
                     });
 
                     return next;
                 });
-            })
-            .catch(() => {
+            } catch {
                 if (!active) return;
 
                 setOptions([]);
                 setError(true);
-            })
-            .finally(() => {
+            } finally {
                 if (active) setLoading(false);
-            });
+            }
+        }
+
+        loadOptions();
 
         return () => {
             active = false;
         };
-    }, [open, search]);
+    }, [open, search, searchOptions, getOptionValue]);
 
-    const selected = value.map(optionValue => optionCache.get(optionValue)).filter((option): option is TOption => option !== undefined);
+    // Fermeture en cliquant à l'extérieur
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (root.current && !root.current.contains(event.target as Node)) {
+                setOpen(false);
+                setSearch("");
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    // Fermeture au clavier
+    useEffect(() => {
+        function handleEscape(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                setOpen(false);
+                setSearch("");
+            }
+        }
+
+        document.addEventListener("keydown", handleEscape);
+
+        return () => {
+            document.removeEventListener("keydown", handleEscape);
+        };
+    }, []);
+
+    // Synchronisation du cache avec les options sélectionnées
+    useEffect(() => {
+        if (selectedOptions.length === 0) return;
+
+        setOptionCache(previous => {
+            const next = new Map(previous);
+
+            selectedOptions.forEach(option => {
+                next.set(getOptionValue(option), option);
+            });
+
+            return next;
+        });
+    }, [selectedOptions, getOptionValue]);
+
+    const selected = value
+        .map(optionValue =>
+            selectedOptions.find(option => getOptionValue(option) === optionValue)
+            ?? optionCache.get(optionValue)
+        )
+        .filter((option): option is TOption => option !== undefined);
+
     const visible = options.slice(0, Math.max(1, Math.floor(maxOptions)));
 
     function toggleOption(option: TOption) {
@@ -99,8 +167,15 @@ export default function MultiSelect<TOption, TValue extends string | number>({se
 
     return (
         <div className="position-relative w-100" ref={root}>
-            <div role="button" tabIndex={disabled ? -1 : 0} aria-expanded={open} aria-controls={menuId} aria-disabled={disabled}
-                className={`border rounded p-2 d-flex align-items-center gap-2 ${ disabled ? "bg-body-tertiary" : ""}`}
+            <div
+                role="button"
+                tabIndex={disabled ? -1 : 0}
+                aria-expanded={open}
+                aria-controls={menuId}
+                aria-disabled={disabled}
+                className={`border rounded p-2 d-flex align-items-center gap-2 ${
+                    disabled ? "bg-body-tertiary" : ""
+                }`}
                 style={{
                     minHeight: 38,
                     cursor: disabled ? "not-allowed" : "pointer",
@@ -126,33 +201,50 @@ export default function MultiSelect<TOption, TValue extends string | number>({se
                             const optionLabel = getOptionLabel(option);
 
                             return (
-                                <span key={optionValue} className="d-inline-flex align-items-center gap-1 rounded px-2 py-1 bg-body-secondary">
+                                <span
+                                    key={optionValue}
+                                    className="d-inline-flex align-items-center gap-1 rounded px-2 py-1 bg-body-secondary"
+                                >
                                     {optionLabel}
-                                    <button type="button" className="border-0 bg-transparent p-0 text-secondary lh-1" aria-label={`Retirer ${optionLabel}`}
+
+                                    <button
+                                        type="button"
+                                        className="border-0 bg-transparent p-0 text-secondary lh-1"
+                                        aria-label={`Retirer ${optionLabel}`}
                                         disabled={disabled}
                                         onClick={event => {
                                             event.stopPropagation();
                                             toggleOption(option);
                                         }}
-                                    >*</button>
+                                    >
+                                        ×
+                                    </button>
                                 </span>
                             );
                         })
                     )}
                 </div>
 
-                <i className={`bi bi-chevron-${open ? "up" : "down"} text-secondary`} aria-hidden="true"/>
+                <i
+                    className={`bi bi-chevron-${open ? "up" : "down"} text-secondary`}
+                    aria-hidden="true"
+                />
             </div>
+
             {open && (
-                <div id={menuId} className="position-absolute top-100 start-0 w-100 mt-1 border rounded bg-white p-2" style={{ zIndex: 1050 }}>
-                    <input type="text" placeholder="Rechercher..." value={search} disabled={disabled}
+                <div
+                    id={menuId}
+                    className="position-absolute top-100 start-0 w-100 mt-1 border rounded bg-body text-body p-2 shadow"
+                    style={{ zIndex: 1050 }}
+                >
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Rechercher..."
+                        value={search}
+                        disabled={disabled}
                         onChange={event => setSearch(event.target.value)}
-                        onKeyDown={event => {
-                            if (event.key === "Escape") {
-                                setOpen(false);
-                                setSearch("");
-                            }
-                        }}
+                        autoFocus
                     />
 
                     <div className="overflow-y-auto mt-1" style={{ maxHeight: 280 }}>
@@ -180,12 +272,23 @@ export default function MultiSelect<TOption, TValue extends string | number>({se
                                     Boolean(option.disabled);
 
                                 return (
-                                    <label key={optionValue} className="dropdown-item d-flex align-items-center gap-2 rounded py-2">
-                                        <input type="checkbox" className="form-check-input mt-0"
+                                    <label
+                                        key={optionValue}
+                                        className="d-flex align-items-center gap-2 rounded py-2 px-2 text-body"
+                                        style={{
+                                            cursor: optionDisabled || disabled
+                                                ? "not-allowed"
+                                                : "pointer",
+                                        }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input mt-0"
                                             checked={value.includes(optionValue)}
                                             disabled={disabled || optionDisabled}
                                             onChange={() => toggleOption(option)}
                                         />
+
                                         {optionLabel}
                                     </label>
                                 );

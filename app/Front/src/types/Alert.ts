@@ -8,8 +8,14 @@ export type Alert = {
     typeProbleme: string;
     description: string;
     statut: AlertStatut;
-    materielsId: number[];
+    materiels: AlertMaterial[];
+    nbAlertes?: number;
 
+};
+
+export type AlertMaterial = {
+    id: number;
+    numeroSerie: string;
 };
 
 export type AlertForm = {

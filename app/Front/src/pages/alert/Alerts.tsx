@@ -70,6 +70,8 @@ export default function Alerts() {
         page,
         totalPages,
         totalElements,
+        sort,
+        setSort,
         setPage,
         handleFilterChange,
         resetFilters,
@@ -79,6 +81,7 @@ export default function Alerts() {
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les alertes",
+        initialSort: "dateSignalement,desc",
     });
 
     async function handleStatusChange(
@@ -113,13 +116,13 @@ export default function Alerts() {
             label: "Matériel",
             render: (alert: Alert) => (
                 <div className="d-flex flex-wrap gap-1">
-                    {alert.materielsId.length > 0 ? (
-                        alert.materielsId.map((materielId) => (
+                    {alert.materiels.length > 0 ? (
+                        alert.materiels.map((materiel) => (
                             <span
-                                key={materielId}
+                                key={materiel.id}
                                 className="badge text-bg-light border"
                             >
-                                #{materielId}
+                                #{materiel.id} · {materiel.numeroSerie}
                             </span>
                         ))
                     ) : (
@@ -130,6 +133,7 @@ export default function Alerts() {
         },
         {
             label: "Signalement",
+            sortKey: "dateSignalement",
             render: (alert: Alert) => (
                 <div>
                     <div className="fw-semibold">
@@ -148,6 +152,7 @@ export default function Alerts() {
         },
         {
             label: "Statut",
+            sortKey: "statut",
             render: (alert: Alert) => (
                 <span
                     className={`badge ${statutClasses[alert.statut]}`}
@@ -214,6 +219,8 @@ export default function Alerts() {
                 totalElements={totalElements}
                 onPageChange={setPage}
                 loading={loading}
+                sort={sort}
+                onSortChange={setSort}
             />
         </>
     );

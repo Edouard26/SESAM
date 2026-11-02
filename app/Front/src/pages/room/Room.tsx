@@ -1,13 +1,18 @@
+
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { roomApi } from "../../api";
+import { alertApi, roomApi, ruleApi } from "../../api";
 import type { Room } from "../../types/Room.ts";
 import type { Material, MaterialType } from "../../types/Material.ts";
+import type { Alert } from "../../types/Alert.ts";
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import CardTable from "../../components/generic/display/CardTable.tsx";
 import Loader from "../../components/generic/Loader.tsx";
 import AssignmentsPopup from "../../components/material/AssignmentsPopup.tsx";
 import { routes } from "../../router/routes.ts";
+import MultiSelect from "../../components/generic/display/MultiSelect.tsx";
+import type { Rule } from "../../types/Rule.ts";
+import useNotification from "../../hooks/useNotification.ts";
 
 const MATERIELS_PAGE_SIZE = 6;
 
@@ -25,8 +30,6 @@ const MATERIAL_LABELS: Record<MaterialType, string> = {
     VIDEO_PROJECTEUR: "Vidéoprojecteur",
 };
 
-// Même logique que dans la liste des salles (Rooms.tsx).
-// TODO: à extraire dans un utilitaire partagé (ex: utils/roomState.ts)
 function getStatus(etat: string | undefined): Badge {
     switch ((etat ?? "").toUpperCase()) {
         case "DISPONIBLE":
@@ -38,9 +41,28 @@ function getStatus(etat: string | undefined): Badge {
     }
 }
 
+function getAlertStatus(statut: Alert["statut"]): Badge {
+    switch (statut) {
+        case "EN_ATTENTE":
+            return { label: "En attente", className: "text-bg-warning" };
+        case "TRAITEE":
+            return { label: "Traitée", className: "text-bg-success" };
+        case "ANNULEE":
+            return { label: "Annulée", className: "text-bg-secondary" };
+        default:
+            return { label: statut, className: "text-bg-secondary" };
+    }
+}
+
+function formatDate(date: string | Date | null | undefined): string {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString("fr-FR");
+}
+
 function StatCard({ label, value }: { label: string; value: string | number }) {
     return (
-        <div className="col-12 col-md-6 col-xl-3">
+        <div className="col-12 col-md-6 col-xl">
             <div className="card h-100 shadow-sm border-0">
                 <div className="card-body">
                     <div className="small text-secondary mb-2">{label}</div>
@@ -57,12 +79,17 @@ export default function Room() {
     const roomId = Number(id);
 
     const [room, setRoom] = useState<Room | null>(null);
+    const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [nbAlertes, setNbAlertes] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showAffectationPopup, setShowAffectationPopup] = useState(false);
     const [reloadKey, setReloadKey] = useState(0);
 
     const [materielsPage, setMaterielsPage] = useState(0);
+    const [selectedRuleIds, setSelectedRuleIds] = useState<number[]>([]);
+    const [savingRules, setSavingRules] = useState(false);
+    const { notify } = useNotification();
 
     const allMateriels = room?.materiels ?? [];
     const totalElements = allMateriels.length;
@@ -85,6 +112,7 @@ export default function Room() {
             .then((data) => {
                 if (!cancelled) {
                     setRoom(data);
+                    setSelectedRuleIds(data.regles?.map((rule) => rule.id) ?? []);
                     setMaterielsPage(0);
                 }
             })
@@ -98,6 +126,48 @@ export default function Room() {
                     setLoading(false);
                 }
             });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [id, roomId, reloadKey]);
+
+    useEffect(() => {
+        if (!id) return;
+
+        let cancelled = false;
+
+        async function loadAlerts() {
+            try {
+                const firstPage = await alertApi.list({
+                    salleId: roomId,
+                });
+
+                let allAlerts = firstPage.content;
+
+                if (firstPage.totalElements > allAlerts.length) {
+                    const completePage = await alertApi.list({
+                        salleId: roomId,
+                        page: 0,
+                        size: firstPage.totalElements,
+                    });
+
+                    allAlerts = completePage.content;
+                }
+
+                if (!cancelled) {
+                    setAlerts(allAlerts);
+                    setNbAlertes(firstPage.totalElements);
+                }
+            } catch {
+                if (!cancelled) {
+                    setAlerts([]);
+                    setNbAlertes(0);
+                }
+            }
+        }
+
+        void loadAlerts();
 
         return () => {
             cancelled = true;
@@ -123,6 +193,20 @@ export default function Room() {
 
     const isCours = room.typeSalle === "COURS";
     const status = getStatus(room.etat);
+
+    async function saveRoomRules() {
+        setSavingRules(true);
+        try {
+            const updated = await roomApi.updateRules(roomId, selectedRuleIds);
+            setRoom(updated);
+            setSelectedRuleIds(updated.regles?.map((rule) => rule.id) ?? []);
+            notify("Règles de la salle mises à jour.", "success");
+        } catch {
+            notify("Impossible de mettre à jour les règles de la salle.", "danger");
+        } finally {
+            setSavingRules(false);
+        }
+    }
 
     const actions: {
         label: string;
@@ -179,38 +263,71 @@ export default function Room() {
                 </span>
             </div>
 
-            {/* Indicateurs */}
             <div className="row g-3 mb-4">
                 <StatCard
                     label={isCours ? "Postes de la salle" : "Matériels disponibles"}
                     value={room.nbMaterielDispo ?? 0}
                 />
                 <StatCard label="Capacité" value={room.nbPlaces ?? "-"} />
-                <StatCard
-                    label="Matériels affectés"
-                    value={totalElements ?? 0}
-                />
+                <StatCard label="Matériels affectés" value={totalElements} />
+                <StatCard label="Alertes" value={nbAlertes} />
                 <StatCard label="Bâtiment" value={room.nomBatiment ?? "-"} />
             </div>
 
-            {/*
-              TODO (à reprendre plus tard) : section « Affectation des stages ».
-              Maquette : stage en cours (nom, dates, badge « En cours ») + tableau des
-              stages à affecter (nom, dates, formation, bouton « Affecter le stage à une salle »).
-              Mis de côté car absent du type Room : il faudra un endpoint / un champ
-              (ex: stages liés à la salle) avant de l'implémenter.
-              Aussi absents du type Room pour l'instant : « Postes connectés »
-              et « Dernière réinstallation » (présents sur la maquette).
-            */}
+            <section className="card border mb-4">
+                <div className="card-body">
+                    <h2 className="h5 mb-3">Règles de la salle</h2>
+
+                    <div className="d-flex flex-column flex-md-row align-items-md-end gap-3">
+                        <div className="flex-grow-1">
+                            <label className="form-label">
+                                Règles appliquées aux matériels de cette salle
+                            </label>
+
+                            <MultiSelect<Rule, number>
+                                searchOptions={async (query) => {
+                                    const result = await ruleApi.list({
+                                        page: 0,
+                                        size: 1000,
+                                        sort: "nom,asc",
+                                    });
+
+                                    return {
+                                        content: result.content.filter((rule) =>
+                                            rule.nom.toLocaleLowerCase("fr").includes(
+                                                query.toLocaleLowerCase("fr")
+                                            )
+                                        ),
+                                    };
+                                }}
+                                getOptionValue={(rule) => rule.id}
+                                getOptionLabel={(rule) => rule.nom}
+                                value={selectedRuleIds}
+                                onChange={setSelectedRuleIds}
+                                selectedOptions={room.regles ?? []}
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            disabled={savingRules}
+                            onClick={() => void saveRoomRules()}
+                        >
+                            {savingRules ? "Enregistrement..." : "Enregistrer"}
+                        </button>
+                    </div>
+                </div>
+            </section>
 
             <h2 className="h5 mb-3">
                 Matériels de la salle{" "}
                 <span className="badge text-bg-light align-middle">
-                    {totalElements ?? 0}
+                    {totalElements}
                 </span>
             </h2>
 
-            <CardTable
+            <CardTable<Material>
                 data={materiels}
                 loading={loading}
                 pagination={{
@@ -220,28 +337,42 @@ export default function Room() {
                 }}
                 card={{
                     icon: (materiel: Material) => (
-
                         <i
-                            className={`bi ${MATERIAL_ICONS[materiel.typeMateriel] ?? "bi-box-seam"} fs-5`}
+                            className={`bi ${
+                                MATERIAL_ICONS[materiel.typeMateriel] ?? "bi-box-seam"
+                            } fs-5`}
                             aria-hidden="true"
                         />
                     ),
                     title: (materiel: Material) => materiel.nom,
                     subtitle: (materiel: Material) =>
                         `${MATERIAL_LABELS[materiel.typeMateriel] ?? materiel.typeMateriel} · ${materiel.marque} ${materiel.modele}`,
-                    footer: (materiel: Material) => (
-                        <div className="d-flex justify-content-end small">
-                            <button
-                                type="button"
-                                className="btn btn-link p-0 text-decoration-none text-nowrap"
-                                onClick={() =>
-                                    navigate(`${routes.materials}/${materiel.id}`)
-                                }
-                            >
-                                Consulter
-                            </button>
-                        </div>
-                    ),
+                    footer: (materiel: Material) => {
+                        const materialAlerts = alerts.filter((alert) =>
+                            alert.materiels?.some(
+                                (alertMaterial) => alertMaterial.id === materiel.id
+                            )
+                        );
+
+                        return (
+                            <div className="d-flex justify-content-between align-items-center small">
+                                <button
+                                    type="button"
+                                    className="btn btn-link p-0 text-decoration-none text-nowrap"
+                                    onClick={() => navigate(`${routes.materials}/${materiel.id}`)}
+                                >
+                                    Consulter
+                                </button>
+
+                                {materialAlerts.length > 0 && (
+                                    <span className="badge bg-danger rounded-pill">
+                    <i className="bi bi-exclamation-triangle-fill me-1"></i>
+                                        {materialAlerts.length} alerte{materialAlerts.length > 1 ? "s" : ""}
+                </span>
+                                )}
+                            </div>
+                        );
+                    },
                 }}
             />
         </>

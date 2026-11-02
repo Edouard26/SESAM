@@ -26,13 +26,13 @@ public class ProcessusController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('FORMATEUR') || hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasAnyRole('FORMATEUR', 'GESTIONNAIRE', 'ADMINISTRATEUR')")
     public ResponseEntity<Page<ProcessusResponse>> getAll(@PageableDefault(size = 20) Pageable pageable){
         return ResponseEntity.ok(processusService.findAll(pageable).map(assembler::toResponse));
     }
 
     @GetMapping("{id}/")
-    @PreAuthorize("hasRole('FORMATEUR') || hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasAnyRole('FORMATEUR', 'GESTIONNAIRE', 'ADMINISTRATEUR')")
     public ResponseEntity<ProcessusResponse> getById(@PathVariable Long id) {
         return processusService.findById(id)
                 .map(a -> ResponseEntity.ok(assembler.toResponse(a)))
@@ -40,7 +40,7 @@ public class ProcessusController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('FORMATEUR') || hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasAnyRole('FORMATEUR', 'GESTIONNAIRE', 'ADMINISTRATEUR')")
     public ResponseEntity<ProcessusResponse> post(@RequestBody ProcessusRequest processusRequest) {
         return ResponseEntity.ok(assembler.toResponse(processusService.create(assembler.toEntity(processusRequest))));
     }

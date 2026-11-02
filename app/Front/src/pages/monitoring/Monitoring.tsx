@@ -263,7 +263,10 @@ export default function Monitoring() {
                                         </button>
                                         {material.typeMateriel === "UC" && (
                                             <button type="button" className="btn btn-link p-0 text-decoration-none text-nowrap"
-                                                onClick={() => navigate(`/process/${material.id}`)}
+                                                    onClick={() => {
+                                                        console.log("Navigation vers :", `/process/${material.id}`);
+                                                        navigate(`/process/${material.id}`);
+                                                    }}
                                             >
                                                 Processus
                                             </button>

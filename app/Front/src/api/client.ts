@@ -32,6 +32,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
     const res = await fetch(url, {
         method,
+        credentials: "include",
         headers: {
             ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
             ...(auth && token ? { Authorization: `Bearer ${token}` } : {}),

@@ -8,6 +8,7 @@ import net.ent.etnc.backend.models.entities.Ecran;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.UniteCentrale;
 import net.ent.etnc.backend.models.entities.VideoProjecteur;
+import net.ent.etnc.backend.models.enums.TypeMateriel;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -80,14 +81,25 @@ public class MaterielAssembler {
 
     public MaterielRequest toRequest(Materiel materiel){
         return MaterielRequest.builder()
+                .typeMateriel(typeOf(materiel))
                 .numeroSerie(materiel.getNumeroSerie())
                 .nom(materiel.getNom())
                 .dateAjout(materiel.getDateAjout())
                 .dateFinGarantie(materiel.getDateFinGarantie())
                 .marque(materiel.getMarque())
                 .modele(materiel.getModele())
-//                .etat(materiel.getEtat())
+                .etat(materiel.getEtat())
+                .processeur(materiel instanceof UniteCentrale uc ? uc.getProcesseur() : null)
+                .carteGraphique(materiel instanceof UniteCentrale uc ? uc.getCarteGraphique() : null)
+                .taille(materiel instanceof Ecran ecran ? ecran.getTaille() : null)
                 .build();
+    }
+
+    private TypeMateriel typeOf(Materiel materiel) {
+        if (materiel instanceof UniteCentrale) return TypeMateriel.UC;
+        if (materiel instanceof Ecran) return TypeMateriel.ECRAN;
+        if (materiel instanceof VideoProjecteur) return TypeMateriel.VIDEO_PROJECTEUR;
+        throw new IllegalArgumentException("Type de matériel inconnu : " + materiel.getClass().getName());
     }
 
     public UniteCentrale toUniteCentrale(MaterielRequest materielRequest) {

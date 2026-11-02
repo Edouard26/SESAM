@@ -18,12 +18,14 @@ public class SalleAssembler {
     private final BatimentService batimentService;
     private final MaterielAssembler materielAssembler;
     private final AlerteService alerteService;
+    private final RegleAssembler regleAssembler;
 
     @Autowired
-    public SalleAssembler(BatimentService batimentService, MaterielAssembler materielAssembler, AlerteService alerteService) {
+    public SalleAssembler(BatimentService batimentService, MaterielAssembler materielAssembler, RegleAssembler regleAssembler, AlerteService alerteService) {
         this.batimentService = batimentService;
         this.materielAssembler = materielAssembler;
         this.alerteService = alerteService;
+        this.regleAssembler = regleAssembler;
     }
 
     public SalleResponse toResponse(Salle salle) {
@@ -43,6 +45,7 @@ public class SalleAssembler {
                         materielAssembler.toResponses(salle.getMateriels())
                 )
                 .nbAlertes(alerteService.countAlerteInSalle(salle.getId()))
+                .regles(salle.getRegles().stream().map(regleAssembler::toResponse).toList())
                 .build();
     }
 

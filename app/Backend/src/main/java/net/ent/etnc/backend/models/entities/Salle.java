@@ -83,4 +83,13 @@ public class Salle extends AbstractPersistableWithIdSetter<Long> {
         @OneToMany(fetch = FetchType.LAZY)
         @JoinColumn(name = "salle_id", foreignKey = @ForeignKey(name = "fk___materiels___salle_id"))
         private Set<Materiel> materiels = new HashSet<>();
+
+        @Getter
+        @Setter
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "salle_regles",
+                joinColumns = @JoinColumn(name = "salle_id", foreignKey = @ForeignKey(name = "fk___salle_regles___salle_id")),
+                inverseJoinColumns = @JoinColumn(name = "regle_id", foreignKey = @ForeignKey(name = "fk___salle_regles___regle_id"))
+        )
+        private Set<Regle> regles = new HashSet<>();
 }

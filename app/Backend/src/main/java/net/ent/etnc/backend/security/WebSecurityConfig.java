@@ -2,6 +2,7 @@ package net.ent.etnc.backend.security;
 
 import net.ent.etnc.backend.security.jwt.AuthJwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -62,13 +63,16 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${FRONT_ORIGIN:http://localhost:8081}")
+            String frontOrigin
+    ) {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOrigins(List.of(frontOrigin));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
@@ -83,9 +87,9 @@ public class WebSecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthJwtFilter authJwtFilter) {
-        // Désactivation CSRF et CORS (API REST, pas de form HTML)
-        //http.cors(AbstractHttpConfigurer::disable)
-        http.csrf(AbstractHttpConfigurer::disable);
+        // API REST : CSRF désactivé, CORS activé pour le front servi sur une autre origine.
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> {});
 
         // Stateless : pas de session HTTP côté serveur
         http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

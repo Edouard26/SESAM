@@ -50,6 +50,8 @@ public class Init implements CommandLineRunner {
     private final SalleService salleService;
     private final AlerteService alerteService;
     private final StageService stageService;
+    private final ProcessusService processusService;
+    private final RegleService regleService;
 
     private User gestionnaireCree;
     private User stagiaireCree;
@@ -58,7 +60,8 @@ public class Init implements CommandLineRunner {
                 UniteCentraleService uniteCentraleService, EcranService ecranService,
                 VideoProjecteurService videoProjecteurService,
                 BatimentService batimentService, SalleService salleService,
-                AlerteService alerteService, StageService stageService) {
+                AlerteService alerteService, StageService stageService,
+                ProcessusService processusService, RegleService regleService) {
         this.userService = userService;
         this.materielService = materielService;
         this.uniteCentraleService = uniteCentraleService;
@@ -68,6 +71,8 @@ public class Init implements CommandLineRunner {
         this.salleService = salleService;
         this.alerteService = alerteService;
         this.stageService = stageService;
+        this.processusService = processusService;
+        this.regleService = regleService;
     }
 
     @Override
@@ -91,6 +96,8 @@ public class Init implements CommandLineRunner {
         salles.sort(Comparator.comparing(Salle::getNom));
         materiels.sort(Comparator.comparing(Materiel::getNumeroSerie));
 
+        initRegles(salles);
+
         rattacherSallesAuxBatiments(salles);
         List<Stage> groupes = initStagesEtGroupes(utilisateurs, salles);
         affecterMateriels(groupes, salles, materiels);
@@ -104,6 +111,7 @@ public class Init implements CommandLineRunner {
                     .findFirst().orElseThrow(() -> new IllegalStateException("Aucun stagiaire."));
             initAlerte();
         }
+        rattacherMaterielsAuxAlertes(materiels);
     }
 
     private void initUsers() throws ServiceException {
@@ -351,6 +359,79 @@ public class Init implements CommandLineRunner {
         alerte.setStatut(statut);
         alerte.getMateriels().add(materiel);
         return alerte;
+    }
+
+    private void rattacherMaterielsAuxAlertes(List<Materiel> materiels) {
+        Materiel ecran = materiels.stream().filter(Ecran.class::isInstance).findFirst().orElse(null);
+        Materiel uniteCentrale = materiels.stream().filter(UniteCentrale.class::isInstance).findFirst().orElse(null);
+        if (ecran == null || uniteCentrale == null) {
+            return;
+        }
+
+        for (Alerte alerte : alerteService.findAll()) {
+            if (!alerte.getMateriels().isEmpty()) {
+                continue;
+            }
+            switch (alerte.getTypeProbleme()) {
+                case "Ecran sans affichage" -> alerte.getMateriels().add(ecran);
+                case "Probleme de demarrage" -> alerte.getMateriels().add(uniteCentrale);
+                case "Signalement en double" -> {
+                    alerte.getMateriels().add(ecran);
+                    alerte.getMateriels().add(uniteCentrale);
+                }
+                default -> { }
+            }
+        }
+    }
+
+    private void initRegles(List<Salle> salles) throws ServiceException {
+        Map<String, Processus> processusExistants = new LinkedHashMap<>();
+        for (Processus processus : processusService.findAll()) {
+            processusExistants.put(processus.getNom(), processus);
+        }
+
+        for (String nom : List.of("steam.exe", "discord.exe", "powershell.exe")) {
+            if (!processusExistants.containsKey(nom)) {
+                Processus processus = new Processus();
+                processus.setNom(nom);
+                processusExistants.put(nom, processusService.create(processus));
+            }
+        }
+
+        Map<String, Regle> reglesExistantes = new LinkedHashMap<>();
+        for (Regle regle : regleService.findAll()) {
+            reglesExistantes.put(regle.getNom(), regle);
+        }
+
+        Map<String, List<String>> definitions = new LinkedHashMap<>();
+        definitions.put("Jeux interdits", List.of("steam.exe"));
+        definitions.put("Messagerie", List.of("discord.exe"));
+        definitions.put("Outils système", List.of("powershell.exe"));
+
+        Map<String, Regle> reglesTest = new LinkedHashMap<>();
+        for (Map.Entry<String, List<String>> definition : definitions.entrySet()) {
+            Regle regle = reglesExistantes.get(definition.getKey());
+            if (regle == null) {
+                regle = new Regle();
+                regle.setNom(definition.getKey());
+                for (String nomProcessus : definition.getValue()) {
+                    regle.getProcessuss().add(processusExistants.get(nomProcessus));
+                }
+                regle = regleService.create(regle);
+            }
+            reglesTest.put(definition.getKey(), regle);
+        }
+
+        List<Salle> sallesCours = salles.stream()
+                .filter(salle -> salle.getTypeSalle() == TypeSalle.COURS)
+                .toList();
+        List<Regle> regles = new ArrayList<>(reglesTest.values());
+        for (int i = 0; i < Math.min(sallesCours.size(), regles.size()); i++) {
+            Salle salle = sallesCours.get(i);
+            if (salle.getRegles().add(regles.get(i))) {
+                salleService.update(salle);
+            }
+        }
     }
 
     private void rattacherSallesAuxBatiments(List<Salle> salles) {
