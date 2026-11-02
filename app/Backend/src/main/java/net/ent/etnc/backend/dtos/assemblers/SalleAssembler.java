@@ -4,6 +4,7 @@ import net.ent.etnc.backend.dtos.requests.SalleRequest;
 import net.ent.etnc.backend.dtos.responses.SalleResponse;
 import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.enums.EtatMateriel;
+import net.ent.etnc.backend.services.AlerteService;
 import net.ent.etnc.backend.services.BatimentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,11 +17,13 @@ public class SalleAssembler {
 
     private final BatimentService batimentService;
     private final MaterielAssembler materielAssembler;
+    private final AlerteService alerteService;
 
     @Autowired
-    public SalleAssembler(BatimentService batimentService, MaterielAssembler materielAssembler) {
+    public SalleAssembler(BatimentService batimentService, MaterielAssembler materielAssembler, AlerteService alerteService) {
         this.batimentService = batimentService;
         this.materielAssembler = materielAssembler;
+        this.alerteService = alerteService;
     }
 
     public SalleResponse toResponse(Salle salle) {
@@ -39,6 +42,7 @@ public class SalleAssembler {
                 .materiels(
                         materielAssembler.toResponses(salle.getMateriels())
                 )
+                .nbAlertes(alerteService.countAlerteInSalle(salle.getId()))
                 .build();
     }
 

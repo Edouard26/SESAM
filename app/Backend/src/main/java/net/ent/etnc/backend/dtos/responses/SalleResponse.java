@@ -28,4 +28,7 @@ public class SalleResponse {
 
     // Liste des matériels dans la salle
     private List<MaterielResponse> materiels;
+
+    // Nombre d'alertes pour la salle
+    private Integer nbAlertes;
 }
