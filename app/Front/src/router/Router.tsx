@@ -35,8 +35,7 @@ export default function Router() {
                     <Route path={`${routes.rooms}/:id`} element={<Room />} />
                     <Route path={routes.monitoring} element={<Monitoring />} />
                     <Route path={routes.rules} element={<Rules />} />
-                    <Route path={routes.process} element={<Process />} />
-                    <Route path={`${routes.process}/:id`} element={<Processus />} />
+                    <Route path={`${routes.process}/:id`} element={<Process />} />
                     <Route path={routes.stages} element={<Stages />} />
                     <Route path={`${routes.stages}/:id`} element={<Stage />} />
                     <Route path={routes.alerts} element={<Alerts />} />
