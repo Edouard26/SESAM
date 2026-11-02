@@ -30,4 +30,7 @@ public class SalleResponse {
     private List<MaterielResponse> materiels;
 
     private List<RegleResponse> regles;
+
+    // Nombre d'alertes pour la salle
+    private Integer nbAlertes;
 }

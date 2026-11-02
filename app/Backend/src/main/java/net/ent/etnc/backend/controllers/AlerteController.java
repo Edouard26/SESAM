@@ -54,11 +54,17 @@ public class AlerteController {
     @PreAuthorize("hasRole('STAGIAIRE') || hasRole('GESTIONNAIRE')")
     public ResponseEntity<Page<AlerteResponse>> getAll(
             @RequestParam(required = false) String filter,
+            @RequestParam(required = false) Long salleId,
             @PageableDefault(size = 20) Pageable pageable
     ) {
         // TODO si role Gestionnaire -> renvoie tous les alertes
         //      si role Stagiaire -> renvoie ses alertes
         //      si role Formateur -> renvoie les alertes de la salle
+
+        if(salleId != null){
+            return ResponseEntity.ok(alerteService.findAllBySalleId(pageable, salleId).map(assembler::toResponse));
+        }
+
         Specification<Alerte> spec = this.rsqlFilterUtils.build(filter, FILTERABLE);
         return ResponseEntity.ok(alerteService.findAll(spec, pageable).map(assembler::toResponse));
     }
