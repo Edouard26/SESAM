@@ -93,7 +93,6 @@ export default function Rooms() {
     } = usePaginatedList({
         load: (params) => roomApi.list({
             ...params,
-            sort: "nbPlaces,desc",
         }),
         initialFilters,
         pageSize: 9,

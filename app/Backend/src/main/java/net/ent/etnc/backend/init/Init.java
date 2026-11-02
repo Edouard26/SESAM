@@ -109,7 +109,7 @@ public class Init implements CommandLineRunner {
             stagiaireCree = utilisateurs.stream()
                     .filter(u -> u.getRole() == Role.STAGIAIRE)
                     .findFirst().orElseThrow(() -> new IllegalStateException("Aucun stagiaire."));
-            initAlerte(materiels);
+            initAlerte();
         }
         rattacherMaterielsAuxAlertes(materiels);
     }
@@ -314,33 +314,11 @@ public class Init implements CommandLineRunner {
         }
     }
 
-    private void initAlerte(List<Materiel> materiels) throws ServiceException {
+    private void initAlerte() throws ServiceException {
         User signaleur = stagiaireCree;
         User resolveur = gestionnaireCree;
-        Materiel ecran = materiels.stream().filter(Ecran.class::isInstance).findFirst()
-                .orElseThrow(() -> new IllegalStateException("Aucun ecran pour les alertes de test."));
-        Materiel uniteCentrale = materiels.stream().filter(UniteCentrale.class::isInstance).findFirst()
-                .orElseThrow(() -> new IllegalStateException("Aucune unite centrale pour les alertes de test."));
 
         LocalDateTime maintenant = LocalDateTime.now();
-        alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2),
-                null, null, "Ecran sans affichage",
-                "L'ecran reste noir apres le demarrage du poste.", StatutAlerte.EN_ATTENTE,
-                List.of(ecran)));
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(15),
-                resolveur, maintenant.minusDays(10), "Probleme de demarrage",
-                "Le poste ne demarrait plus. Alimentation remplacee.", StatutAlerte.TRAITEE,
-                List.of(uniteCentrale)));
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(20),
-                resolveur, maintenant.minusDays(19), "Signalement en double",
-                "Signalement annule car le probleme etait deja declare.", StatutAlerte.ANNULEE,
-                List.of(ecran, uniteCentrale)));
-    }
-
-    private Alerte buildAlerte(User signaleur, LocalDateTime dateSignalement,
-                                User resolveur, LocalDateTime dateResolution,
-                                String typeProbleme, String description,
-                                StatutAlerte statut, List<Materiel> materiels) {
         // salleid: 3
         alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2), null, null, "Ecran sans affichage", "L'ecran reste noir apres le demarrage du poste.", StatutAlerte.EN_ATTENTE,
                 materielService.findById(144L).get()));
@@ -379,7 +357,7 @@ public class Init implements CommandLineRunner {
         alerte.setTypeProbleme(typeProbleme);
         alerte.setDescription(description);
         alerte.setStatut(statut);
-        alerte.setMateriels(new ArrayList<>(materiels));
+        alerte.getMateriels().add(materiel);
         return alerte;
     }
 
