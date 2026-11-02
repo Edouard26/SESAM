@@ -187,9 +187,19 @@ export default function Rooms() {
                             <div className="d-flex align-items-center justify-content-between gap-3 small">
                                 <div>
                                     <span className="text-secondary">
-                                        {room.nbMaterielDispo ?? "x"} postes ·{" "}
+    {room.nbMaterielDispo ?? "x"} postes ·{" "}
                                         {room.nbPlaces ?? "-"} places
-                                    </span>
+
+                                        {(room.nbAlertes ?? 0) > 0 && (
+                                            <>
+                                                {" · "}
+                                                <span className="badge bg-danger rounded-pill">
+                <i className="bi bi-exclamation-triangle-fill me-1"></i>
+                                                    {room.nbAlertes} alertes
+            </span>
+                                            </>
+                                        )}
+</span>
 
                                     <div className="text-secondary mt-1">
                                         Taux d'occupation :{" "}

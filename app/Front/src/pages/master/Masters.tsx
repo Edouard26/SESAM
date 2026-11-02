@@ -1,0 +1,148 @@
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { masterApi, processApi } from "../../api";
+import type { Master, MasterForm } from "../../types/Master.ts";
+import type { Processus } from "../../types/Processus.ts";
+import { Role } from "../../types/Role.ts";
+import { useAuth } from "../../context/AuthContext.tsx";
+import useNotification from "../../hooks/useNotification.ts";
+import usePaginatedList from "../../hooks/usePaginatedList.ts";
+import PageHeader from "../../components/layout/PageHeader.tsx";
+import Filters from "../../components/generic/Filters.tsx";
+import Table, { type Column } from "../../components/generic/display/Table.tsx";
+import MasterPopup from "../../components/master/MasterPopup.tsx";
+
+export default function Masters() {
+    const { user } = useAuth();
+    const { notify } = useNotification();
+
+    const [processes, setProcesses] = useState<Processus[]>([]);
+    const [creating, setCreating] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    const {
+        search,
+        items: masters,
+        loading,
+        page,
+        totalPages,
+        totalElements,
+        setPage,
+        setSearch,
+        reload,
+    } = usePaginatedList({
+        load: masterApi.list,
+        initialFilters: {},
+        pageSize: 10,
+        errorMessage: "Impossible de charger les masters.",
+        initialSort: "nom,asc",
+    });
+
+    useEffect(() => {
+        let cancelled = false;
+
+        processApi.list({
+            page: 0,
+            size: 1000,
+            sort: "nom,asc",
+        })
+            .then((result) => {
+                if (!cancelled) {
+                    setProcesses(result.content);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    notify("Impossible de charger les processus.", "danger");
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [notify]);
+
+    async function saveMaster(form: MasterForm) {
+        setSaving(true);
+
+        try {
+            await masterApi.create(form);
+
+            notify("Master créé.", "success");
+            setCreating(false);
+            reload();
+        } catch {
+            notify("Impossible de créer le master.", "danger");
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    const columns = [
+        {
+            key: "nom",
+            label: "Master",
+        },
+        {
+            label: "Processus associés",
+            render: (master: Master) =>
+                master.processusId.length
+                    ? master.processusId
+                        .map((id) =>
+                            processes.find((process) => process.id === id)?.nom
+                            ?? `#${id}`
+                        )
+                        .join(", ")
+                    : (
+                        <span className="text-body-secondary">
+                            Aucun processus
+                        </span>
+                    ),
+        },
+    ] satisfies Column<Master>[];
+
+    return (
+        <>
+            <PageHeader
+                title="Masters"
+                description="Gérer les masters et leurs processus associés."
+                actions={[
+                    {
+                        label: "Ajouter un master",
+                        icon: "bi-plus-lg",
+                        variant: "primary",
+                        onClick: () => setCreating(true),
+                    },
+                ]}
+            />
+
+            <Filters
+                search={search}
+                searchPlaceholder="Rechercher un master..."
+                values={{}}
+                onSearchChange={setSearch}
+                onFilterChange={() => {}}
+                onReset={() => setSearch("")}
+            />
+
+            <Table<Master>
+                columns={columns}
+                data={masters}
+                currentPage={page}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                onPageChange={setPage}
+                loading={loading}
+            />
+
+            {creating && (
+                <MasterPopup
+                    processes={processes}
+                    saving={saving}
+                    onClose={() => setCreating(false)}
+                    onSubmit={(form) => void saveMaster(form)}
+                />
+            )}
+        </>
+    );
+}

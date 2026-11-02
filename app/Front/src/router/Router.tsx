@@ -17,6 +17,7 @@ import Users from "../pages/user/Users.tsx";
 import Process from "../pages/process/Process.tsx";
 import Stage from "../pages/stage/Stage.tsx";
 import Rules from "../pages/rule/Rules.tsx";
+import Masters from "../pages/master/Masters.tsx";
 
 export default function Router() {
 
@@ -39,6 +40,7 @@ export default function Router() {
                     <Route path={routes.stages} element={<Stages />} />
                     <Route path={`${routes.stages}/:id`} element={<Stage />} />
                     <Route path={routes.alerts} element={<Alerts />} />
+                    <Route path={routes.masters} element={<Masters />} />
                     <Route path={routes.users} element={<Users />} />
                     <Route path="*" element={<NotFound />} />
                 </Route>

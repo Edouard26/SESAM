@@ -8,5 +8,6 @@ export const routes = {
     rules: "/rules",
     stages: "/stages",
     alerts: "/alerts",
+    masters: "/masters",
     users: "/users"
 };

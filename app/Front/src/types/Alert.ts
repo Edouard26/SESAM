@@ -9,6 +9,7 @@ export type Alert = {
     description: string;
     statut: AlertStatut;
     materiels: AlertMaterial[];
+    nbAlertes?: number;
 
 };
 

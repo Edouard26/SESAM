@@ -70,14 +70,21 @@ export default function Sidebar() {
                         </NavLink>
                     </li>
                 )}
-
                 {user.role >= Role.GESTIONNAIRE && (
-                    <li>
-                        <NavLink to={routes.alerts} className="nav-link text-white">
-                            <i className="bi bi-bell me-3" />
-                            Alertes
-                        </NavLink>
-                    </li>
+                    <>
+                        <li>
+                            <NavLink to={routes.alerts} className="nav-link text-white">
+                                <i className="bi bi-bell me-3" />
+                                Alertes
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to={routes.masters} className="nav-link text-white">
+                                <i className="bi bi-collection me-3" />
+                                Masters
+                            </NavLink>
+                        </li>
+                    </>
                 )}
 
                 {user.role === Role.ADMINISTRATEUR && (
