@@ -1,19 +1,25 @@
 package net.ent.etnc.backend.services.impl;
 
 import net.ent.etnc.backend.models.entities.Alerte;
+import net.ent.etnc.backend.models.entities.User;
+import net.ent.etnc.backend.models.enums.Role;
 import net.ent.etnc.backend.models.enums.StatutAlerte;
 import net.ent.etnc.backend.repositories.AlerteRepository;
 import net.ent.etnc.backend.services.AlerteService;
 import net.ent.etnc.backend.services.commons.AbstractService;
+import net.ent.etnc.backend.services.commons.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class AlerteServiceImpl extends AbstractService<Alerte, AlerteRepository> implements AlerteService {
 
@@ -31,6 +37,22 @@ public class AlerteServiceImpl extends AbstractService<Alerte, AlerteRepository>
                 dateLimite
         );
         repository.deleteAll(alertesAnciennes);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Alerte findById(User user, Long alerteId){
+        Optional<Alerte> optionalAlerte = repository.findById(alerteId);
+        if(optionalAlerte.isEmpty()){
+            throw new ServiceException("Alerte not found");
+        }
+
+        // RG -> Un stagiaire ne peut voir que ses alertes.
+        if(user.getRole() != Role.STAGIAIRE || !optionalAlerte.get().getSignaleur().equals(user)){
+            throw new ServiceException("l'user n'est pas le signaleur de l'alerte");
+        }
+
+        return optionalAlerte.get();
     }
 
     @Transactional(readOnly = true)
