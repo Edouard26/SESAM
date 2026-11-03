@@ -49,12 +49,8 @@ public class AlerteAssembler {
                 .build();
     }
 
-    public List<AlerteResponse> toDtos(Collection<Alerte> alertes) {
-        return alertes.stream().map(this::toResponse).toList();
-    }
-
     public AlerteResolutionRequest toRequest(Alerte alerte){
-        return AlerteResolutionRequest.builder()// TODO à améliorer
+        return AlerteResolutionRequest.builder()
                 .resolveurId(alerte.getResolveur() == null ? null : alerte.getResolveur().getId())
                 .dateResolution(alerte.getDateResolution() == null ? null : alerte.getDateResolution())
                 .statut(alerte.getStatut())
@@ -85,7 +81,7 @@ public class AlerteAssembler {
         Alerte alerte = new Alerte();
 
         Optional<User> optionalSignaleur = userService.findById(alerteSignalementRequest.getSignaleurId());
-        // TODO vérifier dans le service
+
         if(optionalSignaleur.isEmpty()){
             throw new ServiceException("User not found");
         }

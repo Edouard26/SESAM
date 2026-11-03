@@ -7,7 +7,8 @@ import net.ent.etnc.backend.dtos.requests.AlerteSignalementRequest;
 import net.ent.etnc.backend.dtos.responses.AlerteResponse;
 import net.ent.etnc.backend.dtos.assemblers.AlerteAssembler;
 import net.ent.etnc.backend.models.entities.Alerte;
-import net.ent.etnc.backend.models.entities.Materiel;
+import net.ent.etnc.backend.models.entities.User;
+import net.ent.etnc.backend.models.enums.Role;
 import net.ent.etnc.backend.services.AlerteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -51,28 +53,47 @@ public class AlerteController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('STAGIAIRE') || hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasAnyRole('STAGIAIRE', 'GESTIONNAIRE')")
     public ResponseEntity<Page<AlerteResponse>> getAll(
+            Authentication authentication,
             @RequestParam(required = false) String filter,
             @RequestParam(required = false) Long salleId,
             @PageableDefault(size = 20) Pageable pageable
     ) {
-        // TODO si role Gestionnaire -> renvoie tous les alertes
-        //      si role Stagiaire -> renvoie ses alertes
-        //      si role Formateur -> renvoie les alertes de la salle
+        User currentUser = (User) authentication.getPrincipal();
 
-        if(salleId != null){
+        // si role Stagiaire -> renvoie ses alertes
+        if(currentUser.getRole() == Role.STAGIAIRE){
+            return ResponseEntity.ok(alerteService.findAllByUserId(pageable, currentUser.getId()).map(assembler::toResponse));
+        }
+
+        // si role Formateur -> renvoie les alertes de la salle
+        if(currentUser.getRole() == Role.FORMATEUR) {
+            if (salleId != null) {
+                return ResponseEntity.ok(alerteService.findAllBySalleId(pageable, salleId).map(assembler::toResponse));
+            }
+            else {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+        // si role Gestionnaire -> renvoie tous les alertes
+
+        // si il y a salleId -> renvoie tous les alertes de la salle
+        if (salleId != null) {
             return ResponseEntity.ok(alerteService.findAllBySalleId(pageable, salleId).map(assembler::toResponse));
         }
 
+        // sinon -> renvoie tous les alertes
         Specification<Alerte> spec = this.rsqlFilterUtils.build(filter, FILTERABLE);
         return ResponseEntity.ok(alerteService.findAll(spec, pageable).map(assembler::toResponse));
     }
 
     @GetMapping("{id}/")
-    @PreAuthorize("hasRole('STAGIAIRE') || hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasAnyRole('STAGIAIRE', 'GESTIONNAIRE')")
     public ResponseEntity<AlerteResponse> getById(@PathVariable Long id) {
         // TODO vérifier si il a le droit d'accès à cette alerte
+
         return alerteService.findById(id)
                 .map(a -> ResponseEntity.ok(assembler.toResponse(a)))
                 .orElse(ResponseEntity.notFound().build());

@@ -50,6 +50,8 @@ public class UniteCentrale extends Materiel {
                     inverseJoinColumns = @JoinColumn(name = "processus_id", foreignKey = @ForeignKey(name = "fk___unite_central__processus___processus_id")))
         private List<Processus> processus = new ArrayList<>();
 
+        // TODO ajouter adresse MAC
+
         //LBK
         @Getter
         @Setter
