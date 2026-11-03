@@ -19,8 +19,8 @@ import java.util.Set;
 /**
  * Représente une salle dans un bâtiment.
  *
- * Une salle peut être une salle de stockage ou de cours. Seul les salles de cours peuvent accueilir des stagiaires.
- * Elle possède une liste de matériel et a un nombre limité de postes.
+ * <p>Une salle peut être une salle de stockage ou de cours. Seul les salles de cours peuvent accueilir des stagiaires.
+ * Elle possède une liste de matériel et a un nombre limité de postes.</p>
  *
  */
 @Entity

@@ -13,6 +13,11 @@ import net.ent.etnc.backend.models.commons.AbstractPersistableWithIdSetter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entité représentant un master.
+ *
+ * <p>Le master a une liste de processus doit être installées sur un poste qu'on le master est appliqué sur ce poste.</p>
+ */
 @Entity
 @Table(
         name = "masters",
@@ -34,6 +39,9 @@ public class Master extends AbstractPersistableWithIdSetter<Long> {
     @Column(name = "nom", nullable = false, length = 20)
     private String nom;
 
+    /**
+     * Liste des processus associés à ce master.
+     */
     //LBK
     @Getter
     @Setter

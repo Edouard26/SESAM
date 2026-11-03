@@ -9,13 +9,12 @@ import java.util.Set;
 /**
  * Rôles des utilisateurs de la plateforme, organisés en hiérarchie cumulative.
  *
- * TODO
  * <p>Chaque rôle hérite des permissions de tous les rôles inférieurs :
- * APPRENANT &lt; CORRECTEUR &lt; FORMATEUR &lt; RESPONSABLE &lt; ADMIN.
+ * STAGIAIRE &lt; FORMATEUR et GESTIONNAIRE &lt; ADMIN.
  *
  * <p>Spring Security expose les rôles transitifs via {@link User#getAuthorities()},
  * ce qui permet l'utilisation de {@code hasRole('CORRECTEUR')} pour autoriser
- * FORMATEUR, RESPONSABLE et ADMIN par effet de cascade.
+ * FORMATEUR et ADMIN par effet de cascade.
  */
 public enum Role {
 
