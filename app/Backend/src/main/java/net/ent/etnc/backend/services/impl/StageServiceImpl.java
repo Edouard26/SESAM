@@ -2,8 +2,10 @@ package net.ent.etnc.backend.services.impl;
 
 import jakarta.validation.groups.Default;
 import net.ent.etnc.backend.models.entities.Materiel;
+import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.entities.Stage;
 import net.ent.etnc.backend.models.entities.User;
+import net.ent.etnc.backend.models.enums.EtatSalle;
 import net.ent.etnc.backend.models.enums.StatutStage;
 import net.ent.etnc.backend.models.validators.groups.UpdateGroup;
 import net.ent.etnc.backend.repositories.MaterielRepository;
@@ -56,6 +58,12 @@ public class StageServiceImpl extends AbstractService<Stage, StageRepository> im
             List<Materiel> materiels = materielRepository.findAllByStagiaireIn(stagiaires);
             materiels.forEach(materiel -> materiel.setStagiaire(null));
             materielRepository.saveAll(materiels);
+        }
+
+        Salle salle = stage.getSalleCours();
+        if (salle != null) {
+            salle.setEtat(EtatSalle.DISPONIBLE);
+            salleService.update(salle);
         }
 
         stage.setSalleCours(null);
