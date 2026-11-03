@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import net.ent.etnc.backend.models.commons.AbstractPersistableWithIdSetter;
 import net.ent.etnc.backend.models.enums.StatutStage;
+import net.ent.etnc.backend.models.validators.dateRange.ValidDateRange;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -19,13 +20,14 @@ import java.util.Set;
 /**
  * Représente un stage.
  *
- * Règle de gestion:
- *      - le stage est placé dans une salle de cours.
- *      - un stage a le statut:
- *              . {@code A_AFFECTER} si le stage n'est pas affecté à une salle.
- *              . {@code AFFECTER} si le stage est affectée à une salle et le stage n'est pas encore commencé.
- *              . {@code EN_COURS} si le stage est commencé et n'est pas terminé.
- *              . {@code CLOTURER} si le stage est terminé.
+ * <p>Règle de gestion:<br>
+ *      - la date du début du stage doit antérieur à la date de fin.<br>
+ *      - le stage est placé dans une salle de cours.<br>
+ *      - un stage a le statut:<br>
+ *              . {@code A_AFFECTER} si le stage n'est pas affecté à une salle.<br>
+ *              . {@code AFFECTER} si le stage est affectée à une salle et le stage n'est pas encore commencé.<br>
+ *              . {@code EN_COURS} si le stage est commencé et n'est pas terminé.<br>
+ *              . {@code CLOTURER} si le stage est terminé.</p>
  */
 @Entity
 @Table(
@@ -37,6 +39,8 @@ import java.util.Set;
 )
 @EqualsAndHashCode(callSuper = false, of = {"code"})
 @ToString(callSuper = true, of = {"code","dateDebut","dateFin"})
+
+@ValidDateRange(start = "dateDebut", end = "dateFin", message = "la date du début du stage doit antérieur à la date de fin.")
 public class Stage extends AbstractPersistableWithIdSetter<Long> {
 
         //LBK
