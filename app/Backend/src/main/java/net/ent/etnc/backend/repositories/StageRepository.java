@@ -19,6 +19,14 @@ public interface StageRepository extends BaseRepository<Stage> {
     @Query("""
         SELECT stage
         FROM Stage stage
+        WHERE stage.statut = StatutStage.AFFECTER
+        AND stage.dateDebut < :date
+    """)
+    List<Stage> findAllByStatut_AffecterAndDateDebutBefore(LocalDate date);
+
+    @Query("""
+        SELECT stage
+        FROM Stage stage
         LEFT JOIN FETCH stage.salleCours
         WHERE stage.statut <> :statut
         AND stage.dateFin < :date

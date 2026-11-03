@@ -44,6 +44,14 @@ public class StageServiceImpl extends AbstractService<Stage, StageRepository> im
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     @Override
+    public void demarrerStage() {
+        List<Stage> stagesDemarres = repository.findAllByStatut_AffecterAndDateDebutBefore(LocalDate.now());
+        stagesDemarres.forEach(s -> s.setStatut(StatutStage.EN_COURS));
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    @Transactional
+    @Override
     public void cloturerStagesTermines() {
         List<Stage> stagesTermines = repository.findAllByStatutNotAndDateFinBefore(StatutStage.CLOTURER, LocalDate.now());
         stagesTermines.forEach(this::cloturer);
