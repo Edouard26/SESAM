@@ -26,7 +26,7 @@ export default function Process() {
                 setLoading(true);
 
                 const response = await processApi.list({
-                    materielId: Number(id),
+                    uniteCentralId: Number(id),
                 });
 
                 if (!cancelled) {

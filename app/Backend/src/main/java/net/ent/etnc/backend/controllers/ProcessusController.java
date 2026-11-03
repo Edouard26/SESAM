@@ -32,11 +32,10 @@ public class ProcessusController {
     @PreAuthorize("hasAnyRole('FORMATEUR', 'GESTIONNAIRE', 'ADMINISTRATEUR')")
     public ResponseEntity<Page<ProcessusResponse>> getAll(
             @PageableDefault(size = 20) Pageable pageable,
-            @RequestParam(required = true) Long uniteCentralId
+            @RequestParam(required = false) Long uniteCentralId
     ){
-//        return ResponseEntity.ok(processusService.findAll(pageable).map(assembler::toResponse));
         if(uniteCentralId == null){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(processusService.findAll(pageable).map(assembler::toResponse));
         }
         return ResponseEntity.ok(processusService.findAllByUC(pageable, uniteCentralId).map(assembler::toResponse));
     }
