@@ -3,6 +3,7 @@ package net.ent.etnc.backend.repositories;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.entities.User;
+import net.ent.etnc.backend.models.enums.EtatMateriel;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import net.ent.etnc.backend.repositories.specifications.MaterielSpecifications;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -112,4 +114,10 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
     Page<Materiel> findAllMaterielNotAffectToStagiaire(User stagiaire, Pageable pageable);
 
     List<Materiel> findAllByIdIn(Collection<Long> ids);
+
+    long countByEtat(EtatMateriel etat);
+
+    long countByDateFinGarantieBefore(LocalDate date);
+
+    long countByDateFinGarantieBetween(LocalDate debut, LocalDate fin);
 }

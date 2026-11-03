@@ -8,3 +8,4 @@ export { stageApi } from "./stage.api.ts";
 export { ruleApi } from "./rule.api.ts";
 export { processApi } from "./process.api.ts";
 export { masterApi } from "./master.api.ts";
+export { statsApi } from "./stats.api.ts";
