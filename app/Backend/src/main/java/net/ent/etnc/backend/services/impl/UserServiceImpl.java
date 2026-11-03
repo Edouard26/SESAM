@@ -1,8 +1,13 @@
 package net.ent.etnc.backend.services.impl;
 
 
+import net.ent.etnc.backend.dtos.requests.MaterielAssigmentsStagiaireRequest;
+import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.User;
+import net.ent.etnc.backend.models.enums.Role;
 import net.ent.etnc.backend.repositories.UserRepository;
+import net.ent.etnc.backend.services.MaterielService;
+import net.ent.etnc.backend.services.SalleService;
 import net.ent.etnc.backend.services.UserService;
 import net.ent.etnc.backend.services.commons.AbstractService;
 import net.ent.etnc.backend.services.commons.ServiceException;
@@ -25,9 +30,14 @@ public class UserServiceImpl extends AbstractService<User, UserRepository> imple
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder) {
+    private final MaterielService materielService;
+    private final SalleService salleService;
+
+    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder, MaterielService materielService, SalleService salleService) {
         super(repository);
         this.passwordEncoder = passwordEncoder;
+        this.materielService = materielService;
+        this.salleService = salleService;
     }
 
     /**
@@ -57,5 +67,29 @@ public class UserServiceImpl extends AbstractService<User, UserRepository> imple
         }
 
         return optional.get();
+    }
+
+    @Transactional
+    @Override
+    public User AssigmentsMaterielToStagiaire(MaterielAssigmentsStagiaireRequest request){
+        Optional<User> optionalStagiaire = findById(request.getStagiaireId());
+        if(optionalStagiaire.isEmpty() || !optionalStagiaire.get().isActive()){
+            throw new ServiceException("User not found");
+        }
+
+        if(optionalStagiaire.get().getRole() != Role.STAGIAIRE){
+            throw new ServiceException("User is not a Stagiaire");
+        }
+
+        for(Long materielId : request.getMaterielsId()){
+            Optional<Materiel> optionalMateriel = materielService.findById(materielId);
+            // RG: le matériel ne peut pas déjà être affecter un autre stagiaire
+            // RG: le matériel doit être dans la salle du stage du stagiaire
+            if(optionalMateriel.isPresent() && materielService.isAssignableToStagiaire(optionalMateriel.get(), salleService.findByStagiaire(optionalStagiaire.get()))){
+                optionalMateriel.get().setStagiaire(optionalStagiaire.get());
+            }
+        }
+
+        return update(optionalStagiaire.get());
     }
 }

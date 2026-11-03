@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.services;
 
 
+import net.ent.etnc.backend.dtos.requests.MaterielAssigmentsStagiaireRequest;
 import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.services.commons.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,4 +17,7 @@ public interface UserService extends Service<User, Long> {
 
     @Transactional(readOnly = true)
     User findByNid(String nid);
+
+    @Transactional
+    User AssigmentsMaterielToStagiaire(MaterielAssigmentsStagiaireRequest request);
 }

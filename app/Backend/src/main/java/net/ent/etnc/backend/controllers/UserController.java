@@ -120,25 +120,7 @@ public class UserController {
     @PostMapping("assignments/")
     @PreAuthorize("hasRole('GESTIONNAIRE')")
     public ResponseEntity<StagiaireResponse> postAssigmentsStagiaire(@RequestBody MaterielAssigmentsStagiaireRequest materielAssigmentsStagiaireRequest){
-        Optional<User> optionalStagiaire = userService.findById(materielAssigmentsStagiaireRequest.getStagiaireId());
-        if(optionalStagiaire.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-
-        if(optionalStagiaire.get().getRole() != Role.STAGIAIRE){
-            return ResponseEntity.badRequest().build();// TODO mettre dans le service RG
-        }
-
-        for(Long materielId : materielAssigmentsStagiaireRequest.getMaterielsId()){
-            Optional<Materiel> optionalMateriel = materielService.findById(materielId);
-            // RG: le matériel ne peut pas déjà être affecter un autre stagiaire
-            // RG: le matériel doit être dans la salle du stage du stagiaire
-            if(optionalMateriel.isPresent() && materielService.isAssignableToStagiaire(optionalMateriel.get(), salleService.findByStagiaire(optionalStagiaire.get()))){
-                optionalMateriel.get().setStagiaire(optionalStagiaire.get());
-            }
-        }
-
-        return ResponseEntity.ok(assembler.toStagiaireResponse(userService.update(optionalStagiaire.get())));
+        return ResponseEntity.ok(assembler.toStagiaireResponse(userService.AssigmentsMaterielToStagiaire(materielAssigmentsStagiaireRequest)));
     }
 
     @PutMapping("{id}/")
