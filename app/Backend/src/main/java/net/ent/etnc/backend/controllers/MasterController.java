@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Endpoint REST pour la gestion des masters ({@code /api/v1/masters/}).
+ */
 @RestController
 @RequestMapping("/api/v1/masters/")
 public class MasterController {
