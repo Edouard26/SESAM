@@ -98,20 +98,20 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        List<User> stagiaires = new ArrayList<>();
         for(StagiaireRequest stagiaireRequest : stagiaireImportRequest.getStagiaires()){
             User stagiaire = assembler.toEntity(stagiaireRequest);
 
             stagiaire.setRole(Role.STAGIAIRE);
             stagiaire.setPassword("azerty+35");
             if(!userService.existsByNid(stagiaire.getNid())){
-                userService.create(stagiaire);
+                stagiaire = userService.create(stagiaire);
             }
-            else{
+            else{ // cas si un ancien stagiaire revient pour un nouveau stage
                 stagiaire.setId(userService.findByNid(stagiaire.getNid()).getId());
+                stagiaire.setActive(true);
+                stagiaire = userService.update(stagiaire);
             }
             optionalStage.get().getStagiaires().add(stagiaire);
-            stagiaires.add(stagiaire);
         }
 
         return ResponseEntity.ok(stageAssembler.toResponse(stageService.update(optionalStage.get())));
