@@ -11,13 +11,4 @@ import java.time.LocalDate;
 public interface StageRepository extends BaseRepository<Stage> {
 
     Boolean existsByCode(String code);
-
-    // TODO Peut être la mettre dans SalleRepository
-    @Query("""
-        SELECT COUNT(*) > 0
-        FROM Stage s
-        WHERE s.salleCours.id = :salleId
-        AND(s.dateDebut > :dateFin OR s.dateFin < :dateDebut)
-    """)
-    Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin);
 }

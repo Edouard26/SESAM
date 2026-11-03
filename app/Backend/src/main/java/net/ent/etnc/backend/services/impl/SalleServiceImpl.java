@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.List;
 import java.util.HashSet;
@@ -70,5 +71,11 @@ public class SalleServiceImpl extends AbstractService<Salle, SalleRepository> im
         }
         salle.setRegles(new HashSet<>(regles));
         return repository.save(salle);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin){
+        return repository.existsSalleLibreDurantPeriode(salleId, dateDebut, dateFin);
     }
 }

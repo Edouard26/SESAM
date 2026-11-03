@@ -3,6 +3,8 @@ package net.ent.etnc.backend.services;
 import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.entities.Stage;
 import net.ent.etnc.backend.models.entities.User;
+
+import java.time.LocalDate;
 import java.util.List;
 import net.ent.etnc.backend.services.commons.Service;
 import org.springframework.data.domain.Page;
@@ -26,4 +28,7 @@ public interface SalleService extends Service<Salle, Long> {
 
     @Transactional
     Salle updateRegles(Long salleId, List<Long> reglesIds);
+
+    @Transactional(readOnly = true)
+    Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin);
 }

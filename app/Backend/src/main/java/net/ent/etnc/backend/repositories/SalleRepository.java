@@ -28,6 +28,14 @@ public interface SalleRepository extends BaseRepository<Salle>, SalleRepositoryC
     """)
     Optional<Salle> findByStagiaire(User stagiaire);
 
+    @Query("""
+        SELECT COUNT(*) > 0
+        FROM Stage s
+        WHERE s.salleCours.id = :salleId
+        AND(s.dateDebut > :dateFin OR s.dateFin < :dateDebut)
+    """)
+    Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin);
+
     // TODO rajouter la période de stage mais surement devoir faire un ManyToOne dans le stage
     @Query("""
         SELECT salle
