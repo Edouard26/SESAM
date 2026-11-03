@@ -1,7 +1,12 @@
 package net.ent.etnc.backend.models.enums;
 
-import lombok.Getter;
-
+/**
+ * Énumération des grades militaires.
+ *
+ * <p>Regroupe les grades des militaires du rang, des sous-officiers,
+ * des officiers et des officiers généraux des forces terrestres,
+ * aériennes et spatiales, ainsi que de la Marine nationale.</p>
+ */
 public enum Grade {
     //-------------------//
     // Militaire du rang //
@@ -60,19 +65,4 @@ public enum Grade {
     VICE_AMIRAL,
     VICE_AMIRAL_ESCADRE,
     AMIRAL
-
-//    @Getter
-//    private final String libelle;
-//    @Getter
-//    private final String abreviation;
-//
-//    Grade(String libelle, String abreviation) {
-//        this.libelle = libelle;
-//        this.abreviation = abreviation;
-//    }
-//
-//    @Override
-//    public String toString() {
-////        return libelle;
-////    }
 }

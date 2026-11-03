@@ -91,12 +91,9 @@ public class AlerteController {
 
     @GetMapping("{id}/")
     @PreAuthorize("hasAnyRole('STAGIAIRE', 'GESTIONNAIRE')")
-    public ResponseEntity<AlerteResponse> getById(@PathVariable Long id) {
-        // TODO vérifier si il a le droit d'accès à cette alerte
-
-        return alerteService.findById(id)
-                .map(a -> ResponseEntity.ok(assembler.toResponse(a)))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AlerteResponse> getById(Authentication authentication, @PathVariable Long id) {
+        User currentUser = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(assembler.toResponse(alerteService.findById(currentUser, id)));
     }
 
     @PostMapping
