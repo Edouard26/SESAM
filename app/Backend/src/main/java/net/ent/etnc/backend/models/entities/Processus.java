@@ -12,6 +12,9 @@ import lombok.Setter;
 import lombok.ToString;
 import net.ent.etnc.backend.models.commons.AbstractPersistableWithIdSetter;
 
+/**
+ * Entité représentant un processus.
+ */
 @Entity
 @Table(
         name = "processus",

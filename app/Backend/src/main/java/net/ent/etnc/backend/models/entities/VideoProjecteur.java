@@ -11,6 +11,8 @@ import net.ent.etnc.backend.models.enums.TypeMateriel;
 
 /**
  * Représente un vidéo projecteur.
+ *
+ * <p>Etend de {@link Materiel}</p>
  */
 @Entity
 @EqualsAndHashCode(callSuper = true, of = {})
