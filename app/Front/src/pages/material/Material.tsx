@@ -139,6 +139,18 @@ export default function Material() {
                 title={material.nom}
                 description="Fiche descriptive du matériel"
                 back
+                actions={
+                    material.typeMateriel === "UC"
+                        ? [
+                            {
+                                label: "Réinstaller le poste",
+                                icon: "bi-arrow-repeat",
+                                onClick: () =>
+                                    console.log("Réinstaller le poste", material.id),
+                            },
+                        ]
+                        : []
+                }
             />
 
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 mb-3 border rounded-3 bg-body-tertiary">
