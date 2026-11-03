@@ -221,6 +221,11 @@ export default function Room() {
                     icon: "bi-display",
                     onClick: () => console.log("Superviser les postes", room.id),
                 },
+                {
+                    label: "Réinstaller la salle",
+                    icon: "bi-arrow-repeat",
+                    onClick: () => console.log("Réinstaller la salle", room.id),
+                },
             ]
             : []),
         {
