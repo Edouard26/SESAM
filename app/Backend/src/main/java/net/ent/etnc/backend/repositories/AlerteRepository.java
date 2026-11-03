@@ -43,4 +43,6 @@ public interface AlerteRepository extends BaseRepository<Alerte> {
         AND a.statut = 'EN_ATTENTE'
     """, nativeQuery = true)
     Page<Alerte> findAllBySalleId(Pageable pageable, Long salleId);
+
+    long countByStatut(StatutAlerte statut);
 }

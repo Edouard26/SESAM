@@ -8,4 +8,10 @@ public interface StageService extends Service<Stage, Long> {
 
     @Transactional(readOnly = true)
     Boolean existsByCode(String code);
+
+    @Transactional
+    void cloturer(Stage stage);
+
+    @Transactional
+    void cloturerStagesTermines();
 }

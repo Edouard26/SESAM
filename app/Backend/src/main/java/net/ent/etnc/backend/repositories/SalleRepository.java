@@ -2,6 +2,8 @@ package net.ent.etnc.backend.repositories;
 
 import net.ent.etnc.backend.models.entities.Salle;
 import net.ent.etnc.backend.models.entities.User;
+import net.ent.etnc.backend.models.enums.EtatSalle;
+import net.ent.etnc.backend.models.enums.TypeSalle;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import net.ent.etnc.backend.repositories.customs.SalleRepositoryCustom;
 import net.ent.etnc.backend.repositories.specifications.SalleSpecification;
@@ -19,6 +21,10 @@ import java.util.List;
 public interface SalleRepository extends BaseRepository<Salle>, SalleRepositoryCustom {
 
     List<Salle> findAllByRegles_Id(Long regleId);
+
+    long countByTypeSalle(TypeSalle typeSalle);
+
+    long countByEtat(EtatSalle etat);
 
     @Query("""
         SELECT stage.salleCours
