@@ -52,19 +52,16 @@ public class StageServiceImpl extends AbstractService<Stage, StageRepository> im
     public void cloturer(Stage stage) {
         Set<User> stagiaires = stage.getStagiaires();
 
-        // 1. Libère les matériels affectés aux stagiaires
         if (!stagiaires.isEmpty()) {
             List<Materiel> materiels = materielRepository.findAllByStagiaireIn(stagiaires);
             materiels.forEach(materiel -> materiel.setStagiaire(null));
             materielRepository.saveAll(materiels);
         }
 
-        // 2. Retire le stage de sa salle
         stage.setSalleCours(null);
         stage.setStatut(StatutStage.CLOTURER);
         repository.save(stage);
 
-        // 3. Désactive les comptes des stagiaires
         stagiaires.forEach(stagiaire -> stagiaire.setActive(false));
         userRepository.saveAll(stagiaires);
     }
