@@ -17,11 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
- *
- * Règle de gestion:
- *      - une alerte est signalée par un stagiaire ou un formateur
- *      - une alerte est résolue par un gestionnaire ou un administrateur
+ * Classe représentant une alerte.
+ * <p>Une alerte est signalé par un stagiaire ou un formateur si il y a un problème sur un matériel.</p>
+ * <p>
+ *     Règle de gestion:<br>
+ *              - une alerte est signalée par un stagiaire sur un de ses matériels ou par un formateur sur un matériel qui dans la salle dans lequel il fait cours<br>
+ *              - une alerte est résolue par un gestionnaire ou un administrateur
+ * </p>
  */
 @Entity
 @Table(
@@ -93,6 +95,12 @@ public class Alerte extends AbstractPersistableWithIdSetter<Long> {
         @Column(name = "description", nullable = false, length = 150)
         private String description;
 
+        /**
+         * Statut de l'alerte en fonction si il a déjà été traité ou non.
+         * <p>EN_ATTENTE si le problème n'est pas encore résolu.<br>
+         * TRAITEE si le problème a été résolu.<br>
+         * ANNULEE si le problème n'était pas un vrai problème.</p>
+         */
         //LBK
         @Getter
         @Setter
