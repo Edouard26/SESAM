@@ -47,7 +47,7 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @Setter
         //BV
         @NotBlank(message = "Adresse MAC ne peut pas être vide")
-        @Pattern(regexp = "^([A-Z0-9]-){5}[A-Z0-9]$")
+        @Pattern(regexp = "^([a-f0-9][a-f0-9]-){5}[a-f0-9][a-f0-9]$")
         //JPA
         @Column(name = "mac", nullable = false, length = 17)
         private String mac;
