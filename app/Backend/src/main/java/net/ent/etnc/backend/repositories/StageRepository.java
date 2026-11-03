@@ -5,10 +5,15 @@ import net.ent.etnc.backend.models.enums.StatutStage;
 import net.ent.etnc.backend.repositories.commons.BaseRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface StageRepository extends BaseRepository<Stage> {
 
     Boolean existsByCode(String code);
 
     long countByStatut(StatutStage statut);
+
+    List<Stage> findAllByStatutNotAndDateFinBefore(StatutStage statut, LocalDate date);
 }

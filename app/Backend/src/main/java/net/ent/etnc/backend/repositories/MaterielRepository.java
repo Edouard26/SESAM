@@ -113,6 +113,8 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
     """)
     Page<Materiel> findAllMaterielNotAffectToStagiaire(User stagiaire, Pageable pageable);
 
+    List<Materiel> findAllByStagiaireIn(Collection<User> stagiaires);
+
     List<Materiel> findAllByIdIn(Collection<Long> ids);
 
     long countByEtat(EtatMateriel etat);

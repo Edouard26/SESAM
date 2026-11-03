@@ -1,27 +1,72 @@
 package net.ent.etnc.backend.services.impl;
 
 import jakarta.validation.groups.Default;
+import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Stage;
+import net.ent.etnc.backend.models.entities.User;
+import net.ent.etnc.backend.models.enums.StatutStage;
 import net.ent.etnc.backend.models.validators.groups.UpdateGroup;
+import net.ent.etnc.backend.repositories.MaterielRepository;
 import net.ent.etnc.backend.repositories.StageRepository;
+import net.ent.etnc.backend.repositories.UserRepository;
 import net.ent.etnc.backend.services.SalleService;
 import net.ent.etnc.backend.services.StageService;
 import net.ent.etnc.backend.services.commons.AbstractService;
 import net.ent.etnc.backend.services.commons.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class StageServiceImpl extends AbstractService<Stage, StageRepository> implements StageService {
 
     public final SalleService salleService;
+    private final MaterielRepository materielRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public StageServiceImpl(StageRepository repository, SalleService salleService) {
+    public StageServiceImpl(StageRepository repository, SalleService salleService,
+                            MaterielRepository materielRepository, UserRepository userRepository) {
         super(repository);
         this.salleService = salleService;
+        this.materielRepository = materielRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    @Transactional
+    @Override
+    public void cloturerStagesTermines() {
+        List<Stage> stagesTermines = repository.findAllByStatutNotAndDateFinBefore(StatutStage.CLOTURER, LocalDate.now());
+        stagesTermines.forEach(this::cloturer);
+    }
+
+    @Transactional
+    @Override
+    public void cloturer(Stage stage) {
+        Set<User> stagiaires = stage.getStagiaires();
+
+        // 1. Libère les matériels affectés aux stagiaires
+        if (!stagiaires.isEmpty()) {
+            List<Materiel> materiels = materielRepository.findAllByStagiaireIn(stagiaires);
+            materiels.forEach(materiel -> materiel.setStagiaire(null));
+            materielRepository.saveAll(materiels);
+        }
+
+        // 2. Retire le stage de sa salle
+        stage.setSalleCours(null);
+        stage.setStatut(StatutStage.CLOTURER);
+        repository.save(stage);
+
+        // 3. Désactive les comptes des stagiaires
+        stagiaires.forEach(stagiaire -> stagiaire.setActive(false));
+        userRepository.saveAll(stagiaires);
     }
 
     @Transactional(readOnly = true)
