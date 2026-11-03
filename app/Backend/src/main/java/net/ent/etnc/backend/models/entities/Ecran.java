@@ -9,16 +9,11 @@ import lombok.ToString;
 import net.ent.etnc.backend.models.enums.TypeMateriel;
 
 /**
- * TODO
+ * Représente un écran.
+ *
+ *  <p>Etend de {@link Materiel}</p>
  */
 @Entity
-//@Table(
-//        name = "ecrans",
-//        uniqueConstraints = {@UniqueConstraint(
-//                name = "uk___ecrans___numero_serie",
-//                columnNames = {"numero_serie"}
-//        )}
-//)
 @EqualsAndHashCode(callSuper = true, of = {})
 @ToString(callSuper = true, of = {"taille"})
 public class Ecran extends Materiel {
@@ -28,7 +23,6 @@ public class Ecran extends Materiel {
         @Getter
         @Setter
         //BV
-//        @NotNull(message = "taille ne peut pas être null")
         //JPA
         @Column(name = "taille", nullable = true)
         private Integer taille;

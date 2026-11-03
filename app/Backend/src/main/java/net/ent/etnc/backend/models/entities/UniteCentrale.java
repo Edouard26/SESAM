@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * Représente une unité central d'un poste.
+ *
+ * <p>Etend de {@link Materiel}</p>
  */
 @Entity
 @EqualsAndHashCode(callSuper = true, of = {})
