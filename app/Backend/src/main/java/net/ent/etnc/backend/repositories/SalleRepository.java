@@ -34,13 +34,21 @@ public interface SalleRepository extends BaseRepository<Salle>, SalleRepositoryC
     """)
     Optional<Salle> findByStagiaire(User stagiaire);
 
-    // TODO rajouter la période de stage mais surement devoir faire un ManyToOne dans le stage
+    @Query("""
+        SELECT COUNT(*) > 0
+        FROM Stage s
+        WHERE s.salleCours.id = :salleId
+        AND(s.dateDebut > :dateFin OR s.dateFin < :dateDebut)
+    """)
+    Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin);
+
     @Query("""
         SELECT salle
         FROM Salle salle
         LEFT JOIN Stage stage ON salle = stage.salleCours
         WHERE salle.typeSalle = TypeSalle.COURS
-        AND salle.etat = EtatSalle.DISPONIBLE
+        AND (salle.etat = EtatSalle.DISPONIBLE
+        OR (stage.dateDebut > :dateFin OR stage.dateFin < :dateDebut))
     """)
     Page<Salle> findSallesDisponiblePendantPeriode(Pageable pageable, LocalDate dateDebut, LocalDate dateFin);
 

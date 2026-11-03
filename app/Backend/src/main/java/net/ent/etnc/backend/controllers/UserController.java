@@ -106,7 +106,10 @@ public class UserController {
             stagiaire.setPassword("azerty+35");
             if(!userService.existsByNid(stagiaire.getNid())){
                 userService.create(stagiaire);
-            }// TODO dans le else seter L'id du stagiaire déjà présent dans la bdd
+            }
+            else{
+                stagiaire.setId(userService.findByNid(stagiaire.getNid()).getId());
+            }
             optionalStage.get().getStagiaires().add(stagiaire);
             stagiaires.add(stagiaire);
         }
@@ -116,7 +119,6 @@ public class UserController {
 
     @PostMapping("assignments/")
     @PreAuthorize("hasRole('GESTIONNAIRE')")
-    // TODO remplacer le return StagiaireResponse
     public ResponseEntity<StagiaireResponse> postAssigmentsStagiaire(@RequestBody MaterielAssigmentsStagiaireRequest materielAssigmentsStagiaireRequest){
         Optional<User> optionalStagiaire = userService.findById(materielAssigmentsStagiaireRequest.getStagiaireId());
         if(optionalStagiaire.isEmpty()){
@@ -132,11 +134,10 @@ public class UserController {
             // RG: le matériel ne peut pas déjà être affecter un autre stagiaire
             // RG: le matériel doit être dans la salle du stage du stagiaire
             if(optionalMateriel.isPresent() && materielService.isAssignableToStagiaire(optionalMateriel.get(), salleService.findByStagiaire(optionalStagiaire.get()))){
-//                optionalStagiaire.get().getMateriels().add(optionalMateriel.get());
                 optionalMateriel.get().setStagiaire(optionalStagiaire.get());
             }
         }
-        // TODO peut être renvoyer pour chaque matériel si il a bien été affecté
+
         return ResponseEntity.ok(assembler.toStagiaireResponse(userService.update(optionalStagiaire.get())));
     }
 

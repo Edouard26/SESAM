@@ -10,15 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.HashSet;
-import java.util.Comparator;
+import java.util.*;
 
 /**
  * Jeu de test SESAM : 500 matériels, 5 bâtiments, 100 salles,
@@ -225,7 +217,7 @@ public class Init implements CommandLineRunner {
                 String[] modele = unitesCentrales[(numeroUC - 1) % unitesCentrales.length];
                 LocalDate ajout = aujourdHui.minusMonths(1 + numeroUC % 48);
                 UniteCentrale uc = new UniteCentrale();
-                remplirMateriel(uc, numeroSerie("UC", numeroUC),
+                remplirMateriel(uc, numeroSerie("UC", numeroUC), generateRandomMac(),
                         modele[1],
                         ajout, ajout.plusYears(3), modele[0], modele[1],
                         etatMateriel(numeroUC));
@@ -239,7 +231,7 @@ public class Init implements CommandLineRunner {
                 String[] modele = ecrans[(numeroEcran - 1) % ecrans.length];
                 LocalDate ajout = aujourdHui.minusMonths(1 + numeroEcran % 48);
                 Ecran ecran = new Ecran();
-                remplirMateriel(ecran, numeroSerie("ECR", numeroEcran),
+                remplirMateriel(ecran, numeroSerie("ECR", numeroEcran), generateRandomMac(),
                         modele[1],
                         ajout, ajout.plusYears(3), modele[0], modele[1],
                         etatMateriel(numeroEcran));
@@ -252,13 +244,32 @@ public class Init implements CommandLineRunner {
                 String[] modele = projecteurs[(numeroVP - 1) % projecteurs.length];
                 LocalDate ajout = aujourdHui.minusMonths(1 + numeroVP % 48);
                 VideoProjecteur vp = new VideoProjecteur();
-                remplirMateriel(vp, numeroSerie("VP", numeroVP),
+                remplirMateriel(vp, numeroSerie("VP", numeroVP), generateRandomMac(),
                         modele[1],
                         ajout, ajout.plusYears(3), modele[0], modele[1],
                         etatMateriel(numeroVP));
                 videoProjecteurService.create(vp);
             }
         }
+    }
+
+    public static String generateRandomMac() {
+        Random rand = new Random();
+        byte[] macAddr = new byte[6];
+        rand.nextBytes(macAddr);
+
+        // Définir le bit administré localement (bit 2 du premier octet) et s'assurer que le bit de multidiffusion est à 0
+        macAddr[0] = (byte) (macAddr[0] & (byte) 0xFC | 0x02);
+
+        StringBuilder sb = new StringBuilder(18);
+        for (byte b : macAddr) {
+            if (sb.length() > 0) {
+                sb.append("-");
+            }
+            sb.append(String.format("%02x", b));
+        }
+        System.out.println(sb.toString());
+        return sb.toString();
     }
 
     private String numeroSerie(String prefixe, int numero) {
@@ -275,10 +286,11 @@ public class Init implements CommandLineRunner {
         return EtatMateriel.EN_ETAT;
     }
 
-    private void remplirMateriel(Materiel materiel, String numeroSerie, String nom,
+    private void remplirMateriel(Materiel materiel, String numeroSerie, String mac, String nom,
                                  LocalDate dateAjout, LocalDate dateFinGarantie,
                                  String marque, String modele, EtatMateriel etat) {
         materiel.setNumeroSerie(numeroSerie);
+        materiel.setMac(mac);
         materiel.setNom(nom);
         materiel.setDateAjout(dateAjout);
         materiel.setDateFinGarantie(dateFinGarantie);

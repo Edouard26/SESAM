@@ -4,6 +4,7 @@ import jakarta.validation.groups.Default;
 import net.ent.etnc.backend.models.entities.Stage;
 import net.ent.etnc.backend.models.validators.groups.UpdateGroup;
 import net.ent.etnc.backend.repositories.StageRepository;
+import net.ent.etnc.backend.services.SalleService;
 import net.ent.etnc.backend.services.StageService;
 import net.ent.etnc.backend.services.commons.AbstractService;
 import net.ent.etnc.backend.services.commons.ServiceException;
@@ -15,9 +16,12 @@ import org.springframework.validation.annotation.Validated;
 @Service
 public class StageServiceImpl extends AbstractService<Stage, StageRepository> implements StageService {
 
+    public final SalleService salleService;
+
     @Autowired
-    public StageServiceImpl(StageRepository repository) {
+    public StageServiceImpl(StageRepository repository, SalleService salleService) {
         super(repository);
+        this.salleService = salleService;
     }
 
     @Transactional(readOnly = true)
@@ -38,7 +42,7 @@ public class StageServiceImpl extends AbstractService<Stage, StageRepository> im
         }
         try {
             // RG -> La salle destinée à accueillir le stage doit être disponible pendant toute sa durée.
-            if(repository.existsSalleLibreDurantPeriode(stage.getSalleCours().getId(), stage.getDateDebut(), stage.getDateFin())){
+            if(salleService.existsSalleLibreDurantPeriode(stage.getSalleCours().getId(), stage.getDateDebut(), stage.getDateFin())){
                 throw new ServiceException("Salle " + stage.getSalleCours().getNom() + "non-disponible");
             }
             return repository.save(stage);

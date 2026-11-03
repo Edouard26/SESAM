@@ -17,6 +17,7 @@ public class MaterielRequest {
     private TypeMateriel typeMateriel;
 
     private String numeroSerie;
+    private String mac;
     private String nom;
     private String marque;
     private String modele;

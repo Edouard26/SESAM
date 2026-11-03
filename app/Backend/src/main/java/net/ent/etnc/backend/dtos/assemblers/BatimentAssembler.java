@@ -1,5 +1,6 @@
 package net.ent.etnc.backend.dtos.assemblers;
 
+import net.ent.etnc.backend.dtos.requests.BatimentRequest;
 import net.ent.etnc.backend.dtos.responses.BatimentResponse;
 import net.ent.etnc.backend.models.entities.Batiment;
 import org.springframework.stereotype.Component;
@@ -26,11 +27,17 @@ public class BatimentAssembler {
         return batiments.stream().map(this::toResponse).toList();
     }
 
-    public Batiment toEntity(BatimentResponse batimentResponse) {
+    public Batiment toEntity(BatimentRequest batimentRequest) {
         Batiment batiment = new Batiment();
 
-        batiment.setNom(batimentResponse.getNom());
+        batiment.setNom(batimentRequest.getNom());
 
         return batiment;
+    }
+
+    public BatimentRequest toRequest(Batiment batiment){
+        return BatimentRequest.builder()
+                .nom(batiment.getNom())
+                .build();
     }
 }

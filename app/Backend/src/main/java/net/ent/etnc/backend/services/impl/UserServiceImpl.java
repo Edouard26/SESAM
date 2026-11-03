@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 /**
  * Implémentation de {@link UserService}.
  *
@@ -44,5 +46,16 @@ public class UserServiceImpl extends AbstractService<User, UserRepository> imple
     @Override
     public Boolean existsByNid(String nid){
         return repository.existsByNid(nid);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public User findByNid(String nid){
+        Optional<User> optional = repository.findByNid(nid);
+        if(optional.isEmpty()){
+            throw new ServiceException("user Not found");
+        }
+
+        return optional.get();
     }
 }

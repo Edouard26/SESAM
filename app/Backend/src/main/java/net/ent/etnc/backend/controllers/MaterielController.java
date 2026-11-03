@@ -151,7 +151,6 @@ public class MaterielController {
 
         List<Materiel> materiels = new ArrayList<>();
         for(MaterielRequest materielRequest : materielImportRequest.getMateriels()){
-            // TODO code dupliquer, créer une fonction
             Materiel materiel;
             switch (materielRequest.getTypeMateriel()) {
                 case TypeMateriel.UC -> {

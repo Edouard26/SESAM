@@ -83,7 +83,7 @@ public class Stage extends AbstractPersistableWithIdSetter<Long> {
         //BV
         @Valid
         //JPA
-        @OneToOne(fetch = FetchType.LAZY) // TODO à réfléchir si @ManyToOne ou @OneToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "salle_cours_id", foreignKey = @ForeignKey(name = "fk___stage___salle_cours_id"), nullable = true)
         private Salle salleCours;
 

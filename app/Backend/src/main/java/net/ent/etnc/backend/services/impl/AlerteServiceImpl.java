@@ -35,6 +35,12 @@ public class AlerteServiceImpl extends AbstractService<Alerte, AlerteRepository>
 
     @Transactional(readOnly = true)
     @Override
+    public Page<Alerte> findAllByUserId(Pageable pageable, Long userId){
+        return repository.findAllByUserId(pageable, userId);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Integer countAlerteInSalle(Long salleId){
         return repository.countAlerteInSalle(salleId);
     }

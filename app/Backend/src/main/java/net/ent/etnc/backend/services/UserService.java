@@ -13,4 +13,7 @@ public interface UserService extends Service<User, Long> {
 
     @Transactional(readOnly = true)
     Boolean existsByNid(String nid);
+
+    @Transactional(readOnly = true)
+    User findByNid(String nid);
 }

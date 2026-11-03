@@ -65,8 +65,8 @@ public class MaterielAssembler {
     private MaterielResponse.MaterielResponseBuilder responseBuilder(Materiel materiel) {
         return MaterielResponse.builder()
                 .id(materiel.getId())
-//                .typeMateriel(materiel.getClass().getSimpleName())
                 .numeroSerie(materiel.getNumeroSerie())
+                .mac(materiel.getMac())
                 .nom(materiel.getNom())
                 .dateAjout(materiel.getDateAjout())
                 .dateFinGarantie(materiel.getDateFinGarantie())
@@ -83,6 +83,7 @@ public class MaterielAssembler {
         return MaterielRequest.builder()
                 .typeMateriel(typeOf(materiel))
                 .numeroSerie(materiel.getNumeroSerie())
+                .mac(materiel.getMac())
                 .nom(materiel.getNom())
                 .dateAjout(materiel.getDateAjout())
                 .dateFinGarantie(materiel.getDateFinGarantie())
@@ -106,13 +107,13 @@ public class MaterielAssembler {
         UniteCentrale uc = new UniteCentrale();
 
         uc.setNumeroSerie(materielRequest.getNumeroSerie());
+        uc.setMac(materielRequest.getMac());
         uc.setType(materielRequest.getTypeMateriel());
         uc.setNom(materielRequest.getNom());
         uc.setModele(materielRequest.getModele());
         uc.setMarque(materielRequest.getMarque());
         uc.setDateAjout(materielRequest.getDateAjout());
         uc.setDateFinGarantie(materielRequest.getDateFinGarantie());
-//        uc.setEtat(materielRequest.getEtat());
         uc.setProcesseur(materielRequest.getProcesseur());
         uc.setCarteGraphique(materielRequest.getCarteGraphique());
 
@@ -123,13 +124,13 @@ public class MaterielAssembler {
         Ecran ecran = new Ecran();
 
         ecran.setNumeroSerie(materielRequest.getNumeroSerie());
+        ecran.setMac(materielRequest.getMac());
         ecran.setType(materielRequest.getTypeMateriel());
         ecran.setNom(materielRequest.getNom());
         ecran.setModele(materielRequest.getModele());
         ecran.setMarque(materielRequest.getMarque());
         ecran.setDateAjout(materielRequest.getDateAjout());
         ecran.setDateFinGarantie(materielRequest.getDateFinGarantie());
-//        ecran.setEtat(materielRequest.getEtat());
         ecran.setTaille(materielRequest.getTaille());
 
         return ecran;
@@ -139,13 +140,13 @@ public class MaterielAssembler {
         VideoProjecteur videoProjecteur = new VideoProjecteur();
 
         videoProjecteur.setNumeroSerie(materielRequest.getNumeroSerie());
+        videoProjecteur.setMac(materielRequest.getMac());
         videoProjecteur.setType(materielRequest.getTypeMateriel());
         videoProjecteur.setNom(materielRequest.getNom());
         videoProjecteur.setModele(materielRequest.getModele());
         videoProjecteur.setMarque(materielRequest.getMarque());
         videoProjecteur.setDateAjout(materielRequest.getDateAjout());
         videoProjecteur.setDateFinGarantie(materielRequest.getDateFinGarantie());
-//        videoProjecteur.setEtat(materielRequest.getEtat());
 
         return videoProjecteur;
     }

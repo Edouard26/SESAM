@@ -15,6 +15,13 @@ import java.util.List;
 public interface AlerteRepository extends BaseRepository<Alerte> {
     List<Alerte> findByStatutAndDateResolutionBefore(StatutAlerte statut, LocalDateTime dateResolution);
 
+    @Query("""
+        SELECT a
+        FROM Alerte a
+        WHERE a.signaleur.id = :userId
+    """)
+    Page<Alerte> findAllByUserId(Pageable pageable, Long userId);
+
     @Query(value = """
         SELECT COUNT (DISTINCT a)
         FROM salles s

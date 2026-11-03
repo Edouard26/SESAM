@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AlerteService extends Service<Alerte, Long> {
 
     @Transactional(readOnly = true)
+    Page<Alerte> findAllByUserId(Pageable pageable, Long userId);
+
+    @Transactional(readOnly = true)
     Integer countAlerteInSalle(Long salleId);
 
     @Transactional(readOnly = true)
