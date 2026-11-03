@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,6 +41,16 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         //JPA
         @Column(name = "numero_serie", nullable = false, length = 20)
         private String numeroSerie;
+
+        //LBK
+        @Getter
+        @Setter
+        //BV
+        @NotBlank(message = "Adresse MAC ne peut pas être vide")
+        @Pattern(regexp = "^([A-Z0-9]-){5}[A-Z0-9]$")
+        //JPA
+        @Column(name = "mac", nullable = false, length = 17)
+        private String mac;
 
         //LBK
         @Getter

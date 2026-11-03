@@ -1,6 +1,7 @@
 package net.ent.etnc.backend.controllers;
 
 import net.ent.etnc.backend.commons.JsonPatchUtils;
+import net.ent.etnc.backend.dtos.requests.BatimentRequest;
 import net.ent.etnc.backend.dtos.responses.BatimentResponse;
 import net.ent.etnc.backend.dtos.assemblers.BatimentAssembler;
 import net.ent.etnc.backend.models.entities.Batiment;
@@ -55,17 +56,8 @@ public class BatimentController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRATEUR')")
-    public ResponseEntity<BatimentResponse> post(@RequestBody BatimentResponse batimentResponse) {// TODO changer en batimentRequest
-        return ResponseEntity.ok(assembler.toResponse(batimentService.create(assembler.toEntity(batimentResponse))));
-    }
-
-    @PutMapping("{id}/")
-    @PreAuthorize("hasRole('ADMINISTRATEUR')")
-    public ResponseEntity<BatimentResponse> put(@PathVariable Long id, @RequestBody BatimentResponse batimentResponse) {
-        if (!batimentService.existsById(id)) return ResponseEntity.notFound().build();
-        batimentResponse.setId(id);
-
-        return ResponseEntity.ok(assembler.toResponse(batimentService.update(assembler.toEntity(batimentResponse))));
+    public ResponseEntity<BatimentResponse> post(@RequestBody BatimentRequest batimentRequest) {
+        return ResponseEntity.ok(assembler.toResponse(batimentService.create(assembler.toEntity(batimentRequest))));
     }
 
     @PatchMapping(value = "{id}/")
@@ -73,7 +65,7 @@ public class BatimentController {
     public ResponseEntity<BatimentResponse> patch(@PathVariable Long id, @RequestBody String patch) {
         Optional<Batiment> existing = batimentService.findById(id);
         if (existing.isEmpty()) return ResponseEntity.notFound().build();
-        BatimentResponse patched = jsonPatchUtils.apply(patch,assembler.toResponse(existing.get()), BatimentResponse.class, PATCHABLE);
+        BatimentRequest patched = jsonPatchUtils.apply(patch,assembler.toRequest(existing.get()), BatimentRequest.class, PATCHABLE);
         Batiment entity = assembler.toEntity(patched);
         entity.setId(id);
         entity = batimentService.update(entity);

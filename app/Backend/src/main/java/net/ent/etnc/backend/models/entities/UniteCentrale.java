@@ -2,7 +2,10 @@ package net.ent.etnc.backend.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,8 +52,6 @@ public class UniteCentrale extends Materiel {
                     joinColumns = @JoinColumn(name = "unite_central_id", foreignKey = @ForeignKey(name = "fk___unite_central__processus___unite_central_id")),
                     inverseJoinColumns = @JoinColumn(name = "processus_id", foreignKey = @ForeignKey(name = "fk___unite_central__processus___processus_id")))
         private List<Processus> processus = new ArrayList<>();
-
-        // TODO ajouter adresse MAC
 
         //LBK
         @Getter
