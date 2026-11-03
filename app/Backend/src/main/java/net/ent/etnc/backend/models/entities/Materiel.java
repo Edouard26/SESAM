@@ -18,7 +18,6 @@ import java.time.LocalDate;
 /**
  * Superclass Materiel représentant les matériels du parc informatique.
  */
-//@MappedSuperclass
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(

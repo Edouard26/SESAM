@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Classe représentant une alerte.
+ * Entité représentant une alerte.
  * <p>Une alerte est signalé par un stagiaire ou un formateur si il y a un problème sur un matériel.</p>
  * <p>
  *     Règle de gestion:<br>
@@ -97,9 +97,9 @@ public class Alerte extends AbstractPersistableWithIdSetter<Long> {
 
         /**
          * Statut de l'alerte en fonction si il a déjà été traité ou non.
-         * <p>EN_ATTENTE si le problème n'est pas encore résolu.<br>
-         * TRAITEE si le problème a été résolu.<br>
-         * ANNULEE si le problème n'était pas un vrai problème.</p>
+         * <p>{@code EN_ATTENTE} si le problème n'est pas encore résolu.<br>
+         * {@code TRAITEE} si le problème a été résolu.<br>
+         * {@code ANNULEE} si le problème n'était pas un vrai problème.</p>
          */
         //LBK
         @Getter

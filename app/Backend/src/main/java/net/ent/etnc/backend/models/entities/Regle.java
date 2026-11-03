@@ -13,6 +13,9 @@ import net.ent.etnc.backend.models.commons.AbstractPersistableWithIdSetter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entité représentant une règle interdisant des processus sur un poste.
+ */
 @Entity
 @Table(
         name = "regles",
@@ -34,6 +37,9 @@ public class Regle extends AbstractPersistableWithIdSetter<Long> {
     @Column(name = "nom", nullable = false, length = 20)
     private String nom;
 
+    /**
+     * Liste des processus associés à cette règle.
+     */
     //LBK
     @Getter
     @Setter
