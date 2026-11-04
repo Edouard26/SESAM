@@ -15,6 +15,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Implémentation personnalisée du repository de l'entité {@link Salle}.
+ *
+ * <p>Cette classe permet d'effectuer des recherches avancées sur les salles
+ * à l'aide de l'API Criteria de JPA, notamment pour trier les salles selon
+ * le nombre d'alertes en attente associées aux matériels qu'elles contiennent.</p>
+ *
+ * <p>Elle prend également en charge le filtrage dynamique via une
+ * {@link Specification} et la pagination via {@link Pageable}.</p>
+ *
+ */
 @Repository
 @RequiredArgsConstructor
 public class SalleRepositoryCustomImpl
@@ -22,6 +33,24 @@ public class SalleRepositoryCustomImpl
 
     private final EntityManager entityManager;
 
+    /**
+     * Recherche les salles correspondant aux critères fournis et les trie
+     * par nombre décroissant d'alertes en attente associées à leurs matériels.
+     *
+     * <p>Les salles ayant le plus d'alertes en attente apparaissent en premier.
+     * Les salles sans alerte en attente ont un compteur égal à zéro.</p>
+     *
+     * <p>La méthode applique les filtres de la {@link Specification}, limite
+     * les résultats à la page demandée et calcule le nombre total de salles
+     * correspondant aux critères afin de construire les métadonnées de pagination.</p>
+     *
+     * @param specification critères dynamiques de filtrage des salles ;
+     *                      peut être {@code null}
+     * @param pageable paramètres de pagination, notamment le numéro de page
+     *                 et le nombre de résultats par page
+     * @return une page de salles triées par nombre décroissant d'alertes
+     *         en attente
+     */
     @Override
     public Page<Salle> findAllOrderByAlertesEnAttente(
             Specification<Salle> specification,

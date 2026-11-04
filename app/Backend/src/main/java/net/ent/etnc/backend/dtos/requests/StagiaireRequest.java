@@ -6,6 +6,9 @@ import net.ent.etnc.backend.models.enums.Grade;
 
 import java.time.LocalDate;
 
+/**
+ * Corps de requête pour la création ou la mise à jour d'un stagiaire.
+ */
 @Getter
 @Setter
 public class StagiaireRequest {

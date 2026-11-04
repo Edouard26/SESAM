@@ -118,16 +118,6 @@ public class User extends AbstractPersistableWithIdSetter<Long> implements UserD
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
-//    //LBK
-//    @Getter
-//    @Setter
-//    //BV
-//    @Valid
-//    //JPA
-//    @OneToMany(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "stagiaire_id", foreignKey = @ForeignKey(name = "fk___materiels___stagiaire_id"))
-//    private Set<Materiel> materiels = new HashSet<>();
-
     /**
      * Retourne les autorités Spring Security de cet utilisateur.
      * Inclut le rôle propre et tous les rôles hérités (hiérarchie cumulative).

@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Corps de requête pour la création ou la mise à jour d'une règle.
+ */
 @Getter
 @Setter
 public class RegleRequest {

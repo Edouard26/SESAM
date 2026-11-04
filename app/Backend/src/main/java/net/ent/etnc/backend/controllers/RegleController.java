@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 import java.util.Map;
 
+/**
+ * Endpoint REST pour la gestion des règles ({@code /api/v1/rules/}).
+ */
 @RestController
 @RequestMapping("/api/v1/rules/")
 public class RegleController {

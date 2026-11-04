@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Corps de requête pour l'affectation de matériels à un stagiaire.
+ */
 @Getter
 @Setter
 public class MaterielAssigmentsStagiaireRequest {

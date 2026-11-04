@@ -9,7 +9,6 @@ import net.ent.etnc.backend.dtos.requests.StagiaireImportRequest;
 import net.ent.etnc.backend.dtos.requests.StagiaireRequest;
 import net.ent.etnc.backend.dtos.responses.StageResponse;
 import net.ent.etnc.backend.dtos.responses.StagiaireResponse;
-import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Stage;
 import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.models.enums.Role;
@@ -25,8 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,18 +49,14 @@ public class UserController {
 
     private final UserService userService;
     private final StageService stageService;
-    private final MaterielService materielService;
-    private final SalleService salleService;
     private final UserAssembler assembler;
     private final StageAssembler stageAssembler;
 
     private final RsqlFilterUtils rsqlFilterUtils;
 
-    public UserController(UserService userService, StageService stageService, MaterielService materielService, SalleService salleService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils) {
+    public UserController(UserService userService, StageService stageService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils) {
         this.userService = userService;
         this.stageService = stageService;
-        this.materielService = materielService;
-        this.salleService = salleService;
         this.assembler = assembler;
         this.stageAssembler = stageAssembler;
         this.rsqlFilterUtils = rsqlFilterUtils;
@@ -98,20 +91,20 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        List<User> stagiaires = new ArrayList<>();
         for(StagiaireRequest stagiaireRequest : stagiaireImportRequest.getStagiaires()){
             User stagiaire = assembler.toEntity(stagiaireRequest);
 
             stagiaire.setRole(Role.STAGIAIRE);
             stagiaire.setPassword("azerty+35");
             if(!userService.existsByNid(stagiaire.getNid())){
-                userService.create(stagiaire);
+                stagiaire = userService.create(stagiaire);
             }
-            else{
+            else{ // cas si un ancien stagiaire revient pour un nouveau stage
                 stagiaire.setId(userService.findByNid(stagiaire.getNid()).getId());
+                stagiaire.setActive(true);
+                stagiaire = userService.update(stagiaire);
             }
             optionalStage.get().getStagiaires().add(stagiaire);
-            stagiaires.add(stagiaire);
         }
 
         return ResponseEntity.ok(stageAssembler.toResponse(stageService.update(optionalStage.get())));
@@ -120,25 +113,7 @@ public class UserController {
     @PostMapping("assignments/")
     @PreAuthorize("hasRole('GESTIONNAIRE')")
     public ResponseEntity<StagiaireResponse> postAssigmentsStagiaire(@RequestBody MaterielAssigmentsStagiaireRequest materielAssigmentsStagiaireRequest){
-        Optional<User> optionalStagiaire = userService.findById(materielAssigmentsStagiaireRequest.getStagiaireId());
-        if(optionalStagiaire.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-
-        if(optionalStagiaire.get().getRole() != Role.STAGIAIRE){
-            return ResponseEntity.badRequest().build();// TODO mettre dans le service RG
-        }
-
-        for(Long materielId : materielAssigmentsStagiaireRequest.getMaterielsId()){
-            Optional<Materiel> optionalMateriel = materielService.findById(materielId);
-            // RG: le matériel ne peut pas déjà être affecter un autre stagiaire
-            // RG: le matériel doit être dans la salle du stage du stagiaire
-            if(optionalMateriel.isPresent() && materielService.isAssignableToStagiaire(optionalMateriel.get(), salleService.findByStagiaire(optionalStagiaire.get()))){
-                optionalMateriel.get().setStagiaire(optionalStagiaire.get());
-            }
-        }
-
-        return ResponseEntity.ok(assembler.toStagiaireResponse(userService.update(optionalStagiaire.get())));
+        return ResponseEntity.ok(assembler.toStagiaireResponse(userService.AssigmentsMaterielToStagiaire(materielAssigmentsStagiaireRequest)));
     }
 
     @PutMapping("{id}/")

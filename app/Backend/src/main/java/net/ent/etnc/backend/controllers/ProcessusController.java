@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Endpoint REST pour la gestion des processus ({@code /api/v1/process/}).
+ */
 @RestController
 @RequestMapping("/api/v1/process/")
 public class ProcessusController {

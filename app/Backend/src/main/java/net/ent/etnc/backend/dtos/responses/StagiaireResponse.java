@@ -5,8 +5,10 @@ import net.ent.etnc.backend.models.enums.Grade;
 import net.ent.etnc.backend.models.enums.Role;
 
 import java.time.LocalDate;
-import java.util.List;
 
+/**
+ * Représentation sérialisable d'un stagiaire.
+ */
 @Getter
 @Setter
 @Builder

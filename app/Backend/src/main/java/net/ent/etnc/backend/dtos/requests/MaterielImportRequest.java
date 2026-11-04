@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Corps de requête pour l'importation de matériels et l'affectation dans une salle.
+ */
 @Getter
 @Setter
 public class MaterielImportRequest {

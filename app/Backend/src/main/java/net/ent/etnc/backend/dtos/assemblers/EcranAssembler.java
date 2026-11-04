@@ -4,9 +4,9 @@ import net.ent.etnc.backend.dtos.EcranDto;
 import net.ent.etnc.backend.models.entities.Ecran;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-
+/**
+ * Convertit entre {@link Ecran} et ses représentations DTO.
+ */
 @Component
 public class EcranAssembler {
 
@@ -20,10 +20,6 @@ public class EcranAssembler {
                 .dateFinGarantie(ecran.getDateFinGarantie())
                 .taille(ecran.getTaille())
                 .build();
-    }
-
-    public List<EcranDto> toDtos(Collection<Ecran> ecrans) {
-        return ecrans.stream().map(this::toDto).toList();
     }
 
     public Ecran toEntity(EcranDto ecranDto) {

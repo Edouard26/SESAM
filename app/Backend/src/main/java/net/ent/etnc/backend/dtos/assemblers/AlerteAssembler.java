@@ -13,10 +13,11 @@ import net.ent.etnc.backend.services.UserService;
 import net.ent.etnc.backend.services.commons.ServiceException;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
+/**
+ * Convertit entre {@link Alerte} et ses représentations DTO.
+ */
 @Component
 public class AlerteAssembler {
 
