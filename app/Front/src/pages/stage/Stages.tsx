@@ -17,6 +17,7 @@ const statutLabels: Record<StageStatut, string> = {
     CLOTURER: "Clôturé",
 };
 
+// Liste des stages (recherche par code, filtre par statut) avec import et assignation à une salle
 export default function Stages() {
     const navigate = useNavigate();
     const [showImportPopup, setShowImportPopup] = useState(false);

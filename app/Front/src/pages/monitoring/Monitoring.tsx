@@ -40,6 +40,8 @@ const initialFilters: Record<string, string> = {
     type: "",
 };
 
+// Supervision : on choisit une salle puis on consulte ses matériels sous forme de cartes
+// Recherche, filtre par type et pagination sont faits côté client sur les matériels de la salle
 export default function Monitoring() {
     const navigate = useNavigate();
 
@@ -49,7 +51,7 @@ export default function Monitoring() {
     } = usePaginatedList({
         load: roomApi.list,
         initialFilters: {},
-        pageSize: 1000,
+        pageSize: 1000, // on charge toutes les salles pour alimenter le sélecteur
         errorMessage: "Impossible de charger les salles",
     });
 
@@ -62,6 +64,7 @@ export default function Monitoring() {
     const [filters, setFilters] = useState(initialFilters);
     const [page, setPage] = useState(0);
 
+    // Charge la salle choisie (avec ses matériels) à chaque changement de sélection
     useEffect(() => {
         if (!selectedRoomId) {
             setSelectedRoom(null);
@@ -101,6 +104,7 @@ export default function Monitoring() {
 
     const allMaterials = selectedRoom?.materiels ?? [];
 
+    // Filtre par type puis recherche texte (insensible à la casse) sur nom, n° de série, marque, modèle et type
     const filteredMaterials = useMemo(() => {
         const normalizedSearch = search.trim().toLocaleLowerCase("fr");
 

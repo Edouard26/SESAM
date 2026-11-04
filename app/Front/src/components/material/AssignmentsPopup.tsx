@@ -17,6 +17,7 @@ type Props = {
     onSubmit: (material: MaterialAssignmentForm) => void;
 };
 
+// Affecte des matériels à une salle : on choisit la salle, puis les matériels (hors ceux déjà dans cette salle)
 export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: Props) {
     const {notify} = useNotification();
     const [values, setValues] = useState<MaterialAssignmentForm>({...materialAssignmentTemplate,});
@@ -86,10 +87,12 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
+        // La liste ne se charge qu'une fois la salle choisie, et se recharge quand elle change
         enabled: values.salleId > 0,
         loadKey: values.salleId,
     });
 
+    // À l'ouverture : formulaire réinitialisé et chargement des salles
     useEffect(() => {
         setValues({ ...materialAssignmentTemplate });
         setSelectedMaterials([]);
@@ -113,6 +116,7 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
         setValues(initial);
     }, []);
 
+    // Changer de salle vide la sélection de matériels et revient à la première page
     function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const { name, value } = event.target;
 

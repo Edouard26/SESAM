@@ -24,6 +24,7 @@ const statutClasses: Record<AlertStatut, string> = {
     ANNULEE: "text-bg-danger",
 };
 
+// Date et heure au format français, tiret si la date est invalide
 function formatDate(date: Date): string {
     const value = new Date(date);
 
@@ -40,6 +41,7 @@ function formatDate(date: Date): string {
     });
 }
 
+// Liste des alertes avec filtre par statut ; permet de traiter ou d'annuler une alerte en attente
 export default function Alerts() {
     const { user } = useAuth();
     const { notify } = useNotification();
@@ -84,6 +86,7 @@ export default function Alerts() {
         initialSort: "dateSignalement,desc",
     });
 
+    // Change le statut en enregistrant l'utilisateur connecté comme résolveur et la date de résolution
     async function handleStatusChange(
         alert: Alert,
         statut: AlertStatut,

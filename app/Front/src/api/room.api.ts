@@ -3,6 +3,7 @@ import type {Page} from "../types/Page.ts";
 import type {Room, RoomForm} from "../types/Room.ts";
 import {toRsqlParams} from "./utils/rsql.ts";
 
+// "search" cherche dans le nom de la salle ; updateRules remplace la liste des règles de la salle
 export const roomApi = {
     list: (params?: Record<string, string | number | boolean | undefined>) =>
         api.get<Page<Room>>("/api/v1/rooms/", toRsqlParams(params, {

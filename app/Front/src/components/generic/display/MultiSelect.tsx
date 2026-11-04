@@ -12,6 +12,8 @@ type MultiSelectProps<TOption, TValue extends string | number> = {
     disabled?: boolean;
 };
 
+// Liste déroulante à choix multiples avec recherche côté serveur (searchOptions) ; les valeurs sélectionnées
+// sont conservées dans un cache pour afficher leur libellé même quand elles ne sont plus dans les résultats
 export default function MultiSelect<TOption, TValue extends string | number>({
                                                                                  searchOptions,
                                                                                  getOptionValue,
@@ -39,6 +41,7 @@ export default function MultiSelect<TOption, TValue extends string | number>({
         getOptionValueRef.current = getOptionValue;
     }, [searchOptions, getOptionValue]);
 
+    // Recharge les options à l'ouverture et à chaque changement de recherche
     useEffect(() => {
         if (!open) return;
 
@@ -129,6 +132,7 @@ export default function MultiSelect<TOption, TValue extends string | number>({
         });
     }, [selectedOptions, getOptionValue]);
 
+    // Options sélectionnées retrouvées par valeur (props en priorité, sinon cache)
     const selected = value
         .map(optionValue =>
             selectedOptions.find(option => getOptionValue(option) === optionValue)

@@ -7,6 +7,7 @@ type ConfirmationProps = {
     trigger: React.ReactNode;
 };
 
+// Enveloppe un élément déclencheur (trigger) : au clic, demande confirmation avant d'exécuter onConfirm
 export default function Confirmation({ title = "Confirmation", message, onConfirm, trigger }: ConfirmationProps) {
     const [show, setShow] = useState(false);
 

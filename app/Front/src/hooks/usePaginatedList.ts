@@ -17,10 +17,14 @@ type UsePaginatedListOptions<T> = {
     initialSort?: string;
 };
 
+// Gère une liste paginée côté serveur : recherche, filtres, tri, page courante, chargement et erreurs
+// Tout changement de recherche/filtre/tri revient à la première page ; reload() force un nouvel appel
+// enabled=false vide la liste sans appeler l'API ; loadKey relance le chargement quand il change
 export default function usePaginatedList<T>({ load, initialFilters, pageSize, errorMessage, enabled = true, loadKey, initialSort = ""}: UsePaginatedListOptions<T> ) {
 
     const { notify } = useNotification();
 
+    // Refs pour garder les dernières valeurs sans relancer l'effet de chargement à chaque rendu
     const initialFiltersRef = useRef(initialFilters);
     const loadRef = useRef(load);
     const notifyRef = useRef(notify);
@@ -54,6 +58,7 @@ export default function usePaginatedList<T>({ load, initialFilters, pageSize, er
             return;
         }
 
+        // Évite qu'une réponse obsolète écrase une plus récente (ou arrive après le démontage)
         let cancelled = false;
 
         const activeFilters = Object.fromEntries(

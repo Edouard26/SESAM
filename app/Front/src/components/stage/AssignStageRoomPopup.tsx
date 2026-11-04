@@ -12,6 +12,7 @@ type Props = {
     onSubmit: () => void;
 };
 
+// Affecte une salle de cours à un stage
 export default function AssignStageRoomPopup({
                                                  stage,
                                                  onClose,
@@ -24,6 +25,7 @@ export default function AssignStageRoomPopup({
     const [roomId, setRoomId] = useState(-1);
     const [loading, setLoading] = useState(false);
 
+    // Charge les salles de cours proposées pour ce stage
     useEffect(() => {
         async function loadRooms() {
             try {

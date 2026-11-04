@@ -13,7 +13,8 @@ type Props = {
     onSubmit: () => void;
 };
 
-const stageSchema: Schema<StageImport> = {
+// Format d'un stage dans le fichier JSON : code type "AB12", dates de début et de fin
+const stageSchema:Schema<StageImport> = {
     code: pattern(/^[A-Za-z]{2}\d{2}$/, "2 lettres suivies de 2 chiffres (ex. AB12)"),
     dateDebut: date(),
     dateFin: date(),
@@ -29,6 +30,7 @@ const columns = createColumns<StageImport>({
     dateFin: "Date de fin",
 });
 
+// Import de stages depuis un fichier JSON : seuls les éléments valides et sélectionnés sont envoyés
 export default function ImportStagesPopup({ onClose, blurBackground, onSubmit }: Props) {
     const { notify } = useNotification();
 

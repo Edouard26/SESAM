@@ -3,6 +3,7 @@ import { routes } from "../../router/routes";
 import { useAuth } from "../../context/AuthContext";
 import { Role } from "../../types/Role";
 
+// Menu latéral : les entrées affichées dépendent du rôle (FORMATEUR < GESTIONNAIRE < ADMINISTRATEUR)
 export default function Sidebar() {
     const { user } = useAuth();
     const location = useLocation();
@@ -61,6 +62,7 @@ export default function Sidebar() {
                 {user.role >= Role.FORMATEUR && (
                     <li>
                         <NavLink to={routes.monitoring}
+                            // "Supervision" reste actif sur les pages /process
                             className={({ isActive }) =>
                                 `nav-link text-white ${isActive || location.pathname.startsWith(routes.process) ? "active" : ""}`
                             }

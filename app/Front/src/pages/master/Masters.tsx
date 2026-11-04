@@ -9,6 +9,7 @@ import Filters from "../../components/generic/Filters.tsx";
 import Table, { type Column } from "../../components/generic/display/Table.tsx";
 import MasterPopup from "../../components/master/MasterPopup.tsx";
 
+// Liste des masters avec leurs processus associés, et création d'un master
 export default function Masters() {
     const { notify } = useNotification();
 
@@ -34,6 +35,7 @@ export default function Masters() {
         initialSort: "nom,asc",
     });
 
+    // Charge tous les processus pour afficher leur nom à partir des identifiants du master
     useEffect(() => {
         let cancelled = false;
 

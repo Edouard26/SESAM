@@ -5,6 +5,7 @@ import { processApi } from "../../api";
 import type { Processus } from "../../types/Processus";
 import useNotification from "../../hooks/useNotification.ts";
 
+// Liste des processus d'une unité centrale (l'id du matériel vient de l'URL)
 export default function Process() {
     const { id } = useParams<{ id: string }>();
     const { notify } = useNotification();

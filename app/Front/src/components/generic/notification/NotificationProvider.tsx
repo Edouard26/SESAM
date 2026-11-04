@@ -29,6 +29,7 @@ type NotificationProviderProps = {
     children: React.ReactNode;
 };
 
+// Fournit notify() pour afficher des notifications temporaires empilées en bas à droite de l'écran
 export default function NotificationProvider({ children }: NotificationProviderProps) {
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
@@ -45,6 +46,7 @@ export default function NotificationProvider({ children }: NotificationProviderP
                 { id, message, variant, duration }
             ]);
 
+            // Suppression automatique à la fin de la durée
             setTimeout(() => {
                 setNotifications(current => current.filter(notification => notification.id !== id));
             }, duration);

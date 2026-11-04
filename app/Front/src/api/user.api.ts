@@ -4,6 +4,7 @@ import type {Page} from "../types/Page.ts";
 import {toRsqlParams} from "./utils/rsql.ts";
 import type {MaterialAssignmentUserForm} from "../types/Material.ts";
 
+// "search" cherche dans nid, email, nom et prénom ; assignments affecte des matériels à un stagiaire
 export const userApi = {
     list: (params?: Record<string, string | number | boolean | undefined>) =>
         api.get<Page<User>>("/api/v1/users/", toRsqlParams(params, {

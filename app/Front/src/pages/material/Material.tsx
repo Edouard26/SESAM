@@ -78,6 +78,7 @@ function DetailSection({ icon, title, children }: DetailSectionProps) {
     );
 }
 
+// Fiche détaillée d'un matériel (l'id vient de l'URL)
 export default function Material() {
     const { id } = useParams<{ id: string }>();
     const [material, setMaterial] = useState<MaterialDetail | null>(null);

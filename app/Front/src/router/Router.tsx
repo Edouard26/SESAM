@@ -24,6 +24,7 @@ export default function Router() {
         <Routes>
             <Route path={routes.login} element={<Login />} />
 
+            {/* Pages réservées aux utilisateurs connectés, affichées dans le Layout (sidebar + header) */}
             <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
                     <Route path="/" element={<Navigate to={routes.dashboard} replace />} />

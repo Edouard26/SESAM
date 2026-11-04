@@ -16,6 +16,8 @@ type ImportJsonProps<T> = {
 
 const pageSize = 5;
 
+// Import d'un fichier JSON (tableau d'objets) : validation de chaque élément, aperçu paginé des éléments valides
+// et sélection de ceux à importer ; la sélection est renvoyée au parent via onSelectionChange
 export default function ImportJson<T>({ validate, onSelectionChange, columns }: ImportJsonProps<T>) {
     const { notify } = useNotification();
     const [sourceItems, setSourceItems] = useState<unknown[]>([]);
@@ -38,6 +40,7 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
     const invalidRows = useMemo(() => rows.filter((row) => row.errors.length > 0), [rows]);
     const invalidCount = invalidRows.length;
 
+    // Regroupe les éléments ayant la même erreur pour afficher "Éléments 1-3, 7 : message"
     const errorGroups = useMemo(() => {
         const groups = new Map<string, number[]>();
         for (const row of invalidRows) {
@@ -48,6 +51,7 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
         return [...groups].map(([message, lines]) => ({ message, lines }));
     }, [invalidRows]);
 
+    // [1,2,3,7] -> "1-3, 7"
     function formatRanges(numbers: number[]): string {
         const ranges: string[] = [];
         let start = numbers[0];
@@ -67,10 +71,12 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
         return validRows.filter((row) => JSON.stringify(row).toLowerCase().includes(query));
     }, [validRows, search]);
 
-    const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+    // Pagination faite côté client sur les éléments valides filtrés
+    const totalPages = Math.max(1,Math.ceil(filteredRows.length / pageSize));
     const safePage = Math.min(currentPage, totalPages - 1);
     const pageRows = filteredRows.slice(safePage * pageSize, (safePage + 1) * pageSize);
 
+    // Met à jour la sélection et renvoie au parent les données sans la clé technique "key"
     function updateSelection(next: (T & { key: number })[]) {
         setSelectedRows(next);
         onSelectionChange(next.map((row) => {
@@ -80,6 +86,7 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
         }));
     }
 
+    // Lit le fichier choisi et réinitialise l'état ; le fichier doit contenir un tableau JSON non vide
     async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
         const input = event.currentTarget;
         const file = input.files?.[0];
@@ -109,7 +116,7 @@ export default function ImportJson<T>({ validate, onSelectionChange, columns }: 
             setFileError("Le fichier sélectionné ne contient pas un JSON valide.");
             notify("Le fichier sélectionné ne contient pas un JSON valide.");
         } finally {
-            input.value = "";
+            input.value = ""; // permet de re-sélectionner le même fichier
         }
     }
 

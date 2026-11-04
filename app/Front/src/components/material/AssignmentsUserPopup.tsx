@@ -23,6 +23,7 @@ type AssignmentValues = {
     materielsId: number[];
 };
 
+// Affecte des matériels à un stagiaire : on choisit le stagiaire, puis les matériels à lui attribuer
 export default function AssignmentsUserPopup({
                                                  onClose,
                                                  blurBackground,
@@ -41,6 +42,7 @@ export default function AssignmentsUserPopup({
 
     const formRef = useRef<HTMLFormElement>(null);
 
+    // Envoi possible seulement avec un formulaire valide, un stagiaire et au moins un matériel
     useEffect(() => {
         setCanSubmit(
             (formRef.current?.checkValidity() ?? false) &&
@@ -119,6 +121,7 @@ export default function AssignmentsUserPopup({
         loadKey: values.user?.id,
     });
 
+    // Changer de stagiaire vide la sélection de matériels et revient à la première page
     function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
         const { name, value } = event.target;
 
@@ -144,6 +147,7 @@ export default function AssignmentsUserPopup({
         }));
     }
 
+    // Garde les objets sélectionnés et la liste d'ids envoyée à l'API synchronisés
     function handleMaterialsChange(materials: Material[]) {
         setSelectedMaterials(materials);
 

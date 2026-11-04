@@ -3,6 +3,7 @@ import type {ImportStagesPayload, Stage, StageForm} from "../types/Stage.ts";
 import type {Page} from "../types/Page.ts";
 import {toRsqlParams} from "./utils/rsql.ts";
 
+// "search" cherche dans le code du stage
 export const stageApi = {
     list: (params?: Record<string, string | number | boolean | undefined>) =>
         api.get<Page<Stage>>("/api/v1/stages/", toRsqlParams(params, {

@@ -8,6 +8,7 @@ import NotificationProvider from "./components/generic/notification/Notification
 import {AuthProvider} from "./context/AuthContext.tsx";
 import {BrowserRouter} from "react-router-dom";
 
+// Ordre des providers : le routeur d'abord (AuthProvider utilise useNavigate), puis l'auth, puis les notifications
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
       <BrowserRouter>

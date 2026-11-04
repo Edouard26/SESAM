@@ -29,6 +29,7 @@ const emptyForm: FormState = {
 
 const FORM_ID = "user-form";
 
+// Création ou modification d'un utilisateur (modification si la prop user est fournie)
 export default function UserPopup({ user, onClose, onSubmit }: Props) {
     const { notify } = useNotification();
     const [form, setForm] = useState<FormState>(emptyForm);
@@ -42,6 +43,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
         setCanSubmit(formRef.current?.checkValidity() ?? false);
     }, [form]);
 
+    // Pré-remplit le formulaire avec l'utilisateur à modifier, ou le vide pour une création
     useEffect(() => {
         setForm(
             user
@@ -68,6 +70,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
         setSaving(true);
         try {
             const saved = isEdit
+                // Le mot de passe n'est jamais envoyé en modification
                 ? await userApi.update(user.id, { ...form, password: undefined })
                 : await userApi.create(form);
             onSubmit(saved);

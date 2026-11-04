@@ -14,6 +14,7 @@ type PageHeaderProps = {
     back?: boolean;
 };
 
+// En-tête de page : titre, description, boutons d'action et bouton retour optionnel
 export default function PageHeader({
                                        title,
                                        description,

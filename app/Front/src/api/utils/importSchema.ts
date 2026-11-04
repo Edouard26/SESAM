@@ -1,7 +1,8 @@
 import type {ValidationResult} from "../../components/generic/ImportJson.tsx";
 
 
-type Parsed<T> = { value: T } | { error: string };
+// Mini-bibliothèque de validation des imports JSON : un schéma = un Field par clé, chaque Field sait parser et valider sa valeur
+type Parsed<T> ={ value: T } | { error: string };
 
 export type Field<T> = {
     optional?: boolean;
@@ -28,7 +29,8 @@ export const date = (): Field<Date> => ({
     },
 });
 
-export const pastDate = (): Field<Date> => ({
+// Date valide qui ne doit pas être dans le futur (ex : date de naissance)
+export const pastDate =(): Field<Date> => ({
     parse: (v) => {
         const result = date().parse(v);
         if ("error" in result) return result;
@@ -48,7 +50,8 @@ export const oneOf = <T extends string>(values: readonly T[]): Field<T> => ({
         : { error: `doit être l'une des valeurs : ${values.join(", ")}` },
 });
 
-export const optional = <T,>(field: Field<T>): Field<T | undefined> => ({
+// Rend un champ facultatif : absent ou vide, il est simplement ignoré
+export const optional =<T,>(field: Field<T>): Field<T | undefined> => ({
     optional: true,
     parse: field.parse,
 });
@@ -59,7 +62,8 @@ export const pattern = (regex: RegExp, description: string): Field<string> => ({
         : { error: `doit respecter le format ${description}` },
 });
 
-const isEmpty = (v: unknown) => v === undefined || v === null || v === "";
+// Valeur considérée comme non renseignée
+const isEmpty =(v: unknown) => v === undefined || v === null || v === "";
 
 // check : règles entre plusieurs champs (ex. dateFin >= dateDebut), renvoie un message d'erreur ou undefined
 export function createValidator<T extends object>(
@@ -75,6 +79,7 @@ export function createValidator<T extends object>(
 
         const input = raw as Record<string, unknown>;
 
+        // 1) champs obligatoires, 2) validité de chaque champ, 3) règles croisées
         const missing = keys.filter((key) => !schema[key].optional && isEmpty(input[key]));
         if (missing.length > 0) {
             return { errors: [`Champs obligatoires manquants : ${missing.join(", ")}.`] };

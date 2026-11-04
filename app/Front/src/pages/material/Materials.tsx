@@ -12,6 +12,7 @@ import AssignmentsPopup from "../../components/material/AssignmentsPopup.tsx";
 import ImportMaterialsPopup from "../../components/material/ImportMaterialsPopup.tsx";
 import AssignmentsUserPopup from "../../components/material/AssignmentsUserPopup.tsx";
 
+// Liste paginée des matériels (recherche, filtres, tri) avec les popups d'ajout/modification, d'affectation et d'import
 export default function Materials() {
     const navigate = useNavigate();
     const [showMaterialPopup, setShowMaterialPopup] = useState(false);
@@ -74,6 +75,7 @@ export default function Materials() {
             key: "dateFinGarantie",
             label: "Fin garantie",
             sortKey: "dateFinGarantie",
+            // Rouge si la garantie est expirée, orange si elle expire dans moins d'un an
             render: (material: Material) => {
                 const date = new Date(material.dateFinGarantie);
                 const days = (date.getTime() - Date.now()) / 86400000;
@@ -84,6 +86,7 @@ export default function Materials() {
             key: "dateAjout",
             label: "Ajout",
             sortKey: "dateAjout",
+            // Orange si le matériel a 5 ans ou plus
             render: (material: Material) => {
                 const date = new Date(material.dateAjout);
                 const years = (Date.now() - date.getTime()) / (365.25 * 86400000);
@@ -121,6 +124,7 @@ export default function Materials() {
                 <MaterialPopup
                     material={selectedMaterial}
                     onClose={() => setShowMaterialPopup(false)}
+                    // Après création/modification, on recharge et on filtre sur le matériel concerné
                     onSubmit={(material) => {
                         setShowMaterialPopup(false);
                         reload();

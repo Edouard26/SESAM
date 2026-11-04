@@ -8,6 +8,7 @@ export type LoginResponse = {
 };
 
 
+// Routes publiques (auth=false) : pas de token envoyé ; refresh s'appuie sur le cookie de session (credentials: include)
 export const authApi = {
     login: (email: string, password: string) =>
         api.post<LoginResponse>("/api/v1/auth/login/", { email, password }, false),

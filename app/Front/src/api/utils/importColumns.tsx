@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type {Column} from "../../components/generic/display/Table.tsx";
 
-const formatValue = (value: unknown): ReactNode => {
+// Affichage par défaut d'une cellule : tiret si vide, date au format français
+const formatValue =(value: unknown): ReactNode => {
     if (value === undefined || value === null || value === "") return "—";
     if (value instanceof Date) return value.toLocaleDateString("fr-FR");
     return String(value);

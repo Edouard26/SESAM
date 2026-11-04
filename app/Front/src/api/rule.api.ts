@@ -4,6 +4,7 @@ import type { Rule } from "../types/Rule.ts";
 import type { RuleForm } from "../types/RuleForm.ts";
 import { toRsqlParams } from "./utils/rsql.ts";
 
+// "search" cherche dans le nom de la règle et le nom de ses processus
 export const ruleApi = {
     list: (params?: Record<string, string | number | boolean | undefined>) =>
         api.get<Page<Rule>>("/api/v1/rules/", toRsqlParams(params, {

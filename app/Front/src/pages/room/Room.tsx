@@ -30,6 +30,7 @@ const MATERIAL_LABELS: Record<MaterialType, string> = {
     VIDEO_PROJECTEUR: "Vidéoprojecteur",
 };
 
+// Libellé et couleur du badge selon l'état de la salle
 function getStatus(etat: string | undefined): Badge {
     switch ((etat ?? "").toUpperCase()) {
         case "DISPONIBLE":
@@ -54,6 +55,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
     );
 }
 
+// Détail d'une salle : statistiques, règles appliquées, matériels (paginés côté client) et alertes par matériel
 export default function Room() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -81,6 +83,7 @@ export default function Room() {
         (materielsPage + 1) * MATERIELS_PAGE_SIZE
     );
 
+    // Charge la salle ; reloadKey permet de la recharger après une affectation de matériel
     useEffect(() => {
         if (!id) return;
 
@@ -124,6 +127,7 @@ export default function Room() {
                     salleId: roomId,
                 });
 
+                // Si la première page est incomplète, on redemande toutes les alertes en une seule page
                 let allAlerts = firstPage.content;
 
                 if (firstPage.totalElements > allAlerts.length) {
@@ -175,6 +179,7 @@ export default function Room() {
     const isCours = room.typeSalle === "COURS";
     const status = getStatus(room.etat);
 
+    // Enregistre les règles sélectionnées pour la salle
     async function saveRoomRules() {
         setSavingRules(true);
         try {

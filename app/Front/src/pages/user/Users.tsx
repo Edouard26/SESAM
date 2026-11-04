@@ -10,6 +10,7 @@ import UserPopup from "../../components/user/UserPopup.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import ImportUsersPopup from "../../components/user/ImportUsersPopup.tsx";
 
+// Liste des utilisateurs (filtres rôle/état) avec création, modification et import
 export default function Users() {
     const [showUserPopup, setShowUserPopup] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | undefined>();

@@ -14,6 +14,7 @@ import Table, { type Column } from "../../components/generic/display/Table.tsx";
 import RuleFormPopup from "../../components/rule/RuleFormPopup.tsx";
 import Confirmation from "../../components/generic/overlay/Confirmation.tsx";
 
+// Gestion des règles (création, modification, suppression) ; accès réservé au rôle FORMATEUR et au-dessus
 export default function Rules() {
     const { user } = useAuth();
     const { notify } = useNotification();
@@ -40,6 +41,7 @@ export default function Rules() {
         return () => { cancelled = true; };
     }, [notify]);
 
+    // Crée la règle, ou la met à jour si une règle est en cours d'édition
     async function saveRule(form: RuleForm) {
         setSaving(true);
         try {
@@ -69,6 +71,7 @@ export default function Rules() {
         }
     }
 
+    // Placé après les hooks : les redirections ne doivent pas changer leur ordre d'appel
     if (!user || user.role < Role.FORMATEUR) return <Navigate to="/dashboard" replace />;
 
     const columns = [

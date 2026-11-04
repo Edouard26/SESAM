@@ -16,6 +16,7 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [chargement, setChargement] = useState(false);
 
+    // Connexion ; le message de notification dépend du code d'erreur renvoyé par l'API
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setChargement(true);

@@ -10,12 +10,14 @@ import type {Building} from "../../types/Building.ts";
 import {buildingApi} from "../../api/building.api.ts";
 import type {RoomForm} from "../../types/Room.ts";
 
+// Liste des salles en cartes (recherche, filtres type/bâtiment/état) avec création via popup
 export default function Rooms() {
     const navigate = useNavigate();
 
     const [showRoomPopup, setShowRoomPopup] = useState(false);
     const [buildings, setBuildings] = useState<Building[]>([]);
 
+    // Charge les bâtiments pour alimenter le filtre "Bâtiment"
     useEffect(() => {
         let cancelled = false;
 
@@ -175,6 +177,7 @@ export default function Rooms() {
                         }
                     },
                     footer: (room) => {
+                        // Taux d'occupation = matériels disponibles / places, en pourcentage
                         const nbPlaces = room.nbPlaces ?? 0;
                         const nbMaterielDispo = room.nbMaterielDispo ?? 0;
 

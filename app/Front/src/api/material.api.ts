@@ -8,6 +8,7 @@ import type {
 import type {Page} from "../types/Page.ts";
 import {toRsqlParams} from "./utils/rsql.ts";
 
+// salleId est traduit en "salle.id" pour le filtre RSQL ; "search" cherche dans n° de série, marque, modèle et nom
 export const materialApi = {
     list: (params?: Record<string, string | number | boolean | undefined>) =>
         api.get<Page<Material>>("/api/v1/materials/", toRsqlParams(params, {

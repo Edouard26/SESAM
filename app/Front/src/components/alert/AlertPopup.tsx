@@ -14,6 +14,7 @@ type Props = {
     onSubmit: (alert: AlertForm) => void;
 };
 
+// Formulaire de signalement d'un problème sur un ou plusieurs matériels, au nom de l'utilisateur connecté
 export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props) {
     const { user } = useAuth();
     const { notify } = useNotification();
@@ -37,6 +38,7 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
         }));
     }, [user?.id]);
 
+    // Le bouton d'envoi n'est actif que si le formulaire est valide
     useEffect(() => {
         setCanSubmit(
             formRef.current?.checkValidity() ?? false,
@@ -89,6 +91,7 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
         }));
     }
 
+    // Envoie l'alerte ; le message d'erreur dépend du code HTTP renvoyé
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 

@@ -16,12 +16,14 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Fournit l'utilisateur connecté et les actions login/logout à toute l'application
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Au chargement : si un token existe, on le rafraîchit pour retrouver l'utilisateur ; un 401 supprime le token
     async function restoreSession() {
       if (!localStorage.getItem(TOKEN_KEY)) {
         setIsLoading(false);
@@ -75,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Convertit le rôle reçu de l'API (chaîne) en valeur de l'enum Role
 function normalizeUser(user: User): User {
   return {
     ...user,

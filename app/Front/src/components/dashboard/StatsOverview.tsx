@@ -43,6 +43,7 @@ type KpiProps = {
     variant?: "primary" | "warning" | "danger";
 };
 
+// Indicateur chiffré avec icône, valeur et libellé
 function Kpi({ icon, label, value, variant = "primary" }: KpiProps) {
     return (
         <div className="card h-100">
@@ -63,6 +64,7 @@ type BreakdownProps = {
     labels: Record<string, string>;
 };
 
+// Liste "libellé : effectif" ; une clé sans libellé connu est affichée telle quelle
 function Breakdown({ title, data, labels }: BreakdownProps) {
     return (
         <Card title={title}>
@@ -81,6 +83,7 @@ function Breakdown({ title, data, labels }: BreakdownProps) {
     );
 }
 
+// Statistiques du centre : indicateurs clés et répartitions (matériels, salles, alertes, stages)
 export default function StatsOverview() {
     const { notify } = useNotification();
     const [stats, setStats] = useState<Stats | null>(null);

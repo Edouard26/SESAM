@@ -11,10 +11,12 @@ type RsqlOptions = {
     nullFields?: string[];
 };
 
+// Entoure la valeur de guillemets en échappant \ et " pour la syntaxe RSQL
 function quote(value: string): string {
     return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
+// Ne met des guillemets que si la valeur contient un caractère réservé RSQL
 function escapeValue(value: string): string {
     return /[\s"'();,=!~<>]/.test(value) ? quote(value) : value;
 }
@@ -24,6 +26,8 @@ function likeValue(value: string): string {
     return quote(`*${value}*`);
 }
 
+// Construit la chaîne de filtre RSQL (conditions séparées par ";" = ET) à partir des filtres de l'UI
+// Les filtres vides sont ignorés ; renvoie undefined s'il ne reste aucune condition
 export function buildRsql(
     filters: Record<string, FilterValue>,
     {
@@ -60,6 +64,8 @@ export function buildRsql(
     return parts.length > 0 ? parts.join(";") : undefined;
 }
 
+// Sépare les paramètres à envoyer tels quels (pagination, tri, ids spécifiques : passthrough)
+// de ceux qui deviennent le paramètre "filter" RSQL
 export function toRsqlParams(
     params: Record<string, FilterValue> = {},
     options?: RsqlOptions,

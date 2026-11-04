@@ -5,7 +5,8 @@ import type { Stage as StageModel, StageStatut } from "../../types/Stage.ts";
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import { routes } from "../../router/routes.ts";
 
-type StageDetail = StageModel & {
+// Stage enrichi des informations de détail renvoyées par l'API (nom de salle, stagiaires)
+type StageDetail =StageModel & {
     salleNom?: string;
     stagiaires?: {
         id: number;
@@ -45,6 +46,7 @@ type DetailItemProps = {
     last?: boolean;
 };
 
+// Ligne "icône + libellé + valeur" d'une section ; last retire la bordure du bas
 function DetailItem({ icon, label, children, last = false }: DetailItemProps) {
     return (
         <div
@@ -71,6 +73,7 @@ type DetailSectionProps = {
     children: ReactNode;
 };
 
+// Carte regroupant plusieurs DetailItem sous un titre
 function DetailSection({ icon, title, children }: DetailSectionProps) {
     return (
         <div className="col-12 col-md-6">
@@ -89,6 +92,7 @@ function DetailSection({ icon, title, children }: DetailSectionProps) {
     );
 }
 
+// Fiche descriptive d'un stage : informations, période, salle affectée et stagiaires
 export default function Stage() {
     const { id } = useParams<{ id: string }>();
 
@@ -266,6 +270,7 @@ export default function Stage() {
                             </DetailItem>
                         ))
                     ) : stage.stagiairesId?.length > 0 ? (
+                        // Détail des stagiaires indisponible : on affiche seulement leur nombre
                         <DetailItem
                             icon="bi-people"
                             label="Nombre de stagiaires"

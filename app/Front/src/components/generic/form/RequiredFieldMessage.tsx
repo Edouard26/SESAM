@@ -5,6 +5,7 @@ type RequiredFieldMessageProps = {
     formId: string;
 };
 
+// Affiche le nombre de champs obligatoires non remplis du formulaire formId et les marque en rouge (is-invalid)
 export default function RequiredFieldMessage({ formId }: RequiredFieldMessageProps) {
     const [invalidCount, setInvalidCount] = useState(0);
 
@@ -47,6 +48,7 @@ export default function RequiredFieldMessage({ formId }: RequiredFieldMessagePro
             setInvalidCount(count);
         };
 
+        // Revalide à la saisie et quand le DOM du formulaire change (champs ajoutés, required/disabled modifiés)
         const observer = new MutationObserver(validate);
 
         observer.observe(form, {

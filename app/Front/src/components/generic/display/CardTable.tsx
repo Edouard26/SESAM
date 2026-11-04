@@ -14,6 +14,7 @@ type CardTableProps<T> = {
     card: EntityCardConfig<T>;
 };
 
+// Équivalent de Table en grille de cartes (EntityCard) avec pagination
 export default function CardTable<T>({
                                          data,
                                          loading = false,
@@ -22,6 +23,7 @@ export default function CardTable<T>({
                                      }: CardTableProps<T>) {
     const { currentPage, totalPages, onPageChange } = pagination;
 
+    // Au-delà de 5 pages : première, dernière et pages voisines de la page courante
     const pages = Array.from(
         { length: totalPages },
         (_, index) => index,

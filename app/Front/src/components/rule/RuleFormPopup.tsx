@@ -13,6 +13,7 @@ type RuleFormPopupProps = {
     onSubmit: (form: RuleForm) => void;
 };
 
+// Création ou modification d'une règle (nom + processus interdits) ; la liste des processus vient du parent
 export default function RuleFormPopup({ rule, processes, saving, onClose, onSubmit }: RuleFormPopupProps) {
     const [nom, setNom] = useState(rule?.nom ?? "");
     const [processusId, setProcessusId] = useState(rule?.processusId ?? []);

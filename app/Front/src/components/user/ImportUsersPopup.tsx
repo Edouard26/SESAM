@@ -37,6 +37,7 @@ const columns = createColumns<UserImport>({
     grade: "Grade",
 });
 
+// Import de stagiaires depuis un fichier JSON, rattachés au stage choisi
 export default function ImportUsersPopup({ onClose, blurBackground, onSubmit }: Props) {
     const { notify } = useNotification();
 
@@ -45,6 +46,7 @@ export default function ImportUsersPopup({ onClose, blurBackground, onSubmit }: 
     const [selectedUsers, setSelectedUsers] = useState<UserImport[]>([]);
     const [loading, setLoading] = useState(false);
 
+    // Charge les stages proposés pour le rattachement
     useEffect(() => {
         async function loadStages() {
             try {

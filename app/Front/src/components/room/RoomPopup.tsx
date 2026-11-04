@@ -40,6 +40,7 @@ export default function RoomPopup({
     const isEditing = !!room;
     const isCours = values.typeSalle === "COURS";
 
+    // Charge les bâtiments proposés dans le formulaire
     useEffect(() => {
         let cancelled = false;
 
@@ -81,6 +82,7 @@ export default function RoomPopup({
         };
     }, [notify]);
 
+    // Pré-remplit le formulaire avec la salle à modifier, ou avec le modèle vide pour une création
     useEffect(() => {
         const initial: RoomForm = room
             ? {
@@ -109,6 +111,7 @@ export default function RoomPopup({
     ) {
         const { name, value } = event.target;
 
+        // Le nombre de places n'a de sens que pour une salle de cours : remis à 0 sinon
         if (name === "typeSalle") {
             setValues((previous) => {
                 const next: RoomForm = {
@@ -149,6 +152,7 @@ export default function RoomPopup({
         }
 
         try {
+            // En modification, seuls les champs changés sont envoyés
             if (room) {
                 const changedValues = Object.fromEntries(
                     Object.entries(values).filter(

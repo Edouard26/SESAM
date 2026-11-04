@@ -15,6 +15,8 @@ type PopupProps = {
     confirmationLabel?: string;
 };
 
+// Fenêtre modale (portail dans le body). Par défaut, la soumission d'un formulaire contenu dans la popup
+// est interceptée pour demander une confirmation avant d'être réellement envoyée (confirmOnSubmit)
 export default function Popup({
                                   title,
                                   onClose,
@@ -31,6 +33,7 @@ export default function Popup({
     const popupRef = useRef<HTMLDivElement>(null);
     const skipConfirmationRef = useRef(false);
 
+    // Bloque le scroll de la page tant que la popup est ouverte ; Échap ferme la confirmation puis la popup
     useEffect(() => {
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
@@ -53,6 +56,7 @@ export default function Popup({
         };
     }, [onClose, showConfirmation]);
 
+    // Intercepte le submit pour afficher la confirmation (sauf si on vient de confirmer)
     function handleSubmitCapture(event: React.FormEvent<HTMLDivElement>) {
         if (!confirmOnSubmit || skipConfirmationRef.current) {
             skipConfirmationRef.current = false;
@@ -64,6 +68,7 @@ export default function Popup({
         setShowConfirmation(true);
     }
 
+    // Après confirmation, on relance la soumission du formulaire en désactivant l'interception une fois
     function confirmSubmit() {
         setShowConfirmation(false);
         skipConfirmationRef.current = true;

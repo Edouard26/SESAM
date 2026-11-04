@@ -11,6 +11,7 @@ type MasterPopupProps = {
     onSubmit: (form: MasterForm) => void;
 };
 
+// Formulaire de création d'un master : nom et processus associés (sélection multiple)
 export default function MasterPopup({
                                         processes,
                                         saving,

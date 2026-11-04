@@ -66,6 +66,7 @@ const columns = createColumns<MaterialForm>(
     { taille: (value) => value !== undefined ? `${value}"` : "—" },
 );
 
+// Import de matériels depuis un fichier JSON, affectés à la salle choisie
 export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit }: Props) {
     const { notify } = useNotification();
 
@@ -74,6 +75,7 @@ export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit
     const [selectedMaterials, setSelectedMaterials] = useState<MaterialForm[]>([]);
     const [loading, setLoading] = useState(false);
 
+    // Charge les salles proposées pour l'affectation
     useEffect(() => {
         async function loadRooms() {
             try {

@@ -17,6 +17,7 @@ type Props = {
     onSubmit: (material: MaterialForm) => void;
 };
 
+// Création ou modification d'un matériel (modification si la prop material est fournie)
 export default function MaterialPopup({ material, onClose, blurBackground, onSubmit }: Props) {
     const {notify} = useNotification();
     const [values, setValues] = useState<MaterialForm>({...materialTemplate});
@@ -32,6 +33,8 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
 
 
 
+    // Initialise le formulaire avec le matériel à modifier, ou avec le modèle vide pour une création
+    // initialValues sert ensuite à n'envoyer que les champs modifiés
     useEffect(() => {
         let initial: MaterialForm;
 
@@ -57,6 +60,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
     function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const { name, value } = event.target;
 
+        // Les champs propres à un type (processeur/carte graphique pour UC, taille pour écran) sont retirés si le type change
         if (name === "typeMateriel") {
             setValues((previous) => {
                 const next: MaterialForm = {
@@ -103,6 +107,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
         }));
     }
 
+    // Format yyyy-MM-dd attendu par les champs <input type="date">
     function formatDate(date: Date): string {
         return date.toISOString().split("T")[0];
     }
@@ -112,6 +117,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
         if (!event.currentTarget.checkValidity()) return;
 
         try {
+            // En modification, seuls les champs changés sont envoyés (dates comparées par timestamp)
             if (material) {
                 const changedValues = Object.fromEntries(
                     Object.entries(values).filter(([key, value]) => {

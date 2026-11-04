@@ -9,6 +9,7 @@ export default function Dashboard() {
     const { user } = useAuth();
     const [showAlertPopup, setShowAlertPopup] = useState(false);
 
+    // Selon le rôle : l'envoi d'alerte est réservé aux rôles jusqu'à FORMATEUR, les statistiques à partir de GESTIONNAIRE
     const canSendAlert = user && user.role <= Role.FORMATEUR;
     const canSeeStats = user && user.role >= Role.GESTIONNAIRE;
 

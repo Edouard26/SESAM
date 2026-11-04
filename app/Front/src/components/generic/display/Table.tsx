@@ -35,6 +35,7 @@ type TableProps<T> = {
     onSortChange?: (sort: string) => void;
 };
 
+// Tableau générique paginé, avec tri par colonne (sortKey) et sélection multiple optionnelle (checkboxes)
 export default function Table<T>({
                                      columns,
                                      data,
@@ -47,6 +48,7 @@ export default function Table<T>({
                                       sort,
                                       onSortChange,
                                   }: TableProps<T>) {
+    // Au-delà de 5 pages : première, dernière et pages voisines de la page courante (le reste devient "...")
     const pages = Array.from({ length: totalPages }, (_, index) => index).filter((page) => {
         if (totalPages <= 5) {
             return true;
@@ -66,6 +68,7 @@ export default function Table<T>({
         selectableItems.length > 0 &&
         selectableItems.every((item) => selectedIds.has(selection.getId(item)));
 
+    // Sélection partielle : la case d'en-tête passe en état indéterminé
     const someSelected =
         selection !== undefined &&
         !allSelected &&
@@ -132,6 +135,7 @@ export default function Table<T>({
                             )}
 
                             {columns.map((column) => {
+                                // sort a le format "propriete,asc|desc" ; un clic alterne asc/desc
                                 const [activeKey, activeDirection] = (sort ?? "").split(",");
                                 const direction = activeKey === column.sortKey ? activeDirection : undefined;
                                 const nextSort = direction === "asc" ? "desc" : "asc";

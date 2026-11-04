@@ -1,7 +1,9 @@
+// URL du backend et clé de localStorage où est stocké le JWT (surchargeables via les variables Vite)
 export const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 export const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY ?? "jwt";
 
 
+// Erreur HTTP renvoyée par l'API, avec le code de statut pour que l'appelant puisse réagir (ex : 401)
 export class ApiError extends Error {
     status: number;
     constructor(status: number, message: string) {
@@ -18,12 +20,14 @@ type RequestOptions = {
     params?: Record<string, string | number | boolean | undefined>;
 };
 
+// Appel HTTP générique : ajoute le JWT, sérialise le body en JSON et transforme les erreurs en ApiError
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { method = "GET", body, auth = true, params } = options;
     const token = localStorage.getItem(TOKEN_KEY);
 
     const url = new URL(`${BASE_URL}${path}`);
 
+    // Les paramètres undefined sont ignorés plutôt qu'envoyés en "undefined"
     Object.entries(params ?? {}).forEach(([key, value]) => {
         if (value !== undefined) {
             url.searchParams.set(key, String(value));
@@ -55,6 +59,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     return res.json() as Promise<T>;
 }
 
+// Raccourcis par verbe HTTP utilisés par les fichiers *.api.ts
 export const api = {
     get: <T>(path: string, params?: RequestOptions["params"]) => request<T>(path, { params }),
     post: <T>(path: string, body?: unknown, auth = true) => request<T>(path, { method: "POST", body, auth }),
