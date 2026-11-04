@@ -6,6 +6,7 @@ import net.ent.etnc.backend.models.entities.User;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import net.ent.etnc.backend.services.commons.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -83,4 +84,7 @@ public interface SalleService extends Service<Salle, Long> {
      */
     @Transactional(readOnly = true)
     Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin);
+
+    @Transactional(readOnly = true)
+    Optional<Salle> findByMaterielId(Long materielId);
 }

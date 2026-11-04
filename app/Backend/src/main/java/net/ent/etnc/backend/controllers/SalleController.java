@@ -85,6 +85,13 @@ public class SalleController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping("{id}/reinstall/")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE', 'FORMATEUR', 'ADMINISTRATEUR')")
+    public ResponseEntity<Void> reinstall(@PathVariable Long id) {
+        if (salleService.findById(id).isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.accepted().build();
+    }
+
     @PatchMapping("{id}/rules/")
     @PreAuthorize("hasAnyRole('GESTIONNAIRE', 'FORMATEUR', 'ADMINISTRATEUR')")
     public ResponseEntity<SalleResponse> updateRegles(@PathVariable Long id, @RequestBody SalleReglesRequest request) {

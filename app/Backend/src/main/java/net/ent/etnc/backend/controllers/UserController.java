@@ -1,5 +1,6 @@
 package net.ent.etnc.backend.controllers;
 
+import net.ent.etnc.backend.commons.JsonPatchUtils;
 import net.ent.etnc.backend.commons.RsqlFilterUtils;
 import net.ent.etnc.backend.dtos.UserDto;
 import net.ent.etnc.backend.dtos.assemblers.StageAssembler;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Endpoint REST pour la gestion des utilisateurs ({@code /api/v1/users/}).
@@ -37,6 +39,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/users/")
 public class UserController {
+
+    private static final Set<String> PATCHABLE = Set.of(
+            "nid", "email", "nom", "prenom", "dateNaissance", "grade", "role", "active"
+    );
 
     private static final Map<String, String> FILTERABLE = Map.of(
             "nid", "nid",
@@ -53,8 +59,10 @@ public class UserController {
     private final StageAssembler stageAssembler;
 
     private final RsqlFilterUtils rsqlFilterUtils;
+    private final JsonPatchUtils jsonPatchUtils;
 
-    public UserController(UserService userService, StageService stageService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils) {
+    public UserController(UserService userService, StageService stageService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils) {
+        this.jsonPatchUtils = jsonPatchUtils;
         this.userService = userService;
         this.stageService = stageService;
         this.assembler = assembler;
@@ -116,12 +124,23 @@ public class UserController {
         return ResponseEntity.ok(assembler.toStagiaireResponse(userService.AssigmentsMaterielToStagiaire(materielAssigmentsStagiaireRequest)));
     }
 
-    @PutMapping("{id}/")
-    public ResponseEntity<UserDto> put(@PathVariable Long id, @RequestBody UserDto userDto){
-        if(!userService.existsById(id)) return ResponseEntity.notFound().build();
-        userDto.setId(id);
+    @PatchMapping("{id}/")
+    public ResponseEntity<UserDto> patch(@PathVariable Long id, @RequestBody String patch){
+        Optional<User> existing = userService.findById(id);
+        if(existing.isEmpty()) return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(assembler.toDto(userService.update(assembler.toEntity(userDto))));
+        UserDto patched = jsonPatchUtils.apply(patch, assembler.toDto(existing.get()), UserDto.class, PATCHABLE);
+        User user = existing.get();
+        user.setNid(patched.getNid());
+        user.setEmail(patched.getEmail());
+        user.setNom(patched.getNom());
+        user.setPrenom(patched.getPrenom());
+        user.setDateNaissance(patched.getDateNaissance());
+        user.setGrade(patched.getGrade());
+        user.setRole(patched.getRole());
+        user.setActive(patched.getActive());
+
+        return ResponseEntity.ok(assembler.toDto(userService.update(user)));
     }
 
     @DeleteMapping("{id}/")

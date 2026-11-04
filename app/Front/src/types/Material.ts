@@ -6,6 +6,7 @@ export type Material = {
     typeMateriel: MaterialType;
     etat: EtatType;
     numeroSerie: string;
+    mac: string;
     marque: string;
     modele: string;
     dateAjout: Date;
@@ -14,6 +15,12 @@ export type Material = {
     processeur?: string;
     carteGraphique?: string;
     taille?: number;
+};
+
+export type MaterialDetail = Material & {
+    salleId?: number;
+    salleNom?: string;
+    nomBatiment?: string;
 };
 
 export type MaterialForm = Omit<Material, "id" | "typeMateriel"> & {
@@ -33,6 +40,7 @@ export type MaterialAssignmentUserForm = {
 export const materialTemplate: MaterialForm = {
     typeMateriel: "",
     numeroSerie: "",
+    mac: "",
     marque: "",
     modele: "",
     etat: "EN_ETAT",

@@ -13,4 +13,5 @@ export const authApi = {
     login: (email: string, password: string) =>
         api.post<LoginResponse>("/api/v1/auth/login/", { email, password }, false),
     refresh: () => api.post<LoginResponse>("/api/v1/auth/refresh/", undefined, false),
+    logout: () => api.post<void>("/api/v1/auth/logout/", undefined, false),
 };

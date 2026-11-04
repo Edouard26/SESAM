@@ -178,4 +178,10 @@ public class SalleServiceImpl extends AbstractService<Salle, SalleRepository> im
     public Boolean existsSalleLibreDurantPeriode(Long salleId, LocalDate dateDebut, LocalDate dateFin){
         return repository.existsSalleLibreDurantPeriode(salleId, dateDebut, dateFin);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Salle> findByMaterielId(Long materielId){
+        return repository.findFirstByMateriels_Id(materielId);
+    }
 }

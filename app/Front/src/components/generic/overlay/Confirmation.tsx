@@ -4,12 +4,20 @@ type ConfirmationProps = {
     title?: string;
     message: string;
     onConfirm: () => void;
-    trigger: React.ReactNode;
+    trigger?: React.ReactNode;
+    open?: boolean;
+    onCancel?: () => void;
 };
 
 // Enveloppe un élément déclencheur (trigger) : au clic, demande confirmation avant d'exécuter onConfirm
-export default function Confirmation({ title = "Confirmation", message, onConfirm, trigger }: ConfirmationProps) {
-    const [show, setShow] = useState(false);
+export default function Confirmation({ title = "Confirmation", message, onConfirm, trigger, open, onCancel }: ConfirmationProps) {
+    const [internalShow, setInternalShow] = useState(false);
+    const show = open ?? internalShow;
+
+    const setShow = (value: boolean) => {
+        if (open === undefined) setInternalShow(value);
+        else if (!value) onCancel?.();
+    };
 
     const confirm = () => {
         onConfirm();
@@ -18,9 +26,11 @@ export default function Confirmation({ title = "Confirmation", message, onConfir
 
     return (
         <>
-            <div role="presentation" onClick={() => setShow(true)}>
-                {trigger}
-            </div>
+            {trigger && (
+                <div role="presentation" onClick={() => setShow(true)}>
+                    {trigger}
+                </div>
+            )}
 
             {show && (
                 <>

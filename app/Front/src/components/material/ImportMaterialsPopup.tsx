@@ -11,6 +11,7 @@ import {
     date,
     oneOf,
     optional,
+    pattern,
     positiveNumber,
     type Schema,
     text
@@ -22,6 +23,8 @@ type Props = {
     onSubmit: () => void;
 };
 
+const MAC_REGEX = /^[0-9a-fA-F]{2}([-:][0-9a-fA-F]{2}){5}$/;
+
 const materialTypes: MaterialType[] = ["UC", "ECRAN", "VIDEO_PROJECTEUR"];
 const materialStates: EtatType[] = ["EN_ETAT", "EN_MAINTENANCE", "DEPRECIER"];
 
@@ -30,6 +33,7 @@ const materialSchema: Schema<MaterialForm> = {
     typeMateriel: oneOf(materialTypes),
     etat: oneOf(materialStates),
     numeroSerie: text(),
+    mac: pattern(MAC_REGEX, "aa-bb-cc-dd-ee-ff"),
     marque: text(),
     modele: text(),
     dateAjout: date(),
@@ -55,6 +59,7 @@ const columns = createColumns<MaterialForm>(
         typeMateriel: "Type",
         etat: "État",
         numeroSerie: "N° de série",
+        mac: "Adresse MAC",
         marque: "Marque",
         modele: "Modèle",
         dateAjout: "Date d'ajout",

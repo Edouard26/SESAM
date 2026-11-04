@@ -16,6 +16,8 @@ export const roomApi = {
         api.patch<Room>(`/api/v1/rooms/${id}/`, body),
     delete: (id: number) =>
         api.delete<void>(`/api/v1/rooms/${id}/`),
+    reinstall: (id: number) =>
+        api.post<void>(`/api/v1/rooms/${id}/reinstall/`),
     updateRules: (id: number, reglesId: number[]) =>
         api.patch<Room>(`/api/v1/rooms/${id}/rules/`, { reglesId }),
 };

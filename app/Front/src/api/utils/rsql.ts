@@ -21,9 +21,9 @@ function escapeValue(value: string): string {
     return /[\s"'();,=!~<>]/.test(value) ? quote(value) : value;
 }
 
-// Recherche partielle : == avec jokers. Les jokers doivent être DANS les guillemets.
+// Recherche partielle insensible à la casse
 function likeValue(value: string): string {
-    return quote(`*${value}*`);
+    return quote(value);
 }
 
 // Construit la chaîne de filtre RSQL (conditions séparées par ";" = ET) à partir des filtres de l'UI
@@ -51,11 +51,11 @@ export function buildRsql(
             const group = orFields[key];
 
             if (group && group.length > 0) {
-                return `(${group.map((f) => `${f}==${likeValue(raw)}`).join(",")})`;
+                return `(${group.map((f) => `${f}=ilike=${likeValue(raw)}`).join(",")})`;
             }
 
             if (likeFields.includes(key)) {
-                return `${field}==${likeValue(raw)}`;
+                return `${field}=ilike=${likeValue(raw)}`;
             }
 
             return `${field}==${escapeValue(raw)}`;

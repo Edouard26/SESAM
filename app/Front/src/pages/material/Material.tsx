@@ -1,15 +1,16 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { materialApi } from "../../api";
-import type { Material as MaterialModel, MaterialType } from "../../types/Material.ts";
+import type { EtatType, MaterialDetail, MaterialType } from "../../types/Material.ts";
 import PageHeader from "../../components/layout/PageHeader.tsx";
+import Confirmation from "../../components/generic/overlay/Confirmation.tsx";
+import useNotification from "../../hooks/useNotification.ts";
 import { routes } from "../../router/routes.ts";
 
-type MaterialDetail = MaterialModel & {
-    statut?: string;
-    salleId?: number;
-    salleNom?: string;
-    batiment?: string;
+const etatBadges: Record<EtatType, { label: string; className: string; icon: string }> = {
+    EN_ETAT: { label: "En état", className: "bg-success-subtle text-success-emphasis", icon: "bi-check-circle" },
+    EN_MAINTENANCE: { label: "En maintenance", className: "bg-warning-subtle text-warning-emphasis", icon: "bi-tools" },
+    DEPRECIER: { label: "Déprécié", className: "bg-danger-subtle text-danger-emphasis", icon: "bi-x-circle" },
 };
 
 const typeLabels: Record<MaterialType, string> = {
@@ -84,6 +85,8 @@ export default function Material() {
     const [material, setMaterial] = useState<MaterialDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showReinstallConfirmation, setShowReinstallConfirmation] = useState(false);
+    const { notify } = useNotification();
 
     useEffect(() => {
         if (!id) return;
@@ -96,7 +99,7 @@ export default function Material() {
         materialApi
             .get(Number(id))
             .then((data) => {
-                if (!cancelled) setMaterial(data as MaterialDetail);
+                if (!cancelled) setMaterial(data);
             })
             .catch(() => {
                 if (!cancelled) setError("Impossible de charger ce matériel.");
@@ -132,10 +135,28 @@ export default function Material() {
         );
     }
 
-    const isAvailable = (material.statut ?? "Disponible") === "Disponible";
+    const etat = etatBadges[material.etat] ?? etatBadges.EN_ETAT;
+
+    async function reinstallMaterial() {
+        if (!material) return;
+        try {
+            await materialApi.reinstall(material.id);
+            notify(`Réinstallation du poste ${material.nom} lancée.`, "success");
+        } catch {
+            notify("Impossible de lancer la réinstallation du poste.", "danger");
+        }
+    }
 
     return (
         <>
+            <Confirmation
+                open={showReinstallConfirmation}
+                title="Réinstaller le poste ?"
+                message={`Le poste ${material.nom} (${material.numeroSerie}) sera réinstallé.`}
+                onCancel={() => setShowReinstallConfirmation(false)}
+                onConfirm={() => void reinstallMaterial()}
+            />
+
             <PageHeader
                 title={material.nom}
                 description="Fiche descriptive du matériel"
@@ -146,8 +167,7 @@ export default function Material() {
                             {
                                 label: "Réinstaller le poste",
                                 icon: "bi-arrow-repeat",
-                                onClick: () =>
-                                    console.log("Réinstaller le poste", material.id),
+                                onClick: () => setShowReinstallConfirmation(true),
                             },
                         ]
                         : []
@@ -178,22 +198,9 @@ export default function Material() {
                     </div>
                 </div>
 
-                <span
-                    className={`badge rounded-pill px-3 py-2 ${
-                        isAvailable
-                            ? "bg-success-subtle text-success-emphasis"
-                            : "bg-warning-subtle text-warning-emphasis"
-                    }`}
-                >
-                    <i
-                        className={`bi ${
-                            isAvailable
-                                ? "bi-check-circle"
-                                : "bi-exclamation-circle"
-                        } me-2`}
-                        aria-hidden="true"
-                    />
-                    {material.statut ?? "Disponible"}
+                <span className={`badge rounded-pill px-3 py-2 ${etat.className}`}>
+                    <i className={`bi ${etat.icon} me-2`} aria-hidden="true" />
+                    {etat.label}
                 </span>
             </div>
 
@@ -203,8 +210,12 @@ export default function Material() {
                         {material.marque || "—"}
                     </DetailItem>
 
-                    <DetailItem icon="bi-box" label="Modèle" last>
+                    <DetailItem icon="bi-box" label="Modèle">
                         {material.modele || "—"}
+                    </DetailItem>
+
+                    <DetailItem icon="bi-ethernet" label="Adresse MAC" last>
+                        {material.mac || "—"}
                     </DetailItem>
                 </DetailSection>
 
@@ -257,7 +268,7 @@ export default function Material() {
                     </DetailItem>
 
                     <DetailItem icon="bi-building" label="Bâtiment" last>
-                        {material.batiment || "—"}
+                        {material.nomBatiment || "—"}
                     </DetailItem>
                 </DetailSection>
 

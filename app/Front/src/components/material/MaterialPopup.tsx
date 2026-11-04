@@ -8,6 +8,7 @@ import {
 import {ApiError, materialApi} from "../../api";
 import useNotification from "../../hooks/useNotification.ts";
 import RequiredFieldMessage from "../generic/form/RequiredFieldMessage.tsx";
+import {fromIsoDate, toIsoDate} from "../../api/utils/date.ts";
 
 
 type Props = {
@@ -43,13 +44,13 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                 Object.entries(material).filter(([key]) => key !== "id"),
             ) as MaterialForm;
 
-            initial.dateAjout = new Date(material.dateAjout);
-            initial.dateFinGarantie = new Date(material.dateFinGarantie);
+            initial.dateAjout = fromIsoDate(material.dateAjout);
+            initial.dateFinGarantie = fromIsoDate(material.dateFinGarantie);
         } else {
             initial = {
                 ...materialTemplate,
-                dateAjout: new Date(materialTemplate.dateAjout),
-                dateFinGarantie: new Date(materialTemplate.dateFinGarantie),
+                dateAjout: fromIsoDate(toIsoDate(new Date())),
+                dateFinGarantie: fromIsoDate(toIsoDate(new Date())),
             };
         }
 
@@ -100,16 +101,12 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
 
     function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target;
+        if (!value) return;
 
         setValues((previous) => ({
             ...previous,
-            [name]: new Date(`${value}T00:00:00`),
+            [name]: fromIsoDate(value),
         }));
-    }
-
-    // Format yyyy-MM-dd attendu par les champs <input type="date">
-    function formatDate(date: Date): string {
-        return date.toISOString().split("T")[0];
     }
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -176,6 +173,15 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                     </div>
 
                     <div className="col-12 col-md-6">
+                        <label htmlFor="mac" className="form-label">
+                            Adresse MAC <span className="text-danger">*</span>
+                        </label>
+                        <input id="mac" name="mac" type="text" className="form-control" value={values.mac ?? ""} onChange={handleChange}
+                            placeholder="aa-bb-cc-dd-ee-ff" pattern="[0-9a-fA-F]{2}((-|:)[0-9a-fA-F]{2}){5}" title="Format attendu : aa-bb-cc-dd-ee-ff" required/>
+                        <div className="invalid-feedback">Format attendu : aa-bb-cc-dd-ee-ff</div>
+                    </div>
+
+                    <div className="col-12 col-md-6">
                         <label htmlFor="marque" className="form-label">
                             Marque <span className="text-danger">*</span>
                         </label>
@@ -236,7 +242,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                             Date d'ajout <span className="text-danger">*</span>
                         </label>
                         <input id="dateAjout" name="dateAjout" type="date" className="form-control"
-                           value={formatDate(values.dateAjout)}
+                           value={toIsoDate(values.dateAjout)}
                             onChange={handleDateChange}
                             required
                         />
@@ -247,7 +253,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                             Date fin de garantie <span className="text-danger">*</span>
                         </label>
                         <input id="dateFinGarantie" name="dateFinGarantie" type="date" className="form-control"
-                           value={formatDate(values.dateFinGarantie)}
+                           value={toIsoDate(values.dateFinGarantie)}
                             onChange={handleDateChange}
                             required
                         />

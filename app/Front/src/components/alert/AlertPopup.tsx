@@ -3,7 +3,9 @@ import Popup from "../generic/overlay/Popup";
 import { useAuth } from "../../context/AuthContext";
 import type { AlertForm } from "../../types/Alert";
 import type { Material } from "../../types/Material";
-import { ApiError, alertApi, materialApi } from "../../api";
+import { ApiError, alertApi, materialApi, roomApi } from "../../api";
+import type { Room } from "../../types/Room";
+import { Role } from "../../types/Role";
 import useNotification from "../../hooks/useNotification";
 import type {User} from "../../types/User.ts";
 
@@ -28,6 +30,9 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
     });
 
     const [materials, setMaterials] = useState<Material[]>([]);
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [salleId, setSalleId] = useState("");
+    const isFormateur = user?.role === Role.FORMATEUR;
     const [canSubmit, setCanSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -46,14 +51,30 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
     }, [values]);
 
     useEffect(() => {
+        if (!isFormateur) return;
+
+        roomApi.list({ page: 0, size: 1000, sort: "nom,asc" })
+            .then((response) => setRooms(response.content))
+            .catch(() => notify("Impossible de charger les salles", "danger"));
+    }, [isFormateur, notify]);
+
+    useEffect(() => {
         async function loadMaterials() {
+            if (isFormateur && !salleId) {
+                setMaterials([]);
+                return;
+            }
+
             try {
                 const response = await materialApi.list({
                     page: 0,
-                    size: 10,
+                    size: 100,
+                    sort: "nom,asc",
+                    ...(isFormateur ? { salleId: Number(salleId) } : {}),
                 });
 
                 setMaterials(response.content);
+                setValues((previous) => ({ ...previous, materielsId: [] }));
             } catch (error) {
                 if (error instanceof ApiError) {
                     notify(error.message, "danger");
@@ -64,7 +85,7 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
         }
 
         void loadMaterials();
-    }, [notify]);
+    }, [notify, isFormateur, salleId]);
 
     function handleChange(
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -101,6 +122,7 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
 
         try {
             await alertApi.create(values);
+            notify("Alerte envoyée.", "success");
             onSubmit(values);
         } catch (error) {
             if (error instanceof ApiError) {
@@ -174,6 +196,20 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
                             required
                         />
                     </div>
+
+                    {isFormateur && (
+                        <div className="col-12">
+                            <label htmlFor="salleId" className="form-label">
+                                Salle <span className="text-danger">*</span>
+                            </label>
+                            <select id="salleId" className="form-select" value={salleId} onChange={(event) => setSalleId(event.target.value)} required>
+                                <option value="">Choisir une salle</option>
+                                {rooms.map((room) => (
+                                    <option key={room.id} value={room.id}>{room.nom}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div className="col-12">
                         <label htmlFor="materielsId" className="form-label">

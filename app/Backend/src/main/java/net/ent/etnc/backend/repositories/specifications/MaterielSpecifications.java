@@ -5,6 +5,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Salle;
+import net.ent.etnc.backend.models.enums.EtatMateriel;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -47,40 +48,23 @@ public class MaterielSpecifications {
      *         non affectés à un stagiaire
      */
     public static Specification<Materiel> notAssignToStagiaire(){
-        return (root, query, cb) -> {
-            Subquery<Long> subquery = query.subquery(Long.class);
-
-            Root<Materiel> materiel = subquery.from(Materiel.class);
-
-            subquery.select(materiel.get("id"))
-                    .where(cb.equal(materiel.get("stagiaire"), null));
-
-            return root.get("id").in(subquery);
-        };
+        return (root, query, cb) -> cb.isNull(root.get("stagiaire"));
     }
 
     /**
      * Crée une spécification permettant d'exclure les matériels appartenant à une salle donnée.
      *
-     * <p>La sous-requête parcourt les salles et leurs matériels afin de sélectionner
-     * les identifiants des matériels associés à une salle dont l'identifiant
-     * est différent de celui fourni.</p>
+     * <p>Les matériels sans salle sont conservés.</p>
      *
      * @param salleId identifiant de la salle à exclure
      * @return une spécification JPA permettant de filtrer les matériels
-     *         associés à des salles différentes de celle spécifiée
+     *         qui ne sont pas dans la salle spécifiée
      */
     public static Specification<Materiel> excludeToSalle(Long salleId){
-        return (root, query, cb) -> {
-            Subquery<Long> subquery = query.subquery(Long.class);
+        return (root, query, cb) -> cb.not(belongsToSalle(salleId).toPredicate(root, query, cb));
+    }
 
-            Root<Salle> salle = subquery.from(Salle.class);
-            Join<Salle, Materiel> materiel = salle.join("materiels");
-
-            subquery.select(materiel.get("id"))
-                    .where(cb.notEqual(salle.get("id"), salleId));
-
-            return root.get("id").in(subquery);
-        };
+    public static Specification<Materiel> notInEtat(EtatMateriel etat){
+        return (root, query, cb) -> cb.notEqual(root.get("etat"), etat);
     }
 }

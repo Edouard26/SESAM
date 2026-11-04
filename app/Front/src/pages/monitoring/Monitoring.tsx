@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { roomApi } from "../../api";
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
@@ -55,7 +55,10 @@ export default function Monitoring() {
         errorMessage: "Impossible de charger les salles",
     });
 
-    const [selectedRoomId, setSelectedRoomId] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedRoomId = searchParams.get("salle") ?? "";
+    const setSelectedRoomId = (roomId: string) =>
+        setSearchParams(roomId ? { salle: roomId } : {}, { replace: true });
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -267,10 +270,7 @@ export default function Monitoring() {
                                         </button>
                                         {material.typeMateriel === "UC" && (
                                             <button type="button" className="btn btn-link p-0 text-decoration-none text-nowrap"
-                                                    onClick={() => {
-                                                        console.log("Navigation vers :", `/process/${material.id}`);
-                                                        navigate(`/process/${material.id}`);
-                                                    }}
+                                                    onClick={() => navigate(`${routes.process}/${material.id}`)}
                                             >
                                                 Processus
                                             </button>

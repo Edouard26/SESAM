@@ -13,6 +13,7 @@ import { routes } from "../../router/routes.ts";
 import MultiSelect from "../../components/generic/display/MultiSelect.tsx";
 import type { Rule } from "../../types/Rule.ts";
 import useNotification from "../../hooks/useNotification.ts";
+import Confirmation from "../../components/generic/overlay/Confirmation.tsx";
 
 const MATERIELS_PAGE_SIZE = 6;
 
@@ -72,6 +73,7 @@ export default function Room() {
     const [materielsPage, setMaterielsPage] = useState(0);
     const [selectedRuleIds, setSelectedRuleIds] = useState<number[]>([]);
     const [savingRules, setSavingRules] = useState(false);
+    const [showReinstallConfirmation, setShowReinstallConfirmation] = useState(false);
     const { notify } = useNotification();
 
     const allMateriels = room?.materiels ?? [];
@@ -194,6 +196,15 @@ export default function Room() {
         }
     }
 
+    async function reinstallRoom() {
+        try {
+            await roomApi.reinstall(roomId);
+            notify(`Réinstallation de la salle ${room?.nom} lancée.`, "success");
+        } catch {
+            notify("Impossible de lancer la réinstallation de la salle.", "danger");
+        }
+    }
+
     const actions: {
         label: string;
         icon?: string;
@@ -205,12 +216,12 @@ export default function Room() {
                 {
                     label: "Superviser les postes",
                     icon: "bi-display",
-                    onClick: () => console.log("Superviser les postes", room.id),
+                    onClick: () => navigate(`${routes.monitoring}?salle=${room.id}`),
                 },
                 {
                     label: "Réinstaller la salle",
                     icon: "bi-arrow-repeat",
-                    onClick: () => console.log("Réinstaller la salle", room.id),
+                    onClick: () => setShowReinstallConfirmation(true),
                 },
             ]
             : []),
@@ -233,6 +244,14 @@ export default function Room() {
                     }}
                 />
             )}
+
+            <Confirmation
+                open={showReinstallConfirmation}
+                title="Réinstaller la salle ?"
+                message={`Tous les postes de la salle ${room.nom} seront réinstallés.`}
+                onCancel={() => setShowReinstallConfirmation(false)}
+                onConfirm={() => void reinstallRoom()}
+            />
 
             <Link to="/rooms" className="text-decoration-none small">
                 ‹ Retour aux salles

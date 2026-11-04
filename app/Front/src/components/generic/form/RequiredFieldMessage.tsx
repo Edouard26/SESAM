@@ -29,20 +29,20 @@ export default function RequiredFieldMessage({ formId }: RequiredFieldMessagePro
                     return;
                 }
 
-                let invalid: boolean;
+                let empty: boolean;
 
                 if (
                     field instanceof HTMLInputElement &&
                     (field.type === "checkbox" || field.type === "radio")
                 ) {
-                    invalid = !field.checked;
+                    empty = !field.checked;
                 } else {
-                    invalid = !field.value.trim();
+                    empty = !field.value.trim();
                 }
 
-                field.classList.toggle("is-invalid", invalid);
+                field.classList.toggle("is-invalid", empty || !field.validity.valid);
 
-                if (invalid) count++;
+                if (empty) count++;
             });
 
             setInvalidCount(count);

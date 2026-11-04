@@ -28,6 +28,10 @@ public class MaterielResponse {
     private LocalDate dateFinGarantie;
     private EtatMateriel etat;
 
+    private Long salleId;
+    private String salleNom;
+    private String nomBatiment;
+
     // si c'est un UC
     private String processeur;
     private String carteGraphique;

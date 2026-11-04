@@ -103,16 +103,14 @@ public interface MaterielRepository extends BaseRepository<Materiel> {
     default Page<Materiel> findAllByExcludedSalleId(Specification<Materiel> spec, Pageable pageable, Long salleId) {
 
         // Construit la spécification de base excluant la salle indiquée.
-        Specification<Materiel> combinedSpec;
+        Specification<Materiel> combinedSpec = Specification.where(
+                        MaterielSpecifications.excludeToSalle(salleId))
+                .and(MaterielSpecifications.notAssignToStagiaire())
+                .and(MaterielSpecifications.notInEtat(EtatMateriel.DEPRECIER));
 
-        if (spec == null) {
-            combinedSpec = Specification.where(
-                    MaterielSpecifications.excludeToSalle(salleId));
-        } else {
+        if (spec != null) {
             // Combine l'exclusion de la salle avec les critères supplémentaires.
-            combinedSpec = Specification.where(
-                            MaterielSpecifications.excludeToSalle(salleId))
-                    .and(spec);
+            combinedSpec = combinedSpec.and(spec);
         }
 
         // Exécute la recherche paginée.

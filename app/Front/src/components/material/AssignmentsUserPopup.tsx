@@ -57,6 +57,9 @@ export default function AssignmentsUserPopup({
                 const response = await userApi.list({
                     page: 0,
                     size: 1000,
+                    role: "STAGIAIRE",
+                    active: "true",
+                    sort: "nom,asc",
                 });
 
                 setUsers(response.content);
@@ -76,7 +79,7 @@ export default function AssignmentsUserPopup({
                 { label: "Tous", value: "" },
                 { label: "UC", value: "UC" },
                 { label: "Écran", value: "ECRAN" },
-                { label: "Vidéoprojecteur", value: "PROJECTEUR" },
+                { label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR" },
             ],
         },
     ];

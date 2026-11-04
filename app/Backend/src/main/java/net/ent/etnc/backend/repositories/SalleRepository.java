@@ -42,6 +42,8 @@ public interface SalleRepository extends BaseRepository<Salle>, SalleRepositoryC
      */
     List<Salle> findAllByRegles_Id(Long regleId);
 
+    Optional<Salle> findFirstByMateriels_Id(Long materielId);
+
     /**
      * Compte le nombre de salles correspondant au type indiqué.
      *

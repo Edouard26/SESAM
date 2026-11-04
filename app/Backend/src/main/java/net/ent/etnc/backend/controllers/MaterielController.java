@@ -17,6 +17,7 @@ import net.ent.etnc.backend.models.enums.EtatMateriel;
 import net.ent.etnc.backend.models.enums.Role;
 import net.ent.etnc.backend.models.enums.TypeMateriel;
 import net.ent.etnc.backend.services.*;
+import net.ent.etnc.backend.services.commons.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class MaterielController {
 
     private static final Set<String> PATCHABLE = Set.of(
             "numeroSerie",
+            "mac",
             "nom",
             "marque",
             "modele",
@@ -63,6 +65,8 @@ public class MaterielController {
 
     private final MaterielService materielService;
     private final SalleService salleService;
+    private final BatimentService batimentService;
+    private final UserService userService;
 
     private final MaterielAssembler materielAssembler;
 
@@ -70,12 +74,14 @@ public class MaterielController {
     private final JsonPatchUtils jsonPatchUtils;
 
     @Autowired
-    public MaterielController(MaterielService materielService, MaterielAssembler materielAssembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils, SalleService salleService) {
+    public MaterielController(MaterielService materielService, MaterielAssembler materielAssembler, RsqlFilterUtils rsqlFilterUtils, JsonPatchUtils jsonPatchUtils, SalleService salleService, BatimentService batimentService, UserService userService) {
         this.materielService = materielService;
         this.materielAssembler = materielAssembler;
         this.rsqlFilterUtils = rsqlFilterUtils;
         this.jsonPatchUtils = jsonPatchUtils;
         this.salleService = salleService;
+        this.batimentService = batimentService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -86,7 +92,8 @@ public class MaterielController {
             @PageableDefault(size = 10) Pageable pageable,
             @RequestParam(required = false) Long salleId,
             @RequestParam(required = false) Long excludeSalleId,
-            @RequestParam(required = false) Boolean excludeStagiaire
+            @RequestParam(required = false, defaultValue = "false") Boolean excludeStagiaire,
+            @RequestParam(required = false) Long roomFromUserId
     ) {
         User curentUser = (User) authentication.getPrincipal();
 
@@ -102,6 +109,18 @@ public class MaterielController {
             return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId, excludeStagiaire).map(materielAssembler::toResponse));
         }
 
+        if(roomFromUserId != null){
+            Optional<User> stagiaire = userService.findById(roomFromUserId);
+            if(stagiaire.isEmpty()) return ResponseEntity.notFound().build();
+            Long stagiaireSalleId;
+            try {
+                stagiaireSalleId = salleService.findByStagiaire(stagiaire.get()).getId();
+            } catch (ServiceException e) {
+                return ResponseEntity.ok(Page.empty(pageable));
+            }
+            return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, stagiaireSalleId, true).map(materielAssembler::toResponse));
+        }
+
         // Si c'est c'est un gestionnaire ou un administrateur, on renvoie les matériels du parc informatique.
         if(salleId != null){
             return ResponseEntity.ok(materielService.findAllBySalleId(spec, pageable, salleId, excludeStagiaire).map(materielAssembler::toResponse));
@@ -113,11 +132,25 @@ public class MaterielController {
     }
 
     @GetMapping("{id}/")
-    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE', 'FORMATEUR')")
     public ResponseEntity<MaterielResponse> getById(@PathVariable Long id) {
-        return materielService.findById(id)
-                .map(m -> ResponseEntity.ok(materielAssembler.toResponse(m)))
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Materiel> materiel = materielService.findById(id);
+        if (materiel.isEmpty()) return ResponseEntity.notFound().build();
+
+        MaterielResponse response = materielAssembler.toResponse(materiel.get());
+        salleService.findByMaterielId(id).ifPresent(salle -> {
+            response.setSalleId(salle.getId());
+            response.setSalleNom(salle.getNom());
+            response.setNomBatiment(batimentService.findNomBySalleId(salle.getId()));
+        });
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("{id}/reinstall/")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE', 'FORMATEUR')")
+    public ResponseEntity<Void> reinstall(@PathVariable Long id) {
+        if (materielService.findById(id).isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.accepted().build();
     }
 
     @PostMapping
@@ -201,6 +234,8 @@ public class MaterielController {
             }
         }
         entity.setId(id);
+        entity.setEtat(patched.getEtat());
+        entity.setStagiaire(existing.get().getStagiaire());
         entity = materielService.update(entity);
         return ResponseEntity.ok(materielAssembler.toResponse(entity));
     }
