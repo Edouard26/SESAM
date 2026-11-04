@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -253,7 +254,7 @@ public class Init implements CommandLineRunner {
         }
     }
 
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private Materiel materielParId(Long id) throws ServiceException {
         return materielService.findById(id).orElseThrow(() -> new ServiceException("Matériel introuvable : " + id));
