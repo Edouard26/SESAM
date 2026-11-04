@@ -1,0 +1,22 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <proxies>
+        <proxy>
+            <id>proxy-etrs-http</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <host>172.16.0.1</host>
+            <port>8080</port>
+            <nonProxyHosts>localhost|10.*|svr-svn|*.prsi.net|172.168.128.162|172.16.*</nonProxyHosts>
+        </proxy>
+        <proxy>
+            <id>proxy-etrs-https</id>
+            <active>true</active>
+            <protocol>https</protocol>
+            <host>172.16.0.1</host>
+            <port>8080</port>
+            <nonProxyHosts>localhost|10.*|svr-svn|*.prsi.net|172.168.128.162|172.16.*</nonProxyHosts>
+        </proxy>
+    </proxies>
+</settings>

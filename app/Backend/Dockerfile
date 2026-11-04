@@ -9,6 +9,7 @@ EXPOSE 8080
 
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /build
+COPY maven-settings.xml /root/.m2/settings.xml
 COPY pom.xml .
 RUN mvn -q dependency:go-offline
 COPY src ./src
