@@ -4,9 +4,9 @@ import net.ent.etnc.backend.dtos.VideoProjecteurDto;
 import net.ent.etnc.backend.models.entities.VideoProjecteur;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-
+/**
+ * Convertit entre {@link VideoProjecteur} et ses représentations DTO.
+ */
 @Component
 public class VideoProjecteurAssembler {
 
@@ -19,10 +19,6 @@ public class VideoProjecteurAssembler {
                 .dateAjout(videoProjecteur.getDateAjout())
                 .dateFinGarantie(videoProjecteur.getDateFinGarantie())
                 .build();
-    }
-
-    public List<VideoProjecteurDto> toDtos(Collection<VideoProjecteur> videoProjecteurs) {
-        return videoProjecteurs.stream().map(this::toDto).toList();
     }
 
     public VideoProjecteur toEntity(VideoProjecteurDto videoProjecteurDto) {

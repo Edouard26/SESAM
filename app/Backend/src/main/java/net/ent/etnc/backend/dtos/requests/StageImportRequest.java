@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Corps de requête pour l'importation de stages.
+ */
 @Getter
 @Setter
 public class StageImportRequest {

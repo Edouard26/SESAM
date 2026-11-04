@@ -3,12 +3,11 @@ package net.ent.etnc.backend.dtos.assemblers;
 import net.ent.etnc.backend.dtos.requests.ProcessusRequest;
 import net.ent.etnc.backend.dtos.responses.ProcessusResponse;
 import net.ent.etnc.backend.models.entities.Processus;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * Convertit entre {@link Processus} et ses représentations DTO.
+ */
 @Component
 public class ProcessusAssembler {
 

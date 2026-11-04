@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * Réponse renvoyé après une importation de stages.
+ */
 @Getter
 @Setter
 @Builder

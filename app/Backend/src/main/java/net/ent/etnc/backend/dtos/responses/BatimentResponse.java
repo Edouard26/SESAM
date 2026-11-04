@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * Représentation sérialisable d'un bâtiment.
+ */
 @Getter
 @Setter
 @Builder

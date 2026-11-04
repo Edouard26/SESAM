@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * Request pour l'affectation de matériels dans une nouvelle salle.
+ * Corps de requête pour l'affectation de matériels dans une nouvelle salle.
  */
 @Getter
 @Setter

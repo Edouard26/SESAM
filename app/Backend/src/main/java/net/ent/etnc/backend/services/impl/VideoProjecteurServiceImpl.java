@@ -7,6 +7,9 @@ import net.ent.etnc.backend.services.commons.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implémentation du service de gestion des vidéos projecteurs.
+ */
 @Service
 public class VideoProjecteurServiceImpl extends AbstractService<VideoProjecteur, VideoProjecteurRepository> implements VideoProjecteurService {
 

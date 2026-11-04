@@ -6,6 +6,9 @@ import net.ent.etnc.backend.models.enums.TypeMateriel;
 
 import java.time.LocalDate;
 
+/**
+ * Représentation sérialisable d'un matériel informatique.
+ */
 @Getter
 @Setter
 @Builder
@@ -14,7 +17,6 @@ import java.time.LocalDate;
 public class MaterielResponse {
     private long id;
 
-//    private String typeMateriel;
     private TypeMateriel typeMateriel;
 
     private String numeroSerie;

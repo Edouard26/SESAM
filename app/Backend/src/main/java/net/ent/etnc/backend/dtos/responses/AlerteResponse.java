@@ -6,6 +6,9 @@ import net.ent.etnc.backend.models.enums.StatutAlerte;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Représentation sérialisable d'une alerte.
+ */
 @Getter
 @Setter
 @Builder

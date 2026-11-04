@@ -1,12 +1,14 @@
 package net.ent.etnc.backend.dtos.requests;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import net.ent.etnc.backend.models.validators.groups.UpdateGroup;
 
 import java.time.LocalDate;
 
+/**
+ * Corps de requête pour la création ou la mise à jour d'un stage.
+ */
 @Getter
 @Setter
 @Builder

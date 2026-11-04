@@ -6,6 +6,9 @@ import net.ent.etnc.backend.models.enums.StatutStage;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Représentation sérialisable d'un stage.
+ */
 @Getter
 @Setter
 @Builder

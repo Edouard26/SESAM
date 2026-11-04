@@ -1,19 +1,18 @@
 package net.ent.etnc.backend.dtos.assemblers;
 
-import net.ent.etnc.backend.dtos.requests.MaterielImportRequest;
 import net.ent.etnc.backend.dtos.requests.MaterielRequest;
 import net.ent.etnc.backend.dtos.responses.MaterielImportResponse;
 import net.ent.etnc.backend.dtos.responses.MaterielResponse;
-import net.ent.etnc.backend.models.entities.Ecran;
-import net.ent.etnc.backend.models.entities.Materiel;
-import net.ent.etnc.backend.models.entities.UniteCentrale;
-import net.ent.etnc.backend.models.entities.VideoProjecteur;
+import net.ent.etnc.backend.models.entities.*;
 import net.ent.etnc.backend.models.enums.TypeMateriel;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Convertit entre {@link Materiel} et ses représentations DTO.
+ */
 @Component
 public class MaterielAssembler {
 

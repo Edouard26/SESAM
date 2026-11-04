@@ -9,9 +9,9 @@ import net.ent.etnc.backend.services.BatimentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-
+/**
+ * Convertit entre {@link Salle} et ses représentations DTO.
+ */
 @Component
 public class SalleAssembler {
 
@@ -47,10 +47,6 @@ public class SalleAssembler {
                 .nbAlertes(alerteService.countAlerteInSalle(salle.getId()))
                 .regles(salle.getRegles().stream().map(regleAssembler::toResponse).toList())
                 .build();
-    }
-
-    public List<SalleResponse> toResponses(Collection<Salle> salles) {
-        return salles.stream().map(this::toResponse).toList();
     }
 
     public Salle toEntity(SalleRequest salleRequest) {

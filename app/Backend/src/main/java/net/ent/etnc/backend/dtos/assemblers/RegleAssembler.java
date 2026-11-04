@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+/**
+ * Convertit entre {@link Regle} et ses représentations DTO.
+ */
 @Component
 public class RegleAssembler {
 

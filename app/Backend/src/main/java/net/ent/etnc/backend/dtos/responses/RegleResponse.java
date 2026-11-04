@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * Représentation sérialisable d'une règle.
+ */
 @Getter
 @Setter
 @Builder
