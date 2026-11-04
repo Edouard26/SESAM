@@ -11,6 +11,7 @@ export type Room = {
     nbPlaces: number;
     nomBatiment: string;
     nbMaterielDispo: number;
+    nbAlertes?: number;
     materielsId?: number[];
     materiels?: Material[];
     regles?: Rule[];

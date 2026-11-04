@@ -9,7 +9,6 @@ import Room from "../pages/room/Room.tsx";
 import Monitoring from "../pages/monitoring/Monitoring.tsx";
 import Stages from "../pages/stage/Stages.tsx";
 import Alerts from "../pages/alert/Alerts.tsx";
-import Processus from "../pages/process/Processus.tsx";
 import Login from "../pages/login/Login.tsx";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 import Layout from "../components/layout/Layout.tsx";

@@ -1,0 +1,28 @@
+name: sesam-dev
+
+services:
+    backend:
+        build:
+            target: dev
+        working_dir: /workspace
+        command: sh -c 'find src -print | entr -nr mvn spring-boot:run'
+        volumes:
+            - ./Backend:/workspace
+            - maven_cache:/root/.m2
+        ports:
+            - "8080:8080"
+
+    front:
+        build:
+            target: dev
+        ports: !override
+            - "${FRONT_PORT:-8081}:5173"
+        volumes:
+            - ./Front:/workspace
+            - front_node_modules:/workspace/node_modules
+        environment:
+            VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+
+volumes:
+    maven_cache:
+    front_node_modules:

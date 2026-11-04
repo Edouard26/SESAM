@@ -41,25 +41,6 @@ function getStatus(etat: string | undefined): Badge {
     }
 }
 
-function getAlertStatus(statut: Alert["statut"]): Badge {
-    switch (statut) {
-        case "EN_ATTENTE":
-            return { label: "En attente", className: "text-bg-warning" };
-        case "TRAITEE":
-            return { label: "Traitée", className: "text-bg-success" };
-        case "ANNULEE":
-            return { label: "Annulée", className: "text-bg-secondary" };
-        default:
-            return { label: statut, className: "text-bg-secondary" };
-    }
-}
-
-function formatDate(date: string | Date | null | undefined): string {
-    if (!date) return "-";
-
-    return new Date(date).toLocaleDateString("fr-FR");
-}
-
 function StatCard({ label, value }: { label: string; value: string | number }) {
     return (
         <div className="col-12 col-md-6 col-xl">

@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import { masterApi, processApi } from "../../api";
 import type { Master, MasterForm } from "../../types/Master.ts";
 import type { Processus } from "../../types/Processus.ts";
-import { Role } from "../../types/Role.ts";
-import { useAuth } from "../../context/AuthContext.tsx";
 import useNotification from "../../hooks/useNotification.ts";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import PageHeader from "../../components/layout/PageHeader.tsx";
@@ -13,7 +10,6 @@ import Table, { type Column } from "../../components/generic/display/Table.tsx";
 import MasterPopup from "../../components/master/MasterPopup.tsx";
 
 export default function Masters() {
-    const { user } = useAuth();
     const { notify } = useNotification();
 
     const [processes, setProcesses] = useState<Processus[]>([]);
