@@ -9,7 +9,6 @@ import net.ent.etnc.backend.dtos.requests.StagiaireImportRequest;
 import net.ent.etnc.backend.dtos.requests.StagiaireRequest;
 import net.ent.etnc.backend.dtos.responses.StageResponse;
 import net.ent.etnc.backend.dtos.responses.StagiaireResponse;
-import net.ent.etnc.backend.models.entities.Materiel;
 import net.ent.etnc.backend.models.entities.Stage;
 import net.ent.etnc.backend.models.entities.User;
 import net.ent.etnc.backend.models.enums.Role;
@@ -25,8 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,18 +49,14 @@ public class UserController {
 
     private final UserService userService;
     private final StageService stageService;
-    private final MaterielService materielService;
-    private final SalleService salleService;
     private final UserAssembler assembler;
     private final StageAssembler stageAssembler;
 
     private final RsqlFilterUtils rsqlFilterUtils;
 
-    public UserController(UserService userService, StageService stageService, MaterielService materielService, SalleService salleService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils) {
+    public UserController(UserService userService, StageService stageService, UserAssembler assembler, StageAssembler stageAssembler, RsqlFilterUtils rsqlFilterUtils) {
         this.userService = userService;
         this.stageService = stageService;
-        this.materielService = materielService;
-        this.salleService = salleService;
         this.assembler = assembler;
         this.stageAssembler = stageAssembler;
         this.rsqlFilterUtils = rsqlFilterUtils;
