@@ -86,7 +86,7 @@ export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit
             }
         }
 
-        loadRooms();
+        void loadRooms();
     }, []);
 
     const canSubmit = salleId > 0 && selectedMaterials.length > 0 && !loading;

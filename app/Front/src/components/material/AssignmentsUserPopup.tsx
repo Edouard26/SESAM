@@ -65,7 +65,7 @@ export default function AssignmentsUserPopup({
             }
         }
 
-        loadUsers();
+        void loadUsers();
     }, [notify]);
 
     const selects = [

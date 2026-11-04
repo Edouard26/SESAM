@@ -23,7 +23,7 @@ export default function Users() {
             options: [
                 { label: "Tous", value: "" },
                 ...Object.keys(Role)
-                    .filter((key) => isNaN(Number(key)))
+                    .filter((key) => Number.isNaN(Number(key)))
                     .map((key) => ({ label: key, value: key })),
             ],
         },

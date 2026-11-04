@@ -68,9 +68,9 @@ export default function MasterPopup({
                 </div>
 
                 <div className="mb-3">
-                    <label className="form-label">
+                    <div className="form-label">
                         Processus associés
-                    </label>
+                    </div>
 
                     <MultiSelect
                         searchOptions={async (query) => ({

@@ -271,9 +271,9 @@ export default function Room() {
 
                     <div className="d-flex flex-column flex-md-row align-items-md-end gap-3">
                         <div className="flex-grow-1">
-                            <label className="form-label">
+                            <div className="form-label">
                                 Règles appliquées aux matériels de cette salle
-                            </label>
+                            </div>
 
                             <MultiSelect<Rule, number>
                                 searchOptions={async (query) => {

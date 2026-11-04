@@ -158,6 +158,7 @@ export default function Popup({
             {showConfirmation && (
                 <>
                     <div
+                        role="presentation"
                         className="modal-backdrop show"
                         style={{
                             position: "fixed",

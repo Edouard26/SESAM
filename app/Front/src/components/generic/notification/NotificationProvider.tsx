@@ -25,6 +25,8 @@ type NotificationContextType = {
 export const NotificationContext =
     createContext<NotificationContextType | null>(null);
 
+let nextNotificationId = 0;
+
 type NotificationProviderProps = {
     children: React.ReactNode;
 };
@@ -39,7 +41,7 @@ export default function NotificationProvider({ children }: NotificationProviderP
             variant: NotificationVariant = "info",
             duration: number = 5000
         ) => {
-            const id = Date.now() + Math.random();
+            const id = ++nextNotificationId;
 
             setNotifications(current => [
                 ...current,

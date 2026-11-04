@@ -18,7 +18,7 @@ export default function Confirmation({ title = "Confirmation", message, onConfir
 
     return (
         <>
-            <div onClick={() => setShow(true)}>
+            <div role="presentation" onClick={() => setShow(true)}>
                 {trigger}
             </div>
 
@@ -61,7 +61,7 @@ export default function Confirmation({ title = "Confirmation", message, onConfir
                             </div>
                         </div>
                     </div>
-                    <div className="modal-backdrop fade show" onClick={() => setShow(false)}/>
+                    <div role="presentation" className="modal-backdrop fade show" onClick={() => setShow(false)}/>
                 </>
             )}
         </>

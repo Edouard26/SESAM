@@ -40,7 +40,7 @@ export default function AssignStageRoomPopup({
             }
         }
 
-        loadRooms();
+        void loadRooms();
     }, []);
 
     const canSubmit = roomId > 0 && !loading;

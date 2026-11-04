@@ -171,7 +171,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
                             required
                         >
                             {Object.keys(Grade)
-                                .filter((grade) => isNaN(Number(grade)))
+                                .filter((grade) => Number.isNaN(Number(grade)))
                                 .map((grade) => (
                                     <option key={grade} value={grade}>
                                         {grade}

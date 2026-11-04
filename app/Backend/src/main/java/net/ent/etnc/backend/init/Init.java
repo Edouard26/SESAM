@@ -253,10 +253,15 @@ public class Init implements CommandLineRunner {
         }
     }
 
+    private static final Random RANDOM = new Random();
+
+    private Materiel materielParId(Long id) throws ServiceException {
+        return materielService.findById(id).orElseThrow(() -> new ServiceException("Matériel introuvable : " + id));
+    }
+
     public static String generateRandomMac() {
-        Random rand = new Random();
         byte[] macAddr = new byte[6];
-        rand.nextBytes(macAddr);
+        RANDOM.nextBytes(macAddr);
 
         // Définir le bit administré localement (bit 2 du premier octet) et s'assurer que le bit de multidiffusion est à 0
         macAddr[0] = (byte) (macAddr[0] & (byte) 0xFC | 0x02);
@@ -333,27 +338,27 @@ public class Init implements CommandLineRunner {
         LocalDateTime maintenant = LocalDateTime.now();
         // salleid: 3
         alerteService.create(buildAlerte(signaleur, maintenant.minusHours(2), null, null, "Ecran sans affichage", "L'ecran reste noir apres le demarrage du poste.", StatutAlerte.EN_ATTENTE,
-                materielService.findById(144L).get()));
+                materielParId(144L)));
 
         // salleid: 1
         alerteService.create(buildAlerte(signaleur, maintenant.minusDays(15), resolveur, maintenant.minusDays(10), "Probleme de demarrage", "Le poste ne demarrait plus. Alimentation remplacee.", StatutAlerte.TRAITEE,
-                materielService.findById(1L).get()));
+                materielParId(1L)));
         alerteService.create(buildAlerte(signaleur, maintenant.minusDays(20), resolveur, maintenant.minusDays(19), "Signalement en double", "Signalement annule car le probleme etait deja declare.", StatutAlerte.ANNULEE,
-                materielService.findById(2L).get()));
+                materielParId(2L)));
 
         // salleid: 62
         alerteService.create(buildAlerte(signaleur, maintenant.minusDays(21), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
-                materielService.findById(304L).get()));
+                materielParId(304L)));
         alerteService.create(buildAlerte(signaleur, maintenant.minusDays(24), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
-                materielService.findById(136L).get()));
+                materielParId(136L)));
         alerteService.create(buildAlerte(signaleur, maintenant.minusDays(25), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
-                materielService.findById(327L).get()));
+                materielParId(327L)));
 
         // salleid: 19
         alerteService.create(buildAlerte(signaleur, maintenant.minusDays(22), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
-                materielService.findById(231L).get()));
+                materielParId(231L)));
         alerteService.create(buildAlerte(signaleur, maintenant.minusDays(23), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
-                materielService.findById(471L).get()));
+                materielParId(471L)));
 
     }
 

@@ -35,7 +35,7 @@ export default function RuleFormPopup({ rule, processes, saving, onClose, onSubm
                     <input id="rule-name" className="form-control" value={nom} maxLength={20} required onChange={(event) => setNom(event.target.value)} />
                 </div>
                 <div className="mb-3">
-                    <label className="form-label">Processus interdits</label>
+                    <div className="form-label">Processus interdits</div>
                     <MultiSelect
                         searchOptions={async (query) => ({ content: processes.filter((process) => process.nom.toLocaleLowerCase("fr").includes(query.toLocaleLowerCase("fr"))) })}
                         getOptionValue={(process) => process.id}

@@ -36,6 +36,7 @@ export default function MultiSelect<TOption, TValue extends string | number>({
     const [error, setError] = useState(false);
 
     const root = useRef<HTMLDivElement>(null);
+    const searchInput = useRef<HTMLInputElement>(null);
     const searchOptionsRef = useRef(searchOptions);
     const getOptionValueRef = useRef(getOptionValue);
     const menuId = useId();
@@ -44,6 +45,10 @@ export default function MultiSelect<TOption, TValue extends string | number>({
         searchOptionsRef.current = searchOptions;
         getOptionValueRef.current = getOptionValue;
     }, [searchOptions, getOptionValue]);
+
+    useEffect(() => {
+        if (open) searchInput.current?.focus();
+    }, [open]);
 
     // Recharge les options à l'ouverture et à chaque changement de recherche
     useEffect(() => {
@@ -82,7 +87,7 @@ export default function MultiSelect<TOption, TValue extends string | number>({
             }
         }
 
-        loadOptions();
+        void loadOptions();
 
         return () => {
             active = false;
@@ -250,13 +255,13 @@ export default function MultiSelect<TOption, TValue extends string | number>({
                     style={{ zIndex: 1050 }}
                 >
                     <input
+                        ref={searchInput}
                         type="text"
                         className="form-control"
                         placeholder="Rechercher..."
                         value={search}
                         disabled={disabled}
                         onChange={event => setSearch(event.target.value)}
-                        autoFocus
                     />
 
                     <div className="overflow-y-auto mt-1" style={{ maxHeight: 280 }}>

@@ -63,7 +63,7 @@ export default function AlertPopup({ onClose, blurBackground, onSubmit }: Props)
             }
         }
 
-        loadMaterials();
+        void loadMaterials();
     }, [notify]);
 
     function handleChange(

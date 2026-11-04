@@ -109,7 +109,7 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
             }
         }
 
-        loadRooms();
+        void loadRooms();
 
         const initial: MaterialAssignmentForm = { ...materialAssignmentTemplate };
 

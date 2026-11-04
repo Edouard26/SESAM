@@ -17,7 +17,7 @@ export const text = (): Field<string> => ({
 });
 
 export const email = (): Field<string> => ({
-    parse: (v) => typeof v === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+    parse: (v) => typeof v === "string" && /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(v)
         ? { value: v }
         : { error: "doit être une adresse email valide" },
 });

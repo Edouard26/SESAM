@@ -44,7 +44,7 @@ export default function Process() {
             }
         };
 
-        loadProcesses();
+        void loadProcesses();
 
         return () => {
             cancelled = true;

@@ -57,7 +57,7 @@ export default function ImportUsersPopup({ onClose, blurBackground, onSubmit }: 
             }
         }
 
-        loadStages();
+        void loadStages();
     }, []);
 
     const canSubmit = stageId > 0 && selectedUsers.length > 0 && !loading;
