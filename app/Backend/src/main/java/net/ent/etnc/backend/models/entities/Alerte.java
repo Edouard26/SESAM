@@ -20,9 +20,11 @@ import java.util.List;
  * Entité représentant une alerte.
  * <p>Une alerte est signalé par un stagiaire ou un formateur si il y a un problème sur un matériel.</p>
  * <p>
- *     Règle de gestion:<br>
- *              - une alerte est signalée par un stagiaire sur un de ses matériels ou par un formateur sur un matériel qui dans la salle dans lequel il fait cours<br>
- *              - une alerte est résolue par un gestionnaire ou un administrateur
+ *     Règle de gestion:
+ *     <ul>
+ *            <li>une alerte est signalée par un stagiaire sur un de ses matériels ou par un formateur sur un matériel qui dans la salle dans lequel il fait cours</li>
+ *            <li>une alerte est résolue par un gestionnaire ou un administrateur</li>
+ *     </ul>
  * </p>
  */
 @Entity
@@ -97,9 +99,9 @@ public class Alerte extends AbstractPersistableWithIdSetter<Long> {
 
         /**
          * Statut de l'alerte en fonction si il a déjà été traité ou non.
-         * <p>{@code EN_ATTENTE} si le problème n'est pas encore résolu.<br>
-         * {@code TRAITEE} si le problème a été résolu.<br>
-         * {@code ANNULEE} si le problème n'était pas un vrai problème.</p>
+         * <ul><li>{@code EN_ATTENTE} si le problème n'est pas encore résolu.</li>
+         * <li>{@code TRAITEE} si le problème a été résolu.</li>
+         * <li>{@code ANNULEE} si le problème n'était pas un vrai problème.</li></ul>
          */
         //LBK
         @Getter

@@ -91,6 +91,13 @@ public class Stage extends AbstractPersistableWithIdSetter<Long> {
         @JoinColumn(name = "salle_cours_id", foreignKey = @ForeignKey(name = "fk___stage___salle_cours_id"), nullable = true)
         private Salle salleCours;
 
+        /**
+         * <ul>
+         * <li>{@code DISPONIBLE} si i n'y a pas de stage dans la salle.</li>
+         * <li>{@code MAINTENANCE} si la salle est en maitenance.</li>
+         * <li>{@code INDISPONIBLE} si il y a un stage dans la salle.</li>
+         * </ul>
+         */
         //LBK
         @Getter
         @Setter

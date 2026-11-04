@@ -54,6 +54,12 @@ public class Salle extends AbstractPersistableWithIdSetter<Long> {
         @Column(name = "nbPlaces", nullable = false)
         private Integer nbPlaces;
 
+        /**
+         * <ul>
+         * <li>{@code STOCKAGE} si c'est une salle de stockage.</li>
+         * <li>{@code COURS} si c'est une salle de cours.</li>
+         * </ul>
+         */
         //LBK
         @Getter
         @Setter
@@ -64,6 +70,13 @@ public class Salle extends AbstractPersistableWithIdSetter<Long> {
         @Column(name = "type", nullable = false, length = 10)
         private TypeSalle typeSalle;
 
+        /**
+         * <ul>
+         * <li>{@code DISPONIBLE} si il n'y a pas de stage dans la salle.</li>
+         * <li>{@code MAINTENANCE} si la salle est en maitenance.</li>
+         * <li>{@code INDISPONIBLE} si il y a un stage dans la salle.</li>
+         * </ul>
+         */
         //LBK
         @Getter
         @Setter
