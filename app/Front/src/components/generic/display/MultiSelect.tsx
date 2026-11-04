@@ -9,6 +9,8 @@ type MultiSelectProps<TOption, TValue extends string | number> = {
     onChange: (value: TValue[]) => void;
     selectedOptions?: TOption[];
     maxOptions?: number;
+    maxSelected?: number;
+    placeholder?: string;
     disabled?: boolean;
 };
 
@@ -23,6 +25,8 @@ export default function MultiSelect<TOption, TValue extends string | number>({
                                                                                  selectedOptions = [],
                                                                                  disabled = false,
                                                                                  maxOptions = 10,
+                                                                                 maxSelected,
+                                                                                 placeholder = "Sélectionner des éléments",
                                                                              }: MultiSelectProps<TOption, TValue>) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
@@ -141,9 +145,17 @@ export default function MultiSelect<TOption, TValue extends string | number>({
         .filter((option): option is TOption => option !== undefined);
 
     const visible = options.slice(0, Math.max(1, Math.floor(maxOptions)));
+    const limitReached = maxSelected !== undefined && maxSelected > 1 && value.length >= maxSelected;
 
     function toggleOption(option: TOption) {
         const optionValue = getOptionValue(option);
+
+        if (value.includes(optionValue)) {
+            onChange(value.filter(item => item !== optionValue));
+            return;
+        }
+
+        if (limitReached) return;
 
         setOptionCache(previous => {
             const next = new Map(previous);
@@ -151,11 +163,7 @@ export default function MultiSelect<TOption, TValue extends string | number>({
             return next;
         });
 
-        onChange(
-            value.includes(optionValue)
-                ? value.filter(item => item !== optionValue)
-                : [...value, optionValue]
-        );
+        onChange(maxSelected === 1 ? [optionValue] : [...value, optionValue]);
     }
 
     function toggleDropdown() {
@@ -197,7 +205,7 @@ export default function MultiSelect<TOption, TValue extends string | number>({
                 <div className="d-flex flex-wrap align-items-center gap-1 flex-grow-1">
                     {selected.length === 0 ? (
                         <span className="text-body-secondary">
-                            Sélectionner des éléments
+                            {placeholder}
                         </span>
                     ) : (
                         selected.map(option => {
@@ -270,10 +278,11 @@ export default function MultiSelect<TOption, TValue extends string | number>({
                                 const optionLabel = getOptionLabel(option);
 
                                 const optionDisabled =
-                                    typeof option === "object" &&
+                                    (typeof option === "object" &&
                                     option !== null &&
                                     "disabled" in option &&
-                                    Boolean(option.disabled);
+                                    Boolean(option.disabled)) ||
+                                    (limitReached && !value.includes(optionValue));
 
                                 return (
                                     <label

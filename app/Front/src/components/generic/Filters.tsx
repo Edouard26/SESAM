@@ -1,19 +1,40 @@
-type FilterOption = {
+import MultiSelect from "./display/MultiSelect.tsx";
+
+export type FilterOption = {
     label: string;
     value: string;
 };
 
 type SelectFilter = {
+    type?: "select";
     name: string;
     label: string;
     options: FilterOption[];
 };
 
+type MultiSelectFilter = {
+    type: "multiselect";
+    name: string;
+    label: string;
+    searchOptions: (query: string) => Promise<{ content: FilterOption[] }>;
+    maxSelected?: number;
+    placeholder?: string;
+};
+
+export type FilterField = SelectFilter | MultiSelectFilter;
+
+const getFilterOptionValue = (option: FilterOption) => option.value;
+const getFilterOptionLabel = (option: FilterOption) => option.label;
+
+function splitValues(value: string | undefined): string[] {
+    return value ? value.split(",").filter((item) => item !== "") : [];
+}
+
 type FiltersProps = {
     search?: string;
     searchLabel?: string;
     searchPlaceholder?: string;
-    selects?: SelectFilter[];
+    selects?: FilterField[];
     values: Record<string, string>;
     onSearchChange?: (value: string) => void;
     onFilterChange: (name: string, value: string) => void;
@@ -33,7 +54,7 @@ export default function Filters({
     embedded = false,
 }: FiltersProps) {
     return (
-        <div className={embedded ? "p-3 border overflow-hidden" : "card border mb-4"}>
+        <div className={embedded ? "p-3 border" : "card border mb-4"}>
             <div className={embedded ? "" : "card-body"}>
                 <div className="row g-3 align-items-end">
                     {onSearchChange && (
@@ -58,33 +79,58 @@ export default function Filters({
                             key={filter.name}
                             className="col-12 col-sm-6 col-lg"
                         >
-                            <label
-                                htmlFor={filter.name}
-                                className="form-label"
-                            >
-                                {filter.label}
-                            </label>
+                            {filter.type === "multiselect" ? (
+                                <>
+                                    <label className="form-label">
+                                        {filter.label}
+                                    </label>
 
-                            <select
-                                id={filter.name}
-                                className="form-select"
-                                value={values[filter.name] ?? ""}
-                                onChange={(event) =>
-                                    onFilterChange(
-                                        filter.name,
-                                        event.target.value
-                                    )
-                                }
-                            >
-                                {filter.options.map((option) => (
-                                    <option
-                                        key={option.value}
-                                        value={option.value}
+                                    <MultiSelect
+                                        searchOptions={filter.searchOptions}
+                                        getOptionValue={getFilterOptionValue}
+                                        getOptionLabel={getFilterOptionLabel}
+                                        value={splitValues(values[filter.name])}
+                                        onChange={(selected) =>
+                                            onFilterChange(
+                                                filter.name,
+                                                selected.join(",")
+                                            )
+                                        }
+                                        maxSelected={filter.maxSelected}
+                                        placeholder={filter.placeholder}
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <label
+                                        htmlFor={filter.name}
+                                        className="form-label"
                                     >
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                                        {filter.label}
+                                    </label>
+
+                                    <select
+                                        id={filter.name}
+                                        className="form-select"
+                                        value={values[filter.name] ?? ""}
+                                        onChange={(event) =>
+                                            onFilterChange(
+                                                filter.name,
+                                                event.target.value
+                                            )
+                                        }
+                                    >
+                                        {filter.options.map((option) => (
+                                            <option
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </>
+                            )}
                         </div>
                     ))}
 

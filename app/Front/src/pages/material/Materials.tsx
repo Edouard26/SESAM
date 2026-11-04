@@ -1,9 +1,9 @@
 import PageHeader from "../../components/layout/PageHeader.tsx";
-import Filters from "../../components/generic/Filters.tsx";
+import Filters, {type FilterField} from "../../components/generic/Filters.tsx";
 import Table, {type Column} from "../../components/generic/display/Table.tsx";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {materialApi} from "../../api";
+import {materialApi, roomApi} from "../../api";
 import { routes } from "../../router/routes.ts";
 import type {Material} from "../../types/Material.ts";
 import MaterialPopup from "../../components/material/MaterialPopup.tsx";
@@ -11,6 +11,17 @@ import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import AssignmentsPopup from "../../components/material/AssignmentsPopup.tsx";
 import ImportMaterialsPopup from "../../components/material/ImportMaterialsPopup.tsx";
 import AssignmentsUserPopup from "../../components/material/AssignmentsUserPopup.tsx";
+
+async function searchRooms(query: string) {
+    const rooms = await roomApi.list({ search: query, page: 0, size: 20 });
+    return {
+        content: rooms.content.map((room) => ({ label: room.nom, value: String(room.id) })),
+    };
+}
+
+function loadMaterials(params?: Parameters<typeof materialApi.list>[0]) {
+    return materialApi.list(params?.salleId ? { ...params, excludeStagiaire: false } : params);
+}
 
 // Liste paginée des matériels (recherche, filtres, tri) avec les popups d'ajout/modification, d'affectation et d'import
 export default function Materials() {
@@ -21,7 +32,7 @@ export default function Materials() {
     const [showImportPopup, setShowImportPopup] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>();
 
-    const selects = [
+    const selects: FilterField[] = [
         {
             name: "type",
             label: "Type",
@@ -43,12 +54,12 @@ export default function Materials() {
             ],
         },
         {
+            type: "multiselect",
             name: "salleId",
             label: "Salle",
-            options: [
-                { label: "Toutes", value: "" },
-                { label: "Salle A101", value: "1" },
-            ],
+            searchOptions: searchRooms,
+            maxSelected: 1,
+            placeholder: "Toutes",
         },
     ];
 
@@ -57,7 +68,7 @@ export default function Materials() {
     );
 
     const {search, filters, items: materials, loading, page, totalPages, totalElements, sort, setSort, setPage, setSearch, handleFilterChange, resetFilters, reload,} = usePaginatedList({
-        load: materialApi.list,
+        load: loadMaterials,
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
