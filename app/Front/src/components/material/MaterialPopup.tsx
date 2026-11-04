@@ -211,14 +211,7 @@ export default function MaterialPopup({ material, onClose, blurBackground, onSub
                         <label htmlFor="modele" className="form-label">
                             Modèle <span className="text-danger">*</span>
                         </label>
-                        <select id="modele" name="modele" className="form-select" value={values.modele} onChange={handleChange} required>
-                            <option value="" disabled>Choisir un Modèle</option>
-                            <option value="modele1">Modèle 1</option>
-                            <option value="modele2">Modèle 2</option>
-                            <option value="modele3">Modèle 3</option>
-                            <option value="modele11">Modèle 11</option>
-                            <option value="modele12">Modèle 12</option>
-                        </select>
+                        <input id="modele" name="modele" type="text" className="form-control" value={values.modele} onChange={handleChange} required/>
                     </div>
 
                     <div className="col-12 col-md-6">
