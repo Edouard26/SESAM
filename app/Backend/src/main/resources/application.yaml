@@ -35,8 +35,8 @@ app:
     jwt:
       # Clé secrète pour signer les tokens JWT (min. 64 caractères en production)
       secret: ${APP_SECURITY_JWT_SECRET:squelette-secret-key-very-long-at-least-64-characters-long-for-security}
-      # Access token : 15 minutes (courte durée = fenêtre de vol réduite)
-      #      expiration: 900000
-      expiration: 90000000000
-      expiration-ms: 3600000000000
+      # Access token : 8 heures
+      expiration: 28800000
+      expiration-ms: 28800000
+      # Refresh token : 7 jours
       refresh-expiration-ms: 604800000
