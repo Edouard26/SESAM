@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Corps de requête pour l'application d'une règle à une salle.
+ */
 @Getter
 @Setter
 public class SalleReglesRequest {

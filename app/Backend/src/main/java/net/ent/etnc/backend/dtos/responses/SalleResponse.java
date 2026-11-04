@@ -7,6 +7,9 @@ import net.ent.etnc.backend.models.enums.TypeSalle;
 
 import java.util.List;
 
+/**
+ * Représentation sérialisable d'une salle.
+ */
 @Getter
 @Setter
 @Builder

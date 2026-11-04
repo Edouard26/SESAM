@@ -4,8 +4,9 @@ import net.ent.etnc.backend.dtos.UniteCentraleDto;
 import net.ent.etnc.backend.models.entities.UniteCentrale;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
+/**
+ * Convertit entre {@link UniteCentrale} et ses représentations DTO.
+ */
 
 @Component
 public class UniteCentraleAssembler {
@@ -22,10 +23,6 @@ public class UniteCentraleAssembler {
                 .CPU(uniteCentrale.getProcesseur())
                 .GPU(uniteCentrale.getCarteGraphique())
                 .build();
-    }
-
-    public List<UniteCentraleDto> toDtos(Collection<UniteCentrale> uniteCentrales) {
-        return uniteCentrales.stream().map(this::toDto).toList();
     }
 
     public UniteCentrale toEntity(UniteCentraleDto uniteCentraleDto) {

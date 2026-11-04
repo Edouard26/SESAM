@@ -5,9 +5,9 @@ import net.ent.etnc.backend.dtos.responses.BatimentResponse;
 import net.ent.etnc.backend.models.entities.Batiment;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-
+/**
+ * Convertit entre {@link Batiment} et ses représentations DTO.
+ */
 @Component
 public class BatimentAssembler {
 
@@ -21,10 +21,6 @@ public class BatimentAssembler {
                                 .toList()
                         )
                 .build();
-    }
-
-    public List<BatimentResponse> toResponses(Collection<Batiment> batiments) {
-        return batiments.stream().map(this::toResponse).toList();
     }
 
     public Batiment toEntity(BatimentRequest batimentRequest) {

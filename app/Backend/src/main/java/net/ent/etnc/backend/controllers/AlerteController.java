@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Endpoint REST pour la gestion des alertes ({@code /api/v1/alerts/}).
+ */
 @RestController
 @RequestMapping("/api/v1/alerts/")
 public class AlerteController {

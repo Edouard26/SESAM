@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+/**
+ * Convertit entre {@link Master} et ses représentations DTO.
+ */
 @Component
 public class MasterAssembler {
 

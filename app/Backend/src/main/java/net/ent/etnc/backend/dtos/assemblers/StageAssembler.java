@@ -10,9 +10,11 @@ import net.ent.etnc.backend.services.commons.ServiceException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
+/**
+ * Convertit entre {@link Stage} et ses représentations DTO.
+ */
 @Component
 public class StageAssembler {
 

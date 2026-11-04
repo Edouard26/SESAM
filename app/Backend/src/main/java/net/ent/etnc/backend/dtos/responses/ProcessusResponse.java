@@ -2,6 +2,9 @@ package net.ent.etnc.backend.dtos.responses;
 
 import lombok.*;
 
+/**
+ * Représentation sérialisable d'un processus.
+ */
 @Getter
 @Setter
 @Builder

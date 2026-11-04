@@ -5,6 +5,9 @@ import net.ent.etnc.backend.models.enums.StatutAlerte;
 
 import java.time.LocalDateTime;
 
+/**
+ * Corps de requête pour la résolution d'une alerte.
+ */
 @Getter
 @Setter
 @Builder

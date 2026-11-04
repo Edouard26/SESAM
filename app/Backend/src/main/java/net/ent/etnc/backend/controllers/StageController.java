@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * TODO
+ * Endpoint REST pour la gestion des stages ({@code /api/v1/stages/}).
  */
 @RestController
 @RequestMapping("/api/v1/stages/")

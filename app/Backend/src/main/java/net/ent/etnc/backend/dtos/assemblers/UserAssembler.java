@@ -6,9 +6,9 @@ import net.ent.etnc.backend.dtos.responses.StagiaireResponse;
 import net.ent.etnc.backend.models.entities.User;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-
+/**
+ * Convertit entre {@link User} et ses représentations DTO.
+ */
 @Component
 public class UserAssembler {
 
@@ -38,10 +38,6 @@ public class UserAssembler {
                 .role(stagiaire.getRole())
                 .active(stagiaire.isActive())
                 .build();
-    }
-
-    public List<UserDto> toDtos(Collection<User> users){
-        return users.stream().map(this::toDto).toList();
     }
 
     public User toEntity(UserDto userDto){
