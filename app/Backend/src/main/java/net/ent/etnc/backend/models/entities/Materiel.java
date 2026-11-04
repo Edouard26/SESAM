@@ -31,6 +31,9 @@ import java.time.LocalDate;
 @ToString(callSuper = true, of = {"numeroSerie", "marque", "modele", "dateAjout", "dateFinGarantie", "etat"})
 public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
 
+        /**
+         * Numéro de série du matériel.
+         */
         //LBK
         @Getter
         @Setter
@@ -41,6 +44,9 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @Column(name = "numero_serie", nullable = false, length = 20)
         private String numeroSerie;
 
+        /**
+         * Adresse MAC du matériel.
+         */
         //LBK
         @Getter
         @Setter
@@ -99,6 +105,13 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @Column(name = "date_fin_garantie", nullable = false)
         private LocalDate dateFinGarantie;
 
+        /**
+         * <ul>
+         * <li>{@code EN_ETAT} si le matériel fonctionne.</li>
+         * <li>{@code EN_MAINTENANCE} si le matériel est en maintenance.</li>
+         * <li>{@code DEPRECIER} si le matériel n'est plus utilisé.</li>
+         * </ul>
+         */
         //LBK
         @Getter
         @Setter
@@ -108,7 +121,10 @@ public abstract class Materiel extends AbstractPersistableWithIdSetter<Long> {
         @Enumerated(value = EnumType.STRING)
         @Column(name = "etat", nullable = false, length = 15)
         private EtatMateriel etat = EtatMateriel.EN_ETAT;
-        
+
+        /**
+         * Stagiaire auquel le matériel est affecté.
+         */
         //LBK
         @Getter
         @Setter

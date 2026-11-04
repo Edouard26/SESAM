@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Représente un bâtiment.
  *
- * Il est constitué d'une liste de salle.
+ *<p> Il est constitué d'une liste de salle.</p>
  */
 @Entity
 @Table(
