@@ -1,9 +1,10 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { roomApi } from "../../api";
 import type { Master } from "../../types/Master.ts";
 import type { Room } from "../../types/Room.ts";
 import useNotification from "../../hooks/useNotification.ts";
+import Popup from "../generic/overlay/Popup.tsx";
 
 type MasterDeployPopupProps = {
     master: Master;
@@ -11,7 +12,7 @@ type MasterDeployPopupProps = {
     onSubmit: () => void;
 };
 
-// Popup de sélection d'une salle et de réinstallation pour un master
+// Popup permettant de sélectionner une salle et de lancer sa réinstallation
 export default function MasterDeployPopup({
                                               master,
                                               onClose,
@@ -23,7 +24,7 @@ export default function MasterDeployPopup({
     const [selectedRoomId, setSelectedRoomId] = useState("");
     const [loading, setLoading] = useState(true);
     const [reinstalling, setReinstalling] = useState(false);
-    const [confirming, setConfirming] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const selectedRoom = rooms.find(
         (room) => String(room.id) === selectedRoomId
@@ -35,6 +36,7 @@ export default function MasterDeployPopup({
 
         async function loadRooms() {
             setLoading(true);
+            setError(null);
 
             try {
                 const result = await roomApi.list({
@@ -52,7 +54,7 @@ export default function MasterDeployPopup({
                 }
             } catch {
                 if (!cancelled) {
-                    notify("Impossible de charger les salles.", "danger");
+                    setError("Impossible de charger les salles.");
                 }
             } finally {
                 if (!cancelled) {
@@ -66,10 +68,12 @@ export default function MasterDeployPopup({
         return () => {
             cancelled = true;
         };
-    }, [notify]);
+    }, []);
 
     // Lance la réinstallation de la salle sélectionnée
-    async function reinstallRoom() {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
         if (!selectedRoom || reinstalling) return;
 
         setReinstalling(true);
@@ -83,7 +87,6 @@ export default function MasterDeployPopup({
             );
 
             onSubmit();
-            onClose();
         } catch {
             notify(
                 "Impossible de lancer la réinstallation de la salle.",
@@ -95,144 +98,94 @@ export default function MasterDeployPopup({
     }
 
     return (
-        <>
-            <div
-                className="modal fade show d-block"
-                tabIndex={-1}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="master-deploy-title"
-            >
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5
-                                className="modal-title"
-                                id="master-deploy-title"
-                            >
-                                {confirming
-                                    ? "Confirmer le plaquage"
-                                    : "Plaquer un master"}
-                            </h5>
-
-                            <button
-                                type="button"
-                                className="btn-close"
-                                aria-label="Fermer"
-                                disabled={reinstalling}
-                                onClick={onClose}
-                            />
-                        </div>
-
-                        <div className="modal-body">
-                            <p>
-                                Master : <strong>{master.nom}</strong>
-                            </p>
-
-                            {!confirming ? (
-                                <>
-                                    <label
-                                        htmlFor="master-deploy-room"
-                                        className="form-label"
-                                    >
-                                        Salle de destination
-                                    </label>
-
-                                    <select
-                                        id="master-deploy-room"
-                                        className="form-select"
-                                        value={selectedRoomId}
-                                        onChange={(event) =>
-                                            setSelectedRoomId(
-                                                event.target.value
-                                            )
-                                        }
-                                        disabled={loading}
-                                    >
-                                        <option value="">
-                                            Sélectionner une salle
-                                        </option>
-
-                                        {rooms.map((room) => (
-                                            <option
-                                                key={room.id}
-                                                value={room.id}
-                                            >
-                                                {room.nom} - {room.nomBatiment}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    {loading && (
-                                        <div className="form-text">
-                                            Chargement des salles...
-                                        </div>
-                                    )}
-
-                                    {!loading && rooms.length === 0 && (
-                                        <div className="alert alert-info mt-3 mb-0">
-                                            Aucune salle de cours disponible.
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <div className="alert alert-warning mb-0">
-                                    <i className="bi bi-exclamation-triangle me-2" />
-                                    Tous les postes de la salle{" "}
-                                    <strong>{selectedRoom?.nom}</strong>{" "}
-                                    seront réinstallés.
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="modal-footer">
-                            <button
-                                type="button"
-                                className="btn btn-outline-secondary"
-                                disabled={reinstalling}
-                                onClick={() => {
-                                    if (confirming) {
-                                        setConfirming(false);
-                                    } else {
-                                        onClose();
-                                    }
-                                }}
-                            >
-                                {confirming ? "Retour" : "Annuler"}
-                            </button>
-
-                            {!confirming ? (
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    disabled={
-                                        !selectedRoomId ||
-                                        loading ||
-                                        reinstalling
-                                    }
-                                    onClick={() => setConfirming(true)}
-                                >
-                                    Continuer
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    disabled={reinstalling}
-                                    onClick={() => void reinstallRoom()}
-                                >
-                                    <i className="bi bi-arrow-repeat me-2" />
-                                    {reinstalling
-                                        ? "Réinstallation..."
-                                        : "Confirmer le plaquage"}
-                                </button>
-                            )}
-                        </div>
-                    </div>
+        <Popup
+            title="Plaquer un master"
+            onClose={onClose}
+            size="modal-md"
+            confirmOnSubmit
+            confirmationTitle="Confirmer le plaquage ?"
+            confirmationMessage={
+                `Tous les postes de la salle ${selectedRoom?.nom ?? ""} ` +
+                `seront réinstallés avec le master ${master.nom}.`
+            }
+            confirmationLabel="Confirmer le plaquage"
+            actions={
+                <button
+                    type="submit"
+                    form="master-deploy-form"
+                    className="btn btn-primary"
+                    disabled={!selectedRoom || loading || reinstalling}
+                >
+                    <i className="bi bi-pc-display me-2" />
+                    Plaquer
+                </button>
+            }
+        >
+            <form id="master-deploy-form" onSubmit={handleSubmit}>
+                <div className="mb-3">
+                    <label className="form-label">Master</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        value={master.nom}
+                        disabled
+                    />
                 </div>
-            </div>
 
-            <div className="modal-backdrop fade show" />
-        </>
+                <div className="mb-3">
+                    <label
+                        htmlFor="master-deploy-room"
+                        className="form-label"
+                    >
+                        Salle de destination
+                    </label>
+
+                    <select
+                        id="master-deploy-room"
+                        className="form-select"
+                        value={selectedRoomId}
+                        onChange={(event) =>
+                            setSelectedRoomId(event.target.value)
+                        }
+                        disabled={loading || error !== null}
+                        required
+                    >
+                        <option value="">
+                            Sélectionner une salle
+                        </option>
+
+                        {rooms.map((room) => (
+                            <option key={room.id} value={room.id}>
+                                {room.nom} - {room.nomBatiment}
+                            </option>
+                        ))}
+                    </select>
+
+                    {loading && (
+                        <div className="form-text">
+                            Chargement des salles...
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="text-danger small mt-2">
+                            {error}
+                        </div>
+                    )}
+
+                    {!loading && !error && rooms.length === 0 && (
+                        <div className="text-body-secondary small mt-2">
+                            Aucune salle de cours disponible.
+                        </div>
+                    )}
+                </div>
+
+                <div className="alert alert-warning mb-0">
+                    <i className="bi bi-exclamation-triangle me-2" />
+                    La réinstallation concerne tous les postes de la salle
+                    sélectionnée.
+                </div>
+            </form>
+        </Popup>
     );
 }

@@ -157,12 +157,11 @@ export default function Masters() {
                 />
             )}
 
-            {creating && (
-                <MasterPopup
-                    processes={processes}
-                    saving={saving}
-                    onClose={() => setCreating(false)}
-                    onSubmit={(form) => void saveMaster(form)}
+            {masterToDeploy && (
+                <MasterDeployPopup
+                    master={masterToDeploy}
+                    onClose={() => setMasterToDeploy(null)}
+                    onSubmit={() => setMasterToDeploy(null)}
                 />
             )}
         </>
