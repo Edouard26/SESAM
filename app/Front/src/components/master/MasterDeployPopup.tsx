@@ -142,7 +142,6 @@ export default function MasterDeployPopup({
 
                     <select
                         id="master-deploy-room"
-                        className="form-select"
                         value={selectedRoomId}
                         onChange={(event) =>
                             setSelectedRoomId(event.target.value)
