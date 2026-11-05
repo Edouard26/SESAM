@@ -168,7 +168,16 @@ export default function MultiSelect<TOption, TValue extends string | number>({
             return next;
         });
 
-        onChange(maxSelected === 1 ? [optionValue] : [...value, optionValue]);
+        const nextValue = maxSelected === 1
+            ? [optionValue]
+            : [...value, optionValue];
+
+        onChange(nextValue);
+
+        if (maxSelected !== undefined && nextValue.length >= maxSelected) {
+            setOpen(false);
+            setSearch("");
+        }
     }
 
     function toggleDropdown() {
