@@ -244,7 +244,7 @@ export default function Monitoring() {
                             ? "Chargement des salles..."
                             : "Sélectionner une salle"
                     }
-                    dropdownPosition={"relative"}
+                    dropdownPosition={"absolute"}
                 />
             </div>
 
