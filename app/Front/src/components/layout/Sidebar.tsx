@@ -19,7 +19,7 @@ export default function Sidebar() {
             <hr />
 
             <ul className="nav nav-pills flex-column gap-1">
-                {user.role != Role.GESTIONNAIRE && (
+                {user.role != Role.FORMATEUR && (
                     <li>
                         <NavLink
                             to={routes.dashboard}
