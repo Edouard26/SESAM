@@ -205,7 +205,6 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
                                 className="form-check-input"
                                 checked={form.active}
                                 onChange={(e) => setField("active", e.target.checked)}
-                                required
                             />
                             <label className="form-check-label" htmlFor="user-active">
                                 Compte actif
