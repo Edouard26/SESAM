@@ -6,6 +6,8 @@ import PageHeader from "../../components/layout/PageHeader.tsx";
 import Confirmation from "../../components/generic/overlay/Confirmation.tsx";
 import useNotification from "../../hooks/useNotification.ts";
 import { routes } from "../../router/routes.ts";
+import {useAuth} from "../../context/AuthContext.tsx";
+import {Role} from "../../types/Role.ts";
 
 const etatBadges: Record<EtatType, { label: string; className: string; icon: string }> = {
     EN_ETAT: { label: "En état", className: "bg-success-subtle text-success-emphasis", icon: "bi-check-circle" },
@@ -81,6 +83,7 @@ function DetailSection({ icon, title, children }: DetailSectionProps) {
 
 // Fiche détaillée d'un matériel (l'id vient de l'URL)
 export default function Material() {
+    const { user } = useAuth();
     const { id } = useParams<{ id: string }>();
     const [material, setMaterial] = useState<MaterialDetail | null>(null);
     const [loading, setLoading] = useState(true);
@@ -162,7 +165,7 @@ export default function Material() {
                 description="Fiche descriptive du matériel"
                 back
                 actions={
-                    material.typeMateriel === "UC"
+                    material.typeMateriel === "UC" && user && user.role != Role.FORMATEUR
                         ? [
                             {
                                 label: "Réinstaller le poste",
