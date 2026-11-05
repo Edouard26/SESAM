@@ -142,15 +142,17 @@ export default function MasterDeployPopup({
 
                     <select
                         id="master-deploy-room"
+                        className="form-select"
                         value={selectedRoomId}
-                        onChange={(event) =>
-                            setSelectedRoomId(event.target.value)
-                        }
-                        disabled={loading || error !== null}
+                        onChange={(event) => setSelectedRoomId(event.target.value)}
                         required
                     >
-                        <option value="">
-                            Sélectionner une salle
+                        <option value="" disabled>
+                            {loading
+                                ? "Chargement des salles..."
+                                : error
+                                    ? "Impossible de charger les salles"
+                                    : "Sélectionner une salle"}
                         </option>
 
                         {rooms.map((room) => (
