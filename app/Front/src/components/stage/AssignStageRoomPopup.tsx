@@ -1,72 +1,61 @@
-import { useEffect, useState } from "react";
+
+
+
+import { useState } from "react";
 import Popup from "../generic/overlay/Popup";
-import { ApiError, roomApi, stageApi } from "../../api";
+import { ApiError, stageApi } from "../../api";
 import useNotification from "../../hooks/useNotification";
-import type { Stage } from "../../types/Stage";
-import type { Room } from "../../types/Room";
+import type { ImportStagesPayload, StageImport } from "../../types/Stage";
 
 type Props = {
-    stage: Stage;
     onClose: () => void;
     blurBackground?: boolean;
     onSubmit: () => void;
 };
 
-// Affecte une salle de cours à un stage
-export default function AssignStageRoomPopup({
-                                                 stage,
-                                                 onClose,
-                                                 blurBackground,
-                                                 onSubmit,
-                                             }: Props) {
+const sagaieStages: StageImport[] = [
+    {
+        code: "DV26",
+        dateDebut: new Date("2026-11-16T00:00:00"),
+        dateFin: new Date("2026-11-27T00:00:00"),
+    },
+    {
+        code: "IN26",
+        dateDebut: new Date("2026-12-01T00:00:00"),
+        dateFin: new Date("2026-12-11T00:00:00"),
+    },
+    {
+        code: "SY27",
+        dateDebut: new Date("2027-01-04T00:00:00"),
+        dateFin: new Date("2027-01-15T00:00:00"),
+    },
+];
+
+function formatDate(value: Date) {
+    return value.toLocaleDateString("fr-FR");
+}
+
+export default function ImportStagesPopup({ onClose, blurBackground, onSubmit }: Props) {
     const { notify } = useNotification();
-
-    const [rooms, setRooms] = useState<Room[]>([]);
-    const [roomId, setRoomId] = useState(-1);
     const [loading, setLoading] = useState(false);
-
-    // Charge les salles de cours proposées pour ce stage
-    useEffect(() => {
-        async function loadRooms() {
-            try {
-                const response = await roomApi.list({
-                        selectedStageId: stage.id,
-                        typeSalle: "COURS"
-                    });
-                // FILTRER PAR NON ASSIGNES
-                setRooms(response.content);
-            } catch {
-                notify("Impossible de charger les salles", "danger");
-            }
-        }
-
-        loadRooms();
-    }, []);
-
-    const canSubmit = roomId > 0 && !loading;
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (!canSubmit) return;
+        if (loading || sagaieStages.length === 0) return;
 
         setLoading(true);
-
         try {
-            await stageApi.update(stage.id, { salleId: roomId });
-
-            notify(`Salle affectée au stage ${stage.code}`, "success");
+            const payload: ImportStagesPayload = { stages: sagaieStages };
+            await stageApi.import(payload);
+            notify(`${payload.stages.length} stage(s) importé(s)`, "success");
             onSubmit();
         } catch (error) {
             if (error instanceof ApiError) {
-                notify(
-                    `Impossible d'affecter la salle : ${error.message}`,
-                    "danger",
-                );
+                notify(error.status === 400
+                    ? `Importation refusée : ${error.message}`
+                    : `Impossible d'importer les stages : ${error.message}`, "danger");
             } else {
-                notify(
-                    "Impossible de joindre le serveur pour affecter la salle",
-                    "danger",
-                );
+                notify("Impossible de joindre le serveur pour importer les stages", "danger");
             }
         } finally {
             setLoading(false);
@@ -75,69 +64,58 @@ export default function AssignStageRoomPopup({
 
     return (
         <Popup
-            title={`Affecter une salle au stage ${stage.code}`}
-            size="modal-md"
+            title="Importer des stages"
+            size="modal-lg"
             onClose={onClose}
             blurBackground={blurBackground}
             actions={
                 <button
                     type="submit"
-                    form="assign-stage-room-form"
-                    disabled={!canSubmit}
+                    form="import-stage-form"
+                    disabled={loading || sagaieStages.length === 0}
                     className="btn btn-primary"
                 >
                     {loading ? (
                         <>
-                            <span
-                                className="spinner-border spinner-border-sm me-2"
-                                aria-hidden="true"
-                            />
-                            Affectation...
+                            <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+                            Importation...
                         </>
-                    ) : (
-                        "Affecter"
-                    )}
+                    ) : "Importer les stages"}
                 </button>
             }
         >
-            <form id="assign-stage-room-form" onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    {rooms && rooms.length > 0 && (
-                        <>
-                            <label htmlFor="room_id" className="form-label">
-                                Salle de destination{" "}
-                                <span className="text-danger">*</span>
-                            </label>
+            <form id="import-stage-form" onSubmit={handleSubmit}>
+                <div className="alert alert-info d-flex align-items-center gap-2 mb-3" role="status">
+                    <i className="bi bi-cloud-download" aria-hidden="true" />
+                    <span>Stages chargés depuis SAGAIE</span>
+                </div>
 
-                            <select
-                                id="room_id"
-                                className="form-select"
-                                value={roomId > 0 ? roomId : ""}
-                                required
-                                onChange={(event) =>
-                                    setRoomId(
-                                        event.target.value
-                                            ? Number(event.target.value)
-                                            : -1,
-                                    )
-                                }
-                            >
-                                <option value="">Choisir une salle</option>
-                                {rooms.map((room) => (
-                                    <option key={room.id} value={room.id}>
-                                        {room.nom}
-                                    </option>
-                                ))}
-                            </select>
+                <p className="text-secondary mb-3">
+                    {sagaieStages.length} stage(s) disponible(s) à l'importation.
+                </p>
 
-                            <div className="form-text">
-                                Le stage sera affecté à la salle sélectionnée.
-                            </div>
-                        </>
-                    )}
-
+                <div className="table-responsive">
+                    <table className="table table-hover align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th scope="col">Code</th>
+                            <th scope="col">Date de début</th>
+                            <th scope="col">Date de fin</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {sagaieStages.map((stage) => (
+                            <tr key={stage.code}>
+                                <td className="fw-semibold">{stage.code}</td>
+                                <td>{formatDate(stage.dateDebut)}</td>
+                                <td>{formatDate(stage.dateFin)}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
                 </div>
             </form>
         </Popup>
     );
 }
+
