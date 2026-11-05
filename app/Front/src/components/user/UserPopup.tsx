@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { userApi } from "../../api";
-import { type User, type UserForm, toDateInputValue } from "../../types/User.ts";
-import { Role } from "../../types/Role.ts";
-import { Grade } from "../../types/Grade.ts";
+import {type FormEvent, useEffect, useRef, useState} from "react";
+import {userApi} from "../../api";
+import {toDateInputValue, type User, type UserForm} from "../../types/User.ts";
+import {Role} from "../../types/Role.ts";
+import {Grade} from "../../types/Grade.ts";
 import useNotification from "../../hooks/useNotification.ts";
 import Popup from "../generic/overlay/Popup";
 import RequiredFieldMessage from "../generic/form/RequiredFieldMessage.tsx";
@@ -190,6 +190,7 @@ export default function UserPopup({ user, onClose, onSubmit }: Props) {
                         >
                             {Object.values(Role)
                                 .filter((value): value is Role => typeof value === "number")
+                                .filter(role => role !== Role.STAGIAIRE)
                                 .map((value) => (
                                     <option key={value} value={value}>
                                         {Role[value]}
