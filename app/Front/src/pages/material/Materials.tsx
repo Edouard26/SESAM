@@ -23,6 +23,18 @@ function loadMaterials(params?: Parameters<typeof materialApi.list>[0]) {
     return materialApi.list(params?.salleId ? { ...params, excludeStagiaire: false } : params);
 }
 
+const materialStateLabels: Record<string, string> = {
+    EN_ETAT: "En état",
+    EN_MAINTENANCE: "En maintenance",
+    DEPRECIER: "Déprécié",
+};
+
+const materialTypeLabels: Record<string, string> = {
+    UC: "UC",
+    ECRAN: "Écran",
+    VIDEO_PROJECTEUR: "Vidéoprojecteur",
+};
+
 // Liste paginée des matériels (recherche, filtres, tri) avec les popups d'ajout/modification, d'affectation et d'import
 export default function Materials() {
     const navigate = useNavigate();
@@ -79,9 +91,23 @@ export default function Materials() {
         { key: "nom", label: "Nom", sortKey: "nom" },
         { key: "marque", label: "Marque", sortKey: "marque" },
         { key: "modele", label: "Modèle", sortKey: "modele" },
-        { key: "etat", label: "Etat", sortKey: "etat" },
+        {
+            key: "etat",
+            label: "État",
+            sortKey: "etat",
+            render: (material: Material) => (
+                <span>{materialStateLabels[material.etat] ?? material.etat}</span>
+            ),
+        },
         { key: "numeroSerie", label: "Numero de série", sortKey: "numeroSerie" },
-        { key: "typeMateriel", label: "Type", sortKey: "typeMateriel" },
+        {
+            key: "typeMateriel",
+            label: "Type",
+            sortKey: "typeMateriel",
+            render: (material: Material) => (
+                <span>{materialTypeLabels[material.typeMateriel] ?? material.typeMateriel}</span>
+            ),
+        },
         {
             key: "dateFinGarantie",
             label: "Fin garantie",
