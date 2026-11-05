@@ -251,8 +251,12 @@ export default function MultiSelect<TOption, TValue extends string | number>({
             {open && (
                 <div
                     id={menuId}
-                    className="position-absolute top-100 start-0 w-100 mt-1 border rounded bg-body text-body p-2 shadow"
-                    style={{ zIndex: 1050 }}
+                    className="mt-2 border rounded bg-body text-body p-2 shadow"
+                    style={{
+                        position: "relative",
+                        zIndex: 1050,
+                        width: "100%",
+                    }}
                 >
                     <input
                         ref={searchInput}
