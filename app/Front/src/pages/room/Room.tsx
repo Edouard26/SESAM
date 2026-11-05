@@ -14,6 +14,8 @@ import MultiSelect from "../../components/generic/display/MultiSelect.tsx";
 import type { Rule } from "../../types/Rule.ts";
 import useNotification from "../../hooks/useNotification.ts";
 import Confirmation from "../../components/generic/overlay/Confirmation.tsx";
+import {Role} from "../../types/Role.ts";
+import {useAuth} from "../../context/AuthContext.tsx";
 
 const MATERIELS_PAGE_SIZE = 6;
 
@@ -58,6 +60,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 
 // Détail d'une salle : statistiques, règles appliquées, matériels (paginés côté client) et alertes par matériel
 export default function Room() {
+    const { user } = useAuth();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const roomId = Number(id);
@@ -204,7 +207,7 @@ export default function Room() {
             notify("Impossible de lancer la réinstallation de la salle.", "danger");
         }
     }
-
+    const canManageRooms = user?.role >= Role.GESTIONNAIRE;
     const actions: {
         label: string;
         icon?: string;
@@ -218,19 +221,27 @@ export default function Room() {
                     icon: "bi-display",
                     onClick: () => navigate(`${routes.monitoring}?salle=${room.id}`),
                 },
+                ...(canManageRooms
+                    ? [
+                        {
+                            label: "Réinstaller la salle",
+                            icon: "bi-arrow-repeat",
+                            onClick: () => setShowReinstallConfirmation(true),
+                        },
+                    ]
+                    : []),
+            ]
+            : []),
+        ...(canManageRooms
+            ? [
                 {
-                    label: "Réinstaller la salle",
-                    icon: "bi-arrow-repeat",
-                    onClick: () => setShowReinstallConfirmation(true),
+                    label: "Affecter du matériel",
+                    icon: "bi-plus-lg",
+                    variant: "primary" as const,
+                    onClick: () => setShowAffectationPopup(true),
                 },
             ]
             : []),
-        {
-            label: "Affecter du matériel",
-            icon: "bi-plus-lg",
-            variant: "primary" as const,
-            onClick: () => setShowAffectationPopup(true),
-        },
     ];
 
     return (
