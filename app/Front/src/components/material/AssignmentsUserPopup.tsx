@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Popup from "../generic/overlay/Popup";
 import {
     materialApi,
@@ -9,6 +9,7 @@ import useNotification from "../../hooks/useNotification.ts";
 import type { User } from "../../types/User.ts";
 import Filters from "../generic/Filters.tsx";
 import Table, { type Column } from "../generic/display/Table.tsx";
+import MultiSelect from "../generic/display/MultiSelect.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import type { Material, MaterialAssignmentUserForm } from "../../types/Material.ts";
 
@@ -23,7 +24,26 @@ type AssignmentValues = {
     materielsId: number[];
 };
 
-// Affecte des matériels à un stagiaire : on choisit le stagiaire, puis les matériels à lui attribuer
+const materialTypeOptions = [
+    { label: "UC", value: "UC" },
+    { label: "Écran", value: "ECRAN" },
+    { label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR" },
+];
+
+async function searchMaterialTypes(query: string) {
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+
+    return {
+        content: materialTypeOptions.filter((option) =>
+            option.label.toLocaleLowerCase().includes(normalizedQuery)
+        ),
+    };
+}
+
+const getUserValue = (user: User) => user.id;
+const getUserLabel = (user: User) => `${user.prenom} ${user.nom} — ${user.email}`;
+
+// Affecte des matériels à un stagiaire : on choisit le stagiaire, puis les matériels à lui attribuer.
 export default function AssignmentsUserPopup({
                                                  onClose,
                                                  blurBackground,
@@ -35,21 +55,19 @@ export default function AssignmentsUserPopup({
         user: null,
         materielsId: [],
     });
-
     const [users, setUsers] = useState<User[]>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
-    const [canSubmit, setCanSubmit] = useState(false);
 
-    const formRef = useRef<HTMLFormElement>(null);
+    const searchUsers = useCallback(async (query: string) => {
+        const normalizedQuery = query.trim().toLocaleLowerCase();
 
-    // Envoi possible seulement avec un formulaire valide, un stagiaire et au moins un matériel
-    useEffect(() => {
-        setCanSubmit(
-            (formRef.current?.checkValidity() ?? false) &&
-            values.user !== null &&
-            values.materielsId.length > 0
-        );
-    }, [values, selectedMaterials]);
+        return {
+            content: users.filter((user) =>
+                [user.prenom, user.nom, user.email]
+                    .some((value) => value.toLocaleLowerCase().includes(normalizedQuery))
+            ),
+        };
+    }, [users]);
 
     useEffect(() => {
         async function loadUsers() {
@@ -73,14 +91,12 @@ export default function AssignmentsUserPopup({
 
     const selects = [
         {
+            type: "multiselect" as const,
             name: "type",
             label: "Type de matériel",
-            options: [
-                { label: "Tous", value: "" },
-                { label: "UC", value: "UC" },
-                { label: "Écran", value: "ECRAN" },
-                { label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR" },
-            ],
+            searchOptions: searchMaterialTypes,
+            maxSelected: 1,
+            placeholder: "Tous les types",
         },
     ];
 
@@ -111,12 +127,11 @@ export default function AssignmentsUserPopup({
         handleFilterChange,
         resetFilters,
     } = usePaginatedList({
-        load: (params) =>
-            materialApi.list({
-                ...params,
-                excludeStagiaire: true,
-                roomFromUserId: values.user?.id ?? 0,
-            }),
+        load: (params) => materialApi.list({
+            ...params,
+            excludeStagiaire: true,
+            roomFromUserId: values.user?.id ?? 0,
+        }),
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
@@ -124,33 +139,17 @@ export default function AssignmentsUserPopup({
         loadKey: values.user?.id,
     });
 
-    // Changer de stagiaire vide la sélection de matériels et revient à la première page
-    function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        const { name, value } = event.target;
+    function handleUserChange(selectedUserIds: number[]) {
+        const user = users.find((item) => item.id === selectedUserIds[0]) ?? null;
 
-        if (name === "userId") {
-            const user = users.find(
-                (item) => item.id === Number(value)
-            ) ?? null;
-
-            setValues({
-                user,
-                materielsId: [],
-            });
-
-            setSelectedMaterials([]);
-            setPage(0);
-            return;
-        }
-
-        // Les autres filtres sont gérés par Filters.
-        setValues((previous) => ({
-            ...previous,
-            [name]: value,
-        }));
+        setValues({
+            user,
+            materielsId: [],
+        });
+        setSelectedMaterials([]);
+        setPage(0);
     }
 
-    // Garde les objets sélectionnés et la liste d'ids envoyée à l'API synchronisés
     function handleMaterialsChange(materials: Material[]) {
         setSelectedMaterials(materials);
 
@@ -163,11 +162,7 @@ export default function AssignmentsUserPopup({
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        if (
-            !event.currentTarget.checkValidity() ||
-            values.user === null ||
-            values.materielsId.length === 0
-        ) {
+        if (values.user === null || values.materielsId.length === 0) {
             notify(
                 "Sélectionnez un utilisateur et au moins un matériel",
                 "danger"
@@ -201,6 +196,8 @@ export default function AssignmentsUserPopup({
         }
     }
 
+    const canSubmit = values.user !== null && values.materielsId.length > 0;
+
     return (
         <Popup
             title="Affecter du matériel à un utilisateur"
@@ -218,32 +215,22 @@ export default function AssignmentsUserPopup({
                 </button>
             }
         >
-            <form
-                id="material-form"
-                onSubmit={handleSubmit}
-                ref={formRef}
-            >
+            <form id="material-form" onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label htmlFor="userId" className="form-label">
+                    <label className="form-label">
                         Utilisateur <span className="text-danger">*</span>
                     </label>
 
-                    <select
-                        id="userId"
-                        name="userId"
-                        className="form-select"
-                        value={values.user?.id ?? ""}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="">Choisir un utilisateur</option>
-
-                        {users.map((user) => (
-                            <option key={user.id} value={user.id}>
-                                {user.prenom} {user.nom} — {user.email}
-                            </option>
-                        ))}
-                    </select>
+                    <MultiSelect<User, number>
+                        searchOptions={searchUsers}
+                        getOptionValue={getUserValue}
+                        getOptionLabel={getUserLabel}
+                        value={values.user ? [values.user.id] : []}
+                        selectedOptions={values.user ? [values.user] : []}
+                        onChange={handleUserChange}
+                        maxSelected={1}
+                        placeholder="Choisir un utilisateur"
+                    />
 
                     <div className="form-text">
                         Sélectionnez un utilisateur pour afficher les matériels.

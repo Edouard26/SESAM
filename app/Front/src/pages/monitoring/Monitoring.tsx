@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { roomApi } from "../../api";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {useNavigate, useSearchParams} from "react-router-dom";
+import {roomApi} from "../../api";
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
+import MultiSelect from "../../components/generic/display/MultiSelect.tsx";
 import CardTable from "../../components/generic/display/CardTable.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
-import type { Room } from "../../types/Room.ts";
-import type { Material, MaterialType } from "../../types/Material.ts";
-import { routes } from "../../router/routes.ts";
+import type {Room} from "../../types/Room.ts";
+import type {Material, MaterialType} from "../../types/Material.ts";
+import {routes} from "../../router/routes.ts";
 
 const PAGE_SIZE = 9;
 
@@ -23,22 +24,44 @@ const MATERIAL_LABELS: Record<MaterialType, string> = {
     VIDEO_PROJECTEUR: "Vidéoprojecteur",
 };
 
+type MaterialTypeOption = {
+    label: string;
+    value: MaterialType;
+};
+
+const MATERIAL_TYPE_OPTIONS: MaterialTypeOption[] = [
+    {label: "Unité centrale", value: "UC"},
+    {label: "Écran", value: "ECRAN"},
+    {label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR"},
+];
+
 const selects = [
     {
+        type: "multiselect" as const,
         name: "type",
         label: "Type de matériel",
-        options: [
-            { label: "Tous", value: "" },
-            { label: "Unité centrale", value: "UC" },
-            { label: "Écran", value: "ECRAN" },
-            { label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR" },
-        ],
+        searchOptions: async (query: string) => {
+            const normalizedQuery = query.trim().toLocaleLowerCase("fr");
+
+            return {
+                content: MATERIAL_TYPE_OPTIONS.filter((option) =>
+                    option.label.toLocaleLowerCase("fr").includes(normalizedQuery)
+                ),
+            };
+        },
+        maxSelected: 1,
+        placeholder: "Tous les types",
     },
 ];
 
 const initialFilters: Record<string, string> = {
     type: "",
 };
+
+const getRoomOptionValue = (room: Room) => room.id;
+
+const getRoomOptionLabel = (room: Room) =>
+    `Salle ${room.nom} · Bâtiment ${room.nomBatiment ?? "-"}`;
 
 // Supervision : on choisit une salle puis on consulte ses matériels sous forme de cartes
 // Recherche, filtre par type et pagination sont faits côté client sur les matériels de la salle
@@ -51,14 +74,17 @@ export default function Monitoring() {
     } = usePaginatedList({
         load: roomApi.list,
         initialFilters: {},
-        pageSize: 1000, // on charge toutes les salles pour alimenter le sélecteur
+        pageSize: 1000,
         errorMessage: "Impossible de charger les salles",
     });
 
     const [searchParams, setSearchParams] = useSearchParams();
+
     const selectedRoomId = searchParams.get("salle") ?? "";
+
     const setSelectedRoomId = (roomId: string) =>
-        setSearchParams(roomId ? { salle: roomId } : {}, { replace: true });
+        setSearchParams(roomId ? {salle: roomId} : {}, {replace: true});
+
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -66,6 +92,19 @@ export default function Monitoring() {
     const [search, setSearch] = useState("");
     const [filters, setFilters] = useState(initialFilters);
     const [page, setPage] = useState(0);
+
+    // Recherche locale des salles pour le MultiSelect
+    const searchRoomOptions = useCallback(async (query: string) => {
+        const normalizedQuery = query.trim().toLocaleLowerCase("fr");
+
+        return {
+            content: rooms.filter((room) =>
+                getRoomOptionLabel(room)
+                    .toLocaleLowerCase("fr")
+                    .includes(normalizedQuery)
+            ),
+        };
+    }, [rooms]);
 
     // Charge la salle choisie (avec ses matériels) à chaque changement de sélection
     useEffect(() => {
@@ -107,7 +146,7 @@ export default function Monitoring() {
 
     const allMaterials = selectedRoom?.materiels ?? [];
 
-    // Filtre par type puis recherche texte (insensible à la casse) sur nom, n° de série, marque, modèle et type
+    // Filtre par type puis recherche texte sur les matériels de la salle
     const filteredMaterials = useMemo(() => {
         const normalizedSearch = search.trim().toLocaleLowerCase("fr");
 
@@ -132,7 +171,7 @@ export default function Monitoring() {
             ].some((value) =>
                 (value ?? "")
                     .toLocaleLowerCase("fr")
-                    .includes(normalizedSearch),
+                    .includes(normalizedSearch)
             );
         });
     }, [allMaterials, search, filters.type]);
@@ -141,7 +180,7 @@ export default function Monitoring() {
 
     const materials = filteredMaterials.slice(
         page * PAGE_SIZE,
-        (page + 1) * PAGE_SIZE,
+        (page + 1) * PAGE_SIZE
     );
 
     function handleSearchChange(value: string) {
@@ -178,32 +217,34 @@ export default function Monitoring() {
             />
 
             <div className="mb-4">
-                <label
-                    htmlFor="monitoring-room"
-                    className="form-label"
-                >
+                <label className="form-label">
                     Salle
                 </label>
 
-                <select
-                    id="monitoring-room"
-                    className="form-select"
-                    value={selectedRoomId}
+                <MultiSelect<Room, number>
+                    searchOptions={searchRoomOptions}
+                    getOptionValue={getRoomOptionValue}
+                    getOptionLabel={getRoomOptionLabel}
+                    value={selectedRoomId && Number.isFinite(Number(selectedRoomId))
+                        ? [Number(selectedRoomId)]
+                        : []
+                    }
+                    selectedOptions={rooms.filter(
+                        (room) => room.id === Number(selectedRoomId)
+                    )}
+                    onChange={(selected) =>
+                        handleRoomChange(
+                            selected.length > 0 ? String(selected[0]) : ""
+                        )
+                    }
+                    maxSelected={1}
                     disabled={roomsLoading}
-                    onChange={(event) => handleRoomChange(event.target.value)}
-                >
-                    <option value="">
-                        {roomsLoading
+                    placeholder={
+                        roomsLoading
                             ? "Chargement des salles..."
-                            : "Sélectionner une salle"}
-                    </option>
-
-                    {rooms.map((room) => (
-                        <option key={room.id} value={room.id}>
-                            Salle {room.nom} · Bâtiment {room.nomBatiment ?? "-"}
-                        </option>
-                    ))}
-                </select>
+                            : "Sélectionner une salle"
+                    }
+                />
             </div>
 
             {!selectedRoomId && (
@@ -261,16 +302,23 @@ export default function Monitoring() {
                                     `${MATERIAL_LABELS[material.typeMateriel] ?? material.typeMateriel} · ${material.marque} ${material.modele} · N° série : ${material.numeroSerie || "-"}`,
                                 footer: (material: Material) => (
                                     <div className="d-flex align-items-center justify-content-between gap-3 small">
-                                        <button type="button" className="btn btn-link p-0 text-decoration-none text-nowrap"
+                                        <button
+                                            type="button"
+                                            className="btn btn-link p-0 text-decoration-none text-nowrap"
                                             onClick={() =>
                                                 navigate(`${routes.materials}/${material.id}`)
                                             }
                                         >
                                             Consulter
                                         </button>
+
                                         {material.typeMateriel === "UC" && (
-                                            <button type="button" className="btn btn-link p-0 text-decoration-none text-nowrap"
-                                                    onClick={() => navigate(`${routes.process}/${material.id}`)}
+                                            <button
+                                                type="button"
+                                                className="btn btn-link p-0 text-decoration-none text-nowrap"
+                                                onClick={() =>
+                                                    navigate(`${routes.process}/${material.id}`)
+                                                }
                                             >
                                                 Processus
                                             </button>

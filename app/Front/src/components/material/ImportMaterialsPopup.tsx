@@ -1,11 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Popup from "../generic/overlay/Popup";
 import { ApiError, materialApi, roomApi } from "../../api";
 import useNotification from "../../hooks/useNotification";
-import type {ImportMaterialsPayload, MaterialForm, MaterialType, EtatType} from "../../types/Material";
+import type {
+    ImportMaterialsPayload,
+    MaterialForm,
+    MaterialType,
+    EtatType,
+} from "../../types/Material";
 import type { Room } from "../../types/Room.ts";
 import ImportJson from "../generic/ImportJson.tsx";
-import {createColumns} from "../../api/utils/importColumns.tsx";
+import { createColumns } from "../../api/utils/importColumns.tsx";
+import MultiSelect from "../generic/display/MultiSelect.tsx";
 import {
     createValidator,
     date,
@@ -14,7 +20,7 @@ import {
     pattern,
     positiveNumber,
     type Schema,
-    text
+    text,
 } from "../../api/utils/importSchema.ts";
 
 type Props = {
@@ -71,7 +77,10 @@ const columns = createColumns<MaterialForm>(
     { taille: (value) => value !== undefined ? `${value}"` : "—" },
 );
 
-// Import de matériels depuis un fichier JSON, affectés à la salle choisie
+const getRoomValue = (room: Room) => room.id;
+const getRoomLabel = (room: Room) => room.nom;
+
+// Import de matériels depuis un fichier JSON, affectés à la salle choisie.
 export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit }: Props) {
     const { notify } = useNotification();
 
@@ -80,7 +89,16 @@ export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit
     const [selectedMaterials, setSelectedMaterials] = useState<MaterialForm[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // Charge les salles proposées pour l'affectation
+    const searchRooms = useCallback(async (query: string) => {
+        const normalizedQuery = query.trim().toLocaleLowerCase();
+
+        return {
+            content: rooms.filter((room) =>
+                room.nom.toLocaleLowerCase().includes(normalizedQuery)
+            ),
+        };
+    }, [rooms]);
+
     useEffect(() => {
         async function loadRooms() {
             try {
@@ -92,7 +110,7 @@ export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit
         }
 
         void loadRooms();
-    }, []);
+    }, [notify]);
 
     const canSubmit = salleId > 0 && selectedMaterials.length > 0 && !loading;
 
@@ -123,35 +141,53 @@ export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit
     }
 
     return (
-        <Popup title="Importer des matériels" size="modal-xl" onClose={onClose} blurBackground={blurBackground}
+        <Popup
+            title="Importer des matériels"
+            size="modal-xl"
+            onClose={onClose}
+            blurBackground={blurBackground}
             actions={
-                <button type="submit" form="import-form" disabled={!canSubmit} className="btn btn-primary">
-                    {loading ?
+                <button
+                    type="submit"
+                    form="import-form"
+                    disabled={!canSubmit}
+                    className="btn btn-primary"
+                >
+                    {loading ? (
                         <>
                             <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
                             Importation...
                         </>
-                        : "Importer"}
+                    ) : "Importer"}
                 </button>
             }
         >
             <form id="import-form" onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <ImportJson<MaterialForm> validate={validateMaterial} columns={columns} onSelectionChange={setSelectedMaterials}/>
+                    <ImportJson<MaterialForm>
+                        validate={validateMaterial}
+                        columns={columns}
+                        onSelectionChange={setSelectedMaterials}
+                    />
                 </div>
 
                 <div>
-                    <label htmlFor="salle_id" className="form-label">
+                    <label className="form-label">
                         Salle de destination <span className="text-danger">*</span>
                     </label>
-                    <select id="salle_id" className="form-select" value={salleId > 0 ? salleId : ""} required
-                        onChange={(event) => setSalleId(event.target.value ? Number(event.target.value) : -1)}
-                    >
-                        <option value="">Choisir une salle</option>
-                        {rooms.map((room) => (
-                            <option key={room.id} value={room.id}>{room.nom}</option>
-                        ))}
-                    </select>
+
+                    <MultiSelect<Room, number>
+                        searchOptions={searchRooms}
+                        getOptionValue={getRoomValue}
+                        getOptionLabel={getRoomLabel}
+                        value={salleId > 0 ? [salleId] : []}
+                        selectedOptions={rooms.filter((room) => room.id === salleId)}
+                        onChange={(selected) => setSalleId(selected[0] ?? -1)}
+                        maxSelected={1}
+                        placeholder="Choisir une salle"
+                        disabled={loading}
+                    />
+
                     <div className="form-text">
                         Les matériels sélectionnés seront créés et affectés à cette salle.
                     </div>

@@ -1,15 +1,17 @@
-import {useEffect, useRef, useState} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Popup from "../generic/overlay/Popup";
 import {
-    materialAssignmentTemplate, type MaterialAssignmentForm, type Material,
+    materialAssignmentTemplate,
+    type MaterialAssignmentForm,
+    type Material,
 } from "../../types/Material";
-import {ApiError, materialApi, roomApi} from "../../api";
+import { ApiError, materialApi, roomApi } from "../../api";
 import useNotification from "../../hooks/useNotification.ts";
-import type {Room} from "../../types/Room.ts";
+import type { Room } from "../../types/Room.ts";
 import Filters from "../generic/Filters.tsx";
-import Table, {type Column} from "../generic/display/Table.tsx";
+import Table, { type Column } from "../generic/display/Table.tsx";
+import MultiSelect from "../generic/display/MultiSelect.tsx";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
-
 
 type Props = {
     onClose: () => void;
@@ -17,42 +19,72 @@ type Props = {
     onSubmit: (material: MaterialAssignmentForm) => void;
 };
 
-// Affecte des matériels à une salle : on choisit la salle, puis les matériels (hors ceux déjà dans cette salle)
+const materialTypeOptions = [
+    { label: "UC", value: "UC" },
+    { label: "Écran", value: "ECRAN" },
+    { label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR" },
+];
+
+async function searchMaterialTypes(query: string) {
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+
+    return {
+        content: materialTypeOptions.filter((option) =>
+            option.label.toLocaleLowerCase().includes(normalizedQuery)
+        ),
+    };
+}
+
+const getRoomValue = (room: Room) => room.id;
+const getRoomLabel = (room: Room) => room.nom;
+
+// Affecte des matériels à une salle : on choisit la salle, puis les matériels (hors ceux déjà dans cette salle).
 export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: Props) {
-    const {notify} = useNotification();
-    const [values, setValues] = useState<MaterialAssignmentForm>({...materialAssignmentTemplate,});
+    const { notify } = useNotification();
+    const [values, setValues] = useState<MaterialAssignmentForm>({
+        ...materialAssignmentTemplate,
+    });
     const [rooms, setRooms] = useState<Room[]>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
-    const formRef = useRef<HTMLFormElement>(null);
-    const [canSubmit, setCanSubmit] = useState(false);
 
-    useEffect(() => {
-        setCanSubmit((formRef.current?.checkValidity() ?? false) && selectedMaterials.length > 0);
-    }, [values, selectedMaterials]);
+    const searchRooms = useCallback(async (query: string) => {
+        const normalizedQuery = query.trim().toLocaleLowerCase();
 
-    const selects = [
+        return {
+            content: rooms.filter((room) =>
+                room.nom.toLocaleLowerCase().includes(normalizedQuery)
+            ),
+        };
+    }, [rooms]);
+
+    const selects = useMemo(() => [
         {
+            type: "multiselect" as const,
             name: "typeMateriel",
             label: "Type de matériel",
-            options: [
-                { label: "Tous", value: "" },
-                { label: "UC", value: "UC" },
-                { label: "Écran", value: "ECRAN" },
-                { label: "Vidéoprojecteur", value: "VIDEO_PROJECTEUR" },
-            ],
+            searchOptions: searchMaterialTypes,
+            maxSelected: 1,
+            placeholder: "Tous les types",
         },
         {
+            type: "multiselect" as const,
             name: "salleId",
             label: "Salle actuelle",
-            options: [
-                { label: "Toutes", value: "" },
-                ...rooms.map((room) => ({
-                    label: room.nom,
-                    value: String(room.id),
-                })),
-            ],
+            searchOptions: async (query: string) => {
+                const normalizedQuery = query.trim().toLocaleLowerCase();
+                return {
+                    content: rooms
+                        .filter((room) => room.nom.toLocaleLowerCase().includes(normalizedQuery))
+                        .map((room) => ({
+                            label: room.nom,
+                            value: String(room.id),
+                        })),
+                };
+            },
+            maxSelected: 1,
+            placeholder: "Toutes les salles",
         },
-    ];
+    ], [rooms]);
 
     const initialFilters: Record<string, string> = Object.fromEntries(
         selects.map(({ name }) => [name, ""])
@@ -62,7 +94,7 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
         { key: "nom", label: "Nom", sortKey: "nom" },
         { key: "marque", label: "Marque", sortKey: "marque" },
         { key: "modele", label: "Modèle", sortKey: "modele" },
-        { key: "typeMateriel", label: "Type", sortKey: "typeMateriel" }
+        { key: "typeMateriel", label: "Type", sortKey: "typeMateriel" },
     ] satisfies Column<Material>[];
 
     const {
@@ -87,22 +119,17 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
         initialFilters,
         pageSize: 10,
         errorMessage: "Impossible de charger les matériels",
-        // La liste ne se charge qu'une fois la salle choisie, et se recharge quand elle change
         enabled: values.salleId > 0,
         loadKey: values.salleId,
     });
 
-    // À l'ouverture : formulaire réinitialisé et chargement des salles
     useEffect(() => {
         setValues({ ...materialAssignmentTemplate });
         setSelectedMaterials([]);
 
         async function loadRooms() {
             try {
-                const response = await roomApi.list({
-                    page: 0,
-                    size: 1000,
-                });
+                const response = await roomApi.list({ page: 0, size: 1000 });
                 setRooms(response.content);
             } catch {
                 notify("Impossible de charger les salles", "danger");
@@ -110,35 +137,21 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
         }
 
         void loadRooms();
+    }, [notify]);
 
-        const initial: MaterialAssignmentForm = { ...materialAssignmentTemplate };
-
-        setValues(initial);
-    }, []);
-
-    // Changer de salle vide la sélection de matériels et revient à la première page
-    function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-        const { name, value } = event.target;
-
-        if (name === "salle_id") {
-            setValues({
-                salleId: Number(value),
-                materielsId: [],
-            });
-            setSelectedMaterials([]);
-            setPage(0);
-            return;
-        }
-
-        setValues((previous) => ({
-            ...previous,
-            [name]: value,
-        }));
+    function handleRoomChange(selectedRoomIds: number[]) {
+        setValues({
+            salleId: selectedRoomIds[0] ?? -1,
+            materielsId: [],
+        });
+        setSelectedMaterials([]);
+        setPage(0);
     }
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (!event.currentTarget.checkValidity() || selectedMaterials.length === 0) {
+
+        if (values.salleId <= 0 || selectedMaterials.length === 0) {
             notify("Sélectionnez une salle et au moins un matériel", "danger");
             return;
         }
@@ -153,9 +166,14 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
         } catch (error) {
             if (error instanceof ApiError) {
                 switch (error.status) {
-                    case 400: notify("Données invalides : " + error.message, "danger"); break;
-                    case 500: notify("Erreur serveur, réessaie plus tard", "danger"); break;
-                    default:  notify(error.message, "danger");
+                    case 400:
+                        notify("Données invalides : " + error.message, "danger");
+                        break;
+                    case 500:
+                        notify("Erreur serveur, réessaie plus tard", "danger");
+                        break;
+                    default:
+                        notify(error.message, "danger");
                 }
             } else {
                 notify("Impossible de joindre le serveur", "danger");
@@ -163,39 +181,41 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
         }
     }
 
+    const canSubmit = values.salleId > 0 && selectedMaterials.length > 0;
+
     return (
-        <Popup title={"Affecter du matériel"}
-            size={"modal-lg"}
+        <Popup
+            title="Affecter du matériel"
+            size="modal-lg"
             onClose={onClose}
             blurBackground={blurBackground}
             actions={
-                <button type="submit" form="material-form" disabled={!canSubmit} className="btn btn-primary">
-                    {"Affecter"}
+                <button
+                    type="submit"
+                    form="material-form"
+                    disabled={!canSubmit}
+                    className="btn btn-primary"
+                >
+                    Affecter
                 </button>
             }
         >
-            <form id="material-form" onSubmit={handleSubmit} ref={formRef}>
+            <form id="material-form" onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label htmlFor="salle_id" className="form-label">
+                    <label className="form-label">
                         Salle de destination <span className="text-danger">*</span>
                     </label>
 
-                    <select
-                        id="salle_id"
-                        name="salle_id"
-                        className="form-select"
-                        value={values.salleId || ""}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="">Choisir une salle</option>
-
-                        {rooms.map((room) => (
-                            <option key={room.id} value={room.id}>
-                                {room.nom}
-                            </option>
-                        ))}
-                    </select>
+                    <MultiSelect<Room, number>
+                        searchOptions={searchRooms}
+                        getOptionValue={getRoomValue}
+                        getOptionLabel={getRoomLabel}
+                        value={values.salleId > 0 ? [values.salleId] : []}
+                        selectedOptions={rooms.filter((room) => room.id === values.salleId)}
+                        onChange={handleRoomChange}
+                        maxSelected={1}
+                        placeholder="Choisir une salle"
+                    />
 
                     <div className="form-text">
                         Seuls les matériels disponibles hors de cette salle peuvent être affectés.
@@ -230,6 +250,7 @@ export default function AssignmentsPopup({ onClose, blurBackground, onSubmit }: 
                         }}
                     />
                 </div>
+
                 {selectedMaterials.length > 0 && (
                     <a>{selectedMaterials.length} matériels</a>
                 )}
