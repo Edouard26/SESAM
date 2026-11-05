@@ -10,6 +10,7 @@ import type {Room} from "../../types/Room.ts";
 import type {Material, MaterialType} from "../../types/Material.ts";
 import {routes} from "../../router/routes.ts";
 import {useAuth} from "../../context/AuthContext.tsx";
+import {Role} from "../../types/Role.ts";
 
 const PAGE_SIZE = 9;
 
@@ -68,10 +69,9 @@ const getRoomOptionLabel = (room: Room) =>
 // Recherche, filtre par type et pagination sont faits côté client sur les matériels de la salle
 export default function Monitoring() {
     const navigate = useNavigate();
+    const {user} = useAuth();
 
-    const { user } = useAuth();
-
-    const isFormateur = user?.role === "FORMATEUR";
+    const isFormateur = user?.role === Role.FORMATEUR;
 
     const {
         items: rooms,
@@ -90,34 +90,12 @@ export default function Monitoring() {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
+    const selectedRoomId = searchParams.get("salle") ?? "";
+
     const setSelectedRoomId = (roomId: string) =>
         setSearchParams(roomId ? {salle: roomId} : {}, {replace: true});
 
-    const selectedRoomId = searchParams.get("salle") ?? "";
-
-    useEffect(() => {
-        if (roomsLoading || rooms.length === 0) return;
-
-        if (isFormateur) {
-            const firstRoom = rooms[0];
-
-            if (selectedRoomId !== String(firstRoom.id)) {
-                setSearchParams(
-                    { salle: String(firstRoom.id) },
-                    { replace: true }
-                );
-            }
-
-            return;
-        }
-
-        if (!selectedRoomId) return;
-
-        if (!rooms.some(room => room.id === Number(selectedRoomId))) {
-            setSearchParams({}, { replace: true });
-        }
-    }, [rooms, roomsLoading, isFormateur, selectedRoomId, setSearchParams]);
-
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -130,20 +108,53 @@ export default function Monitoring() {
         const normalizedQuery = query.trim().toLocaleLowerCase("fr");
 
         return {
-            content: rooms.filter((room) =>
+            content: availableRooms.filter((room) =>
                 getRoomOptionLabel(room)
                     .toLocaleLowerCase("fr")
                     .includes(normalizedQuery)
             ),
         };
-    }, [rooms]);
+    }, [availableRooms]);
+
+    // Le formateur est automatiquement limité à la première salle
+    useEffect(() => {
+        if (roomsLoading || !isFormateur || rooms.length === 0) return;
+
+        const firstRoomId = String(rooms[0].id);
+
+        if (selectedRoomId !== firstRoomId) {
+            setSelectedRoomId(firstRoomId);
+        }
+    }, [rooms, roomsLoading, isFormateur, selectedRoomId]);
+
+    // Vérifie que la salle sélectionnée existe pour les autres rôles
+    useEffect(() => {
+        if (roomsLoading || isFormateur || !selectedRoomId) return;
+
+        const roomExists = rooms.some(
+            (room) => room.id === Number(selectedRoomId)
+        );
+
+        if (!roomExists) {
+            setSelectedRoomId("");
+        }
+    }, [rooms, roomsLoading, isFormateur, selectedRoomId]);
 
     // Charge la salle choisie (avec ses matériels) à chaque changement de sélection
     useEffect(() => {
-        if (!selectedRoomId) {
+        if (!selectedRoomId || roomsLoading) {
             setSelectedRoom(null);
             setLoading(false);
             setError(null);
+            return;
+        }
+
+        // Empêche le chargement d'une salle autre que la première pour le formateur
+        if (
+            isFormateur &&
+            availableRooms.length > 0 &&
+            Number(selectedRoomId) !== availableRooms[0].id
+        ) {
             return;
         }
 
@@ -174,7 +185,7 @@ export default function Monitoring() {
         return () => {
             cancelled = true;
         };
-    }, [selectedRoomId]);
+    }, [selectedRoomId, roomsLoading, isFormateur, availableRooms]);
 
     const allMaterials = selectedRoom?.materiels ?? [];
 
@@ -245,7 +256,11 @@ export default function Monitoring() {
         <>
             <PageHeader
                 title="Supervision"
-                description="Choisir une salle pour consulter et superviser ses matériels."
+                description={
+                    isFormateur
+                        ? "Consulter et superviser les matériels de votre salle."
+                        : "Choisir une salle pour consulter et superviser ses matériels."
+                }
             />
 
             {!isFormateur && (
@@ -264,7 +279,7 @@ export default function Monitoring() {
                                 : []
                         }
                         selectedOptions={availableRooms.filter(
-                            room => room.id === Number(selectedRoomId)
+                            (room) => room.id === Number(selectedRoomId)
                         )}
                         onChange={(selected) =>
                             handleRoomChange(
@@ -273,16 +288,26 @@ export default function Monitoring() {
                         }
                         maxSelected={1}
                         disabled={roomsLoading}
-                        placeholder="Sélectionner une salle"
+                        placeholder={
+                            roomsLoading
+                                ? "Chargement des salles..."
+                                : "Sélectionner une salle"
+                        }
                         dropdownPosition="absolute"
                     />
                 </div>
             )}
 
-            {!selectedRoomId && (
+            {!roomsLoading && availableRooms.length === 0 && (
+                <div className="text-center text-secondary py-5">
+                    Aucune salle disponible.
+                </div>
+            )}
+
+            {!selectedRoomId && availableRooms.length > 0 && (
                 <div className="text-center text-secondary py-5">
                     {isFormateur
-                        ? "Aucune salle disponible."
+                        ? "Chargement de votre salle..."
                         : "Sélectionnez une salle pour afficher ses matériels."
                     }
                 </div>
@@ -316,7 +341,7 @@ export default function Monitoring() {
                     ) : (
                         <CardTable
                             data={materials}
-                            loading={loading}
+                            loading={loading || roomsLoading}
                             pagination={{
                                 currentPage: page,
                                 totalPages,
