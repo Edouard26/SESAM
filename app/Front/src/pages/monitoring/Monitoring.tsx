@@ -9,6 +9,7 @@ import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import type {Room} from "../../types/Room.ts";
 import type {Material, MaterialType} from "../../types/Material.ts";
 import {routes} from "../../router/routes.ts";
+import {useAuth} from "../../context/AuthContext.tsx";
 
 const PAGE_SIZE = 9;
 
@@ -68,6 +69,10 @@ const getRoomOptionLabel = (room: Room) =>
 export default function Monitoring() {
     const navigate = useNavigate();
 
+    const { user } = useAuth();
+
+    const isFormateur = user?.role === "FORMATEUR";
+
     const {
         items: rooms,
         loading: roomsLoading,
@@ -78,14 +83,41 @@ export default function Monitoring() {
         errorMessage: "Impossible de charger les salles",
     });
 
-    const [searchParams, setSearchParams] = useSearchParams();
+    const availableRooms = useMemo(
+        () => isFormateur ? rooms.slice(0, 1) : rooms,
+        [rooms, isFormateur]
+    );
 
-    const selectedRoomId = searchParams.get("salle") ?? "";
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const setSelectedRoomId = (roomId: string) =>
         setSearchParams(roomId ? {salle: roomId} : {}, {replace: true});
 
-    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const selectedRoomId = searchParams.get("salle") ?? "";
+
+    useEffect(() => {
+        if (roomsLoading || rooms.length === 0) return;
+
+        if (isFormateur) {
+            const firstRoom = rooms[0];
+
+            if (selectedRoomId !== String(firstRoom.id)) {
+                setSearchParams(
+                    { salle: String(firstRoom.id) },
+                    { replace: true }
+                );
+            }
+
+            return;
+        }
+
+        if (!selectedRoomId) return;
+
+        if (!rooms.some(room => room.id === Number(selectedRoomId))) {
+            setSearchParams({}, { replace: true });
+        }
+    }, [rooms, roomsLoading, isFormateur, selectedRoomId, setSearchParams]);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -216,41 +248,43 @@ export default function Monitoring() {
                 description="Choisir une salle pour consulter et superviser ses matériels."
             />
 
-            <div className="mb-4">
-                <label className="form-label">
-                    Salle
-                </label>
+            {!isFormateur && (
+                <div className="mb-4">
+                    <label className="form-label">
+                        Salle
+                    </label>
 
-                <MultiSelect<Room, number>
-                    searchOptions={searchRoomOptions}
-                    getOptionValue={getRoomOptionValue}
-                    getOptionLabel={getRoomOptionLabel}
-                    value={selectedRoomId && Number.isFinite(Number(selectedRoomId))
-                        ? [Number(selectedRoomId)]
-                        : []
-                    }
-                    selectedOptions={rooms.filter(
-                        (room) => room.id === Number(selectedRoomId)
-                    )}
-                    onChange={(selected) =>
-                        handleRoomChange(
-                            selected.length > 0 ? String(selected[0]) : ""
-                        )
-                    }
-                    maxSelected={1}
-                    disabled={roomsLoading}
-                    placeholder={
-                        roomsLoading
-                            ? "Chargement des salles..."
-                            : "Sélectionner une salle"
-                    }
-                    dropdownPosition={"absolute"}
-                />
-            </div>
+                    <MultiSelect<Room, number>
+                        searchOptions={searchRoomOptions}
+                        getOptionValue={getRoomOptionValue}
+                        getOptionLabel={getRoomOptionLabel}
+                        value={
+                            selectedRoomId && Number.isFinite(Number(selectedRoomId))
+                                ? [Number(selectedRoomId)]
+                                : []
+                        }
+                        selectedOptions={availableRooms.filter(
+                            room => room.id === Number(selectedRoomId)
+                        )}
+                        onChange={(selected) =>
+                            handleRoomChange(
+                                selected.length > 0 ? String(selected[0]) : ""
+                            )
+                        }
+                        maxSelected={1}
+                        disabled={roomsLoading}
+                        placeholder="Sélectionner une salle"
+                        dropdownPosition="absolute"
+                    />
+                </div>
+            )}
 
             {!selectedRoomId && (
                 <div className="text-center text-secondary py-5">
-                    Sélectionnez une salle pour afficher ses matériels.
+                    {isFormateur
+                        ? "Aucune salle disponible."
+                        : "Sélectionnez une salle pour afficher ses matériels."
+                    }
                 </div>
             )}
 
