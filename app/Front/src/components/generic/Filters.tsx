@@ -98,6 +98,7 @@ export default function Filters({
                                         }
                                         maxSelected={filter.maxSelected}
                                         placeholder={filter.placeholder}
+                                        dropdownPosition="absolute"
                                     />
                                 </>
                             ) : (

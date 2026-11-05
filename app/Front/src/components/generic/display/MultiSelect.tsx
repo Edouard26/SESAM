@@ -12,6 +12,7 @@ type MultiSelectProps<TOption, TValue extends string | number> = {
     maxSelected?: number;
     placeholder?: string;
     disabled?: boolean;
+    dropdownPosition?: "absolute" | "relative";
 };
 
 // Liste déroulante à choix multiples avec recherche côté serveur (searchOptions) ; les valeurs sélectionnées
@@ -27,6 +28,7 @@ export default function MultiSelect<TOption, TValue extends string | number>({
                                                                                  maxOptions = 10,
                                                                                  maxSelected,
                                                                                  placeholder = "Sélectionner des éléments",
+                                                                                 dropdownPosition = "relative",
                                                                              }: MultiSelectProps<TOption, TValue>) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
@@ -260,9 +262,12 @@ export default function MultiSelect<TOption, TValue extends string | number>({
             {open && (
                 <div
                     id={menuId}
-                    className="mt-2 border rounded bg-body text-body p-2 shadow"
+                    className={`${
+                        dropdownPosition === "absolute"
+                            ? "position-absolute top-100 start-0 mt-1"
+                            : "mt-2"
+                    } border rounded bg-body text-body p-2 shadow`}
                     style={{
-                        position: "relative",
                         zIndex: 1050,
                         width: "100%",
                     }}
