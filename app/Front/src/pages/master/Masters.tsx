@@ -63,6 +63,7 @@ export default function Masters() {
         };
     }, [notify]);
 
+    // Création d'un master
     async function saveMaster(form: MasterForm) {
         setSaving(true);
 
@@ -157,11 +158,12 @@ export default function Masters() {
                 />
             )}
 
-            {masterToDeploy && (
-                <MasterDeployPopup
-                    master={masterToDeploy}
-                    onClose={() => setMasterToDeploy(null)}
-                    onSubmit={() => setMasterToDeploy(null)}
+            {creating && (
+                <MasterPopup
+                    processes={processes}
+                    saving={saving}
+                    onClose={() => setCreating(false)}
+                    onSubmit={(form) => void saveMaster(form)}
                 />
             )}
         </>
