@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import AlertPopup from "../../components/alert/AlertPopup.tsx";
@@ -11,7 +10,6 @@ import { Role } from "../../types/Role.ts";
 import type { Material, MaterialType } from "../../types/Material.ts";
 
 import { materialApi } from "../../api";
-import { routes } from "../../router/routes.ts";
 
 const MATERIALS_PAGE_SIZE = 6;
 
@@ -29,7 +27,6 @@ const MATERIAL_LABELS: Record<MaterialType, string> = {
 
 export default function Dashboard() {
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     const [showAlertPopup, setShowAlertPopup] = useState(false);
 
@@ -161,21 +158,6 @@ export default function Dashboard() {
                                         MATERIAL_LABELS[materiel.typeMateriel] ??
                                         materiel.typeMateriel
                                     } · ${materiel.marque} ${materiel.modele}`,
-                                footer: (materiel) => (
-                                    <div className="d-flex justify-content-end align-items-center small">
-                                        <button
-                                            type="button"
-                                            className="btn btn-link p-0 text-decoration-none"
-                                            onClick={() =>
-                                                navigate(
-                                                    `${routes.materials}/${materiel.id}`
-                                                )
-                                            }
-                                        >
-                                            Consulter
-                                        </button>
-                                    </div>
-                                ),
                             }}
                         />
                     )}
