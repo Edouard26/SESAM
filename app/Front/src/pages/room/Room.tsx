@@ -207,7 +207,7 @@ export default function Room() {
             notify("Impossible de lancer la réinstallation de la salle.", "danger");
         }
     }
-    const canManageRooms = user?.role >= Role.GESTIONNAIRE;
+    const canManageRooms = user?.role != null && user.role >= Role.GESTIONNAIRE;
     const actions: {
         label: string;
         icon?: string;
