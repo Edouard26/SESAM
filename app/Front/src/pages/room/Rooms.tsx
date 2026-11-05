@@ -1,28 +1,28 @@
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
 import CardTable from "../../components/generic/display/CardTable.tsx";
-import { useNavigate } from "react-router-dom";
-import { roomApi } from "../../api";
+import {useNavigate} from "react-router-dom";
+import {roomApi} from "../../api";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import RoomPopup from "../../components/room/RoomPopup.tsx";
-import { useEffect, useState } from "react";
-import type { Building } from "../../types/Building.ts";
-import { buildingApi } from "../../api/building.api.ts";
-import type { RoomForm } from "../../types/Room.ts";
+import {useEffect, useState} from "react";
+import type {Building} from "../../types/Building.ts";
+import {buildingApi} from "../../api/building.api.ts";
+import type {RoomForm} from "../../types/Room.ts";
 import AlertPopup from "../../components/alert/AlertPopup.tsx";
-import { Role } from "../../types/Role.ts";
-import { useAuth } from "../../context/AuthContext.tsx";
+import {Role} from "../../types/Role.ts";
+import {useAuth} from "../../context/AuthContext.tsx";
 
 export default function Rooms() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Conversion du rôle reçu de l'API en valeur numérique de l'enum.
+    // Récupération du rôle numérique depuis l'enum.
     const userRole = user?.role
         ? Number(Role[user.role as Role])
         : -1;
 
-    const isTrainer = userRole === Role.FORMATEUR;
+    const isTrainer = user?.role != null && user?.role === Role.GESTIONNAIRE;
     const canManageRooms = userRole >= Role.GESTIONNAIRE;
     const canSendAlert = isTrainer;
 
@@ -120,6 +120,10 @@ export default function Rooms() {
         errorMessage: "Impossible de charger les salles",
     });
 
+    // Sécurité supplémentaire côté affichage.
+    // Un formateur ne reçoit jamais plus d'une salle dans CardTable.
+    const displayedRooms = isTrainer ? rooms.slice(0, 1) : rooms;
+
     return (
         <>
             {showRoomPopup && canManageRooms && (
@@ -180,7 +184,7 @@ export default function Rooms() {
             )}
 
             <CardTable
-                data={rooms}
+                data={displayedRooms}
                 loading={loading}
                 pagination={{
                     currentPage: page,
@@ -264,7 +268,9 @@ export default function Rooms() {
                                 <button
                                     type="button"
                                     className="btn btn-link p-0 text-decoration-none text-nowrap"
-                                    onClick={() => navigate(`/rooms/${room.id}`)}
+                                    onClick={() =>
+                                        navigate(`/rooms/${room.id}`)
+                                    }
                                 >
                                     Consulter
                                 </button>
