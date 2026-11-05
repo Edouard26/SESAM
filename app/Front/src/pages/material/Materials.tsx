@@ -32,7 +32,7 @@ const materialStateLabels: Record<string, string> = {
 const materialTypeLabels: Record<string, string> = {
     UC: "UC",
     ECRAN: "Écran",
-    VIDEO_PROJECTEUR: "Vidéoprojecteur",
+    VIDEO_PROJECTEUR: "Vidéo Projecteur",
 };
 
 // Liste paginée des matériels (recherche, filtres, tri) avec les popups d'ajout/modification, d'affectation et d'import
