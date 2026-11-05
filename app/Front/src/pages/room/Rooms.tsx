@@ -1,7 +1,7 @@
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
 import CardTable from "../../components/generic/display/CardTable.tsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {roomApi} from "../../api";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import RoomPopup from "../../components/room/RoomPopup.tsx";
@@ -13,27 +13,16 @@ import AlertPopup from "../../components/alert/AlertPopup.tsx";
 import {Role} from "../../types/Role.ts";
 import {useAuth} from "../../context/AuthContext.tsx";
 
+// Liste des salles en cartes (recherche, filtres type/bâtiment/état) avec création via popup
 export default function Rooms() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Récupération du rôle numérique depuis l'enum.
-    const userRole = user?.role
-        ? Number(Role[user.role as Role])
-        : -1;
-
-    const isTrainer = user?.role != null && user?.role === Role.GESTIONNAIRE;
-    const canManageRooms = userRole >= Role.GESTIONNAIRE;
-    const canSendAlert = isTrainer;
-
     const [showRoomPopup, setShowRoomPopup] = useState(false);
-    const [showAlertPopup, setShowAlertPopup] = useState(false);
     const [buildings, setBuildings] = useState<Building[]>([]);
 
-    // Charge les bâtiments uniquement lorsque les filtres sont nécessaires.
+    // Charge les bâtiments pour alimenter le filtre "Bâtiment"
     useEffect(() => {
-        if (isTrainer) return;
-
         let cancelled = false;
 
         const loadBuildings = async () => {
@@ -57,8 +46,7 @@ export default function Rooms() {
         return () => {
             cancelled = true;
         };
-    }, [isTrainer]);
-
+    }, []);
     const selects = [
         {
             name: "typeSalle",
@@ -87,7 +75,7 @@ export default function Rooms() {
                 { label: "Tous", value: "" },
                 { label: "Disponible", value: "DISPONIBLE" },
                 { label: "Non disponible", value: "INDISPONIBLE" },
-                { label: "Maintenance", value: "MAINTENANCE" },
+                { label: "Maintenance", value: "MAINTENANCE",},
             ],
         },
     ];
@@ -109,24 +97,20 @@ export default function Rooms() {
         handleFilterChange,
         resetFilters,
     } = usePaginatedList({
-        load: (params) =>
-            roomApi.list({
-                ...params,
-                ...(isTrainer ? { page: 0, size: 1 } : {}),
-            }),
+        load: (params) => roomApi.list({
+            ...params,
+        }),
         initialFilters,
-        pageSize: isTrainer ? 1 : 9,
-        loadKey: isTrainer ? "trainer" : "all",
+        pageSize: 9,
         errorMessage: "Impossible de charger les salles",
     });
-
-    // Sécurité supplémentaire côté affichage.
-    // Un formateur ne reçoit jamais plus d'une salle dans CardTable.
-    const displayedRooms = isTrainer ? rooms.slice(0, 1) : rooms;
+    const [showAlertPopup, setShowAlertPopup] = useState(false);
+    const canManageRooms = user && user.role >= Role.GESTIONNAIRE;
+    const canSendAlert = user && user.role == Role.FORMATEUR;
 
     return (
         <>
-            {showRoomPopup && canManageRooms && (
+            {showRoomPopup && (
                 <RoomPopup
                     onClose={() => setShowRoomPopup(false)}
                     onSubmit={(room: RoomForm) => {
@@ -136,15 +120,13 @@ export default function Rooms() {
                     }}
                 />
             )}
-
-            {showAlertPopup && canSendAlert && user && (
+            {showAlertPopup && canSendAlert && (
                 <AlertPopup
                     user={user}
                     onClose={() => setShowAlertPopup(false)}
                     onSubmit={() => setShowAlertPopup(false)}
                 />
             )}
-
             <PageHeader
                 title="Salles"
                 description="Retrouvez les équipements et la disponibilité des salles."
@@ -160,47 +142,36 @@ export default function Rooms() {
                         ]
                         : []),
                     ...(canSendAlert
-                        ? [
-                            {
-                                label: "Envoyer une alerte",
-                                icon: "bi-exclamation-triangle",
-                                onClick: () => setShowAlertPopup(true),
-                            },
-                        ]
-                        : []),
+                        ? [{
+                            label: "Envoyer une alerte",
+                            icon: "bi-exclamation-triangle",
+                            onClick: () => setShowAlertPopup(true),
+                        }]
+                        : [])
                 ]}
             />
 
-            {!isTrainer && (
-                <Filters
-                    search={search}
-                    searchPlaceholder="Nom de salle, bâtiment..."
-                    selects={selects}
-                    values={filters}
-                    onSearchChange={setSearch}
-                    onFilterChange={handleFilterChange}
-                    onReset={resetFilters}
-                />
-            )}
+            <Filters
+                search={search}
+                searchPlaceholder="Nom de salle, bâtiment..."
+                selects={selects}
+                values={filters}
+                onSearchChange={setSearch}
+                onFilterChange={handleFilterChange}
+                onReset={resetFilters}
+            />
 
             <CardTable
-                data={displayedRooms}
+                data={rooms}
                 loading={loading}
                 pagination={{
                     currentPage: page,
-                    totalPages: isTrainer ? 1 : totalPages,
+                    totalPages,
                     onPageChange: setPage,
                 }}
                 card={{
                     icon: (room) => (
-                        <i
-                            className={`bi ${
-                                room.typeSalle === "COURS"
-                                    ? "bi-display"
-                                    : "bi-box-seam"
-                            } fs-5`}
-                            aria-hidden="true"
-                        />
+                        <i className={`bi ${ room.typeSalle === "COURS" ? "bi-display" : "bi-box-seam"} fs-5`} aria-hidden="true"/>
                     ),
                     title: (room) => "Salle " + room.nom,
                     subtitle: (room) =>
@@ -209,68 +180,64 @@ export default function Rooms() {
                         const state = room.etat.toUpperCase();
 
                         switch (state) {
-                            case "DISPONIBLE":
+                            case "DISPONIBLE": {
                                 return {
                                     label: "Disponible",
                                     variant: "success",
                                 };
-
-                            case "MAINTENANCE":
+                            }
+                            case "MAINTENANCE": {
                                 return {
                                     label: "Réinstallation en cours",
                                     variant: "warning",
                                 };
-
-                            default:
+                            }
+                            default: {
                                 return {
                                     label: "Non disponible",
                                     variant: "danger",
                                 };
+                            }
                         }
                     },
                     footer: (room) => {
+                        // Taux d'occupation = matériels disponibles / places, en pourcentage
                         const nbPlaces = room.nbPlaces ?? 0;
                         const nbMaterielDispo = room.nbMaterielDispo ?? 0;
 
                         const tauxOccupation =
                             nbPlaces > 0
-                                ? Math.round(
-                                    (nbMaterielDispo / nbPlaces) * 100,
-                                )
+                                ? Math.round((nbMaterielDispo / nbPlaces) * 100)
                                 : 0;
 
                         return (
                             <div className="d-flex align-items-center justify-content-between gap-3 small">
                                 <div>
                                     <span className="text-secondary">
-                                        {room.nbMaterielDispo ?? "x"} postes ·{" "}
+    {room.nbMaterielDispo ?? "x"} postes ·{" "}
                                         {room.nbPlaces ?? "-"} places
 
                                         {(room.nbAlertes ?? 0) > 0 && (
                                             <>
                                                 {" · "}
                                                 <span className="badge bg-danger rounded-pill">
-                                                    <i className="bi bi-exclamation-triangle-fill me-1" />
+                <i className="bi bi-exclamation-triangle-fill me-1"></i>
                                                     {room.nbAlertes} alertes
-                                                </span>
+            </span>
                                             </>
                                         )}
-                                    </span>
+</span>
 
                                     <div className="text-secondary mt-1">
                                         Taux d'occupation :{" "}
-                                        <span className="fw-semibold text-body">
-                                            {tauxOccupation} %
-                                        </span>
+                                        <span className="fw-semibold text-body">{tauxOccupation} %</span>
                                     </div>
                                 </div>
 
                                 <button
                                     type="button"
                                     className="btn btn-link p-0 text-decoration-none text-nowrap"
-                                    onClick={() =>
-                                        navigate(`/rooms/${room.id}`)
-                                    }
+                                    onClick={() => navigate(`/rooms/${room.id}`)}
                                 >
                                     Consulter
                                 </button>
