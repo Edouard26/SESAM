@@ -315,6 +315,7 @@ export default function Room() {
                                 value={selectedRuleIds}
                                 onChange={setSelectedRuleIds}
                                 selectedOptions={room.regles ?? []}
+                                dropdownPosition={"relative"}
                             />
                         </div>
 
