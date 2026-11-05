@@ -93,6 +93,7 @@ export default function Popup({
                 }}
             />
 
+
             <div
                 ref={popupRef}
                 className="modal fade show d-block"
@@ -101,7 +102,7 @@ export default function Popup({
                 aria-labelledby="popup-title"
                 style={{
                     zIndex: 1055,
-                    overflowY: "hidden",
+                    overflowY: "auto",
                 }}
                 tabIndex={-1}
                 onSubmitCapture={handleSubmitCapture}
@@ -111,7 +112,6 @@ export default function Popup({
             >
                 <div
                     className={`modal-dialog modal-dialog-centered ${size}`}
-                    style={{ minHeight: "calc(100% - 1rem)" }}
                 >
                     <div
                         className="modal-content"
@@ -154,6 +154,7 @@ export default function Popup({
                     </div>
                 </div>
             </div>
+
 
             {showConfirmation && (
                 <>
