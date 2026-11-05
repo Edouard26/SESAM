@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import PageHeader from "../../components/layout/PageHeader.tsx";
@@ -8,10 +9,12 @@ import CardTable from "../../components/generic/display/CardTable.tsx";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { Role } from "../../types/Role.ts";
 import type { Material, MaterialType } from "../../types/Material.ts";
+import type { Alert } from "../../types/Alert.ts";
 
-import { materialApi } from "../../api";
+import { alertApi, materialApi } from "../../api";
 
 const MATERIALS_PAGE_SIZE = 6;
+const ALERTS_PAGE_SIZE = 6;
 
 const MATERIAL_ICONS: Record<MaterialType, string> = {
     UC: "bi-pc-display",
@@ -36,13 +39,21 @@ export default function Dashboard() {
     const [loadingMateriels, setLoadingMateriels] = useState(false);
     const [errorMateriels, setErrorMateriels] = useState<string | null>(null);
 
+    const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [totalAlerts, setTotalAlerts] = useState(0);
+    const [currentAlertsPage, setCurrentAlertsPage] = useState(0);
+    const [loadingAlerts, setLoadingAlerts] = useState(false);
+    const [errorAlerts, setErrorAlerts] = useState<string | null>(null);
+
     const isStagiaire = user?.role === Role.STAGIAIRE;
 
-    // Selon le rôle : l'envoi d'alerte est réservé aux rôles jusqu'à FORMATEUR,
-    // les statistiques sont réservées aux rôles à partir de GESTIONNAIRE.
+    // Les stagiaires et formateurs peuvent consulter et envoyer des alertes.
     const canSendAlert = user != null && user.role <= Role.FORMATEUR;
+    const canSeeAlerts = canSendAlert;
+
     const canSeeStats = user != null && user.role >= Role.GESTIONNAIRE;
 
+    // Charge les matériels du stagiaire.
     useEffect(() => {
         if (!isStagiaire) {
             setMateriels([]);
@@ -87,6 +98,52 @@ export default function Dashboard() {
             cancelled = true;
         };
     }, [isStagiaire, currentPage]);
+
+    // Charge les alertes de l'utilisateur connecté.
+    // Le backend applique automatiquement le filtrage selon l'utilisateur.
+    useEffect(() => {
+        if (!canSeeAlerts) {
+            setAlerts([]);
+            setTotalAlerts(0);
+            setLoadingAlerts(false);
+            return;
+        }
+
+        let cancelled = false;
+
+        async function loadAlerts() {
+            setLoadingAlerts(true);
+            setErrorAlerts(null);
+
+            try {
+                const result = await alertApi.list({
+                    page: currentAlertsPage,
+                    size: ALERTS_PAGE_SIZE,
+                });
+
+                if (!cancelled) {
+                    setAlerts(result.content);
+                    setTotalAlerts(result.totalElements);
+                }
+            } catch {
+                if (!cancelled) {
+                    setAlerts([]);
+                    setTotalAlerts(0);
+                    setErrorAlerts("Impossible de charger vos alertes.");
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoadingAlerts(false);
+                }
+            }
+        }
+
+        void loadAlerts();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [canSeeAlerts, currentAlertsPage]);
 
     return (
         <>
@@ -164,11 +221,72 @@ export default function Dashboard() {
                 </section>
             )}
 
+            {canSeeAlerts && (
+                <section className="mt-4">
+                    <h2 className="h5 mb-3">
+                        Mes alertes{" "}
+                        <span className="badge text-bg-light align-middle">
+                            {totalAlerts}
+                        </span>
+                    </h2>
+
+                    {errorAlerts && (
+                        <div className="alert alert-danger" role="alert">
+                            {errorAlerts}
+                        </div>
+                    )}
+
+                    {!loadingAlerts &&
+                        !errorAlerts &&
+                        alerts.length === 0 && (
+                            <div className="alert alert-info" role="status">
+                                Aucune alerte signalée.
+                            </div>
+                        )}
+
+                    {(loadingAlerts || alerts.length > 0) && (
+                        <CardTable<Alert>
+                            data={alerts}
+                            loading={loadingAlerts}
+                            pagination={{
+                                currentPage: currentAlertsPage,
+                                totalPages: Math.ceil(
+                                    totalAlerts / ALERTS_PAGE_SIZE
+                                ),
+                                onPageChange: setCurrentAlertsPage,
+                            }}
+                            card={{
+                                icon: () => (
+                                    <i
+                                        className="bi bi-exclamation-triangle text-warning fs-5"
+                                        aria-hidden="true"
+                                    />
+                                ),
+                                title: (alert) =>
+                                    alert.typeProbleme || "Alerte",
+                                subtitle: (alert) =>
+                                    new Date(
+                                        alert.dateSignalement
+                                    ).toLocaleString("fr-FR"),
+                                footer: (alert) => (
+                                    <div className="small text-body-secondary">
+                                        {alert.description}
+                                    </div>
+                                ),
+                            }}
+                        />
+                    )}
+                </section>
+            )}
+
             {showAlertPopup && canSendAlert && user && (
                 <AlertPopup
                     user={user}
                     onClose={() => setShowAlertPopup(false)}
-                    onSubmit={() => setShowAlertPopup(false)}
+                    onSubmit={() => {
+                        setShowAlertPopup(false);
+                        setCurrentAlertsPage(0);
+                    }}
                 />
             )}
         </>
