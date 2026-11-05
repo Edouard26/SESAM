@@ -2,27 +2,38 @@ import PageHeader from "../../components/layout/PageHeader.tsx";
 import Filters from "../../components/generic/Filters.tsx";
 import CardTable from "../../components/generic/display/CardTable.tsx";
 import { useNavigate } from "react-router-dom";
-import {roomApi} from "../../api";
+import { roomApi } from "../../api";
 import usePaginatedList from "../../hooks/usePaginatedList.ts";
 import RoomPopup from "../../components/room/RoomPopup.tsx";
-import {useEffect, useState} from "react";
-import type {Building} from "../../types/Building.ts";
-import {buildingApi} from "../../api/building.api.ts";
-import type {RoomForm} from "../../types/Room.ts";
+import { useEffect, useState } from "react";
+import type { Building } from "../../types/Building.ts";
+import { buildingApi } from "../../api/building.api.ts";
+import type { RoomForm } from "../../types/Room.ts";
 import AlertPopup from "../../components/alert/AlertPopup.tsx";
-import {Role} from "../../types/Role.ts";
-import {useAuth} from "../../context/AuthContext.tsx";
+import { Role } from "../../types/Role.ts";
+import { useAuth } from "../../context/AuthContext.tsx";
 
-// Liste des salles en cartes (recherche, filtres type/bâtiment/état) avec création via popup
 export default function Rooms() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    // Conversion du rôle reçu de l'API en valeur numérique de l'enum.
+    const userRole = user?.role
+        ? Number(Role[user.role as Role])
+        : -1;
+
+    const isTrainer = userRole === Role.FORMATEUR;
+    const canManageRooms = userRole >= Role.GESTIONNAIRE;
+    const canSendAlert = isTrainer;
+
     const [showRoomPopup, setShowRoomPopup] = useState(false);
+    const [showAlertPopup, setShowAlertPopup] = useState(false);
     const [buildings, setBuildings] = useState<Building[]>([]);
 
-    // Charge les bâtiments pour alimenter le filtre "Bâtiment"
+    // Charge les bâtiments uniquement lorsque les filtres sont nécessaires.
     useEffect(() => {
+        if (isTrainer) return;
+
         let cancelled = false;
 
         const loadBuildings = async () => {
@@ -46,7 +57,8 @@ export default function Rooms() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [isTrainer]);
+
     const selects = [
         {
             name: "typeSalle",
@@ -75,7 +87,7 @@ export default function Rooms() {
                 { label: "Tous", value: "" },
                 { label: "Disponible", value: "DISPONIBLE" },
                 { label: "Non disponible", value: "INDISPONIBLE" },
-                { label: "Maintenance", value: "MAINTENANCE",},
+                { label: "Maintenance", value: "MAINTENANCE" },
             ],
         },
     ];
@@ -97,19 +109,20 @@ export default function Rooms() {
         handleFilterChange,
         resetFilters,
     } = usePaginatedList({
-        load: (params) => roomApi.list({
-            ...params,
-        }),
+        load: (params) =>
+            roomApi.list({
+                ...params,
+                ...(isTrainer ? { page: 0, size: 1 } : {}),
+            }),
         initialFilters,
-        pageSize: 9,
+        pageSize: isTrainer ? 1 : 9,
+        loadKey: isTrainer ? "trainer" : "all",
         errorMessage: "Impossible de charger les salles",
     });
-    const [showAlertPopup, setShowAlertPopup] = useState(false);
-    const canSendAlert = user && user.role == Role.FORMATEUR;
 
     return (
         <>
-            {showRoomPopup && (
+            {showRoomPopup && canManageRooms && (
                 <RoomPopup
                     onClose={() => setShowRoomPopup(false)}
                     onSubmit={(room: RoomForm) => {
@@ -119,54 +132,71 @@ export default function Rooms() {
                     }}
                 />
             )}
-            {showAlertPopup && canSendAlert && (
+
+            {showAlertPopup && canSendAlert && user && (
                 <AlertPopup
                     user={user}
                     onClose={() => setShowAlertPopup(false)}
                     onSubmit={() => setShowAlertPopup(false)}
                 />
             )}
+
             <PageHeader
                 title="Salles"
                 description="Retrouvez les équipements et la disponibilité des salles."
                 actions={[
-                    {
-                        label: "Ajouter une salle",
-                        icon: "bi-plus-lg",
-                        variant: "primary",
-                        onClick: () => setShowRoomPopup(true),
-                    },
+                    ...(canManageRooms
+                        ? [
+                            {
+                                label: "Ajouter une salle",
+                                icon: "bi-plus-lg",
+                                variant: "primary" as const,
+                                onClick: () => setShowRoomPopup(true),
+                            },
+                        ]
+                        : []),
                     ...(canSendAlert
-                        ? [{
-                            label: "Envoyer une alerte",
-                            icon: "bi-exclamation-triangle",
-                            onClick: () => setShowAlertPopup(true),
-                        }]
-                        : [])
+                        ? [
+                            {
+                                label: "Envoyer une alerte",
+                                icon: "bi-exclamation-triangle",
+                                onClick: () => setShowAlertPopup(true),
+                            },
+                        ]
+                        : []),
                 ]}
             />
 
-            <Filters
-                search={search}
-                searchPlaceholder="Nom de salle, bâtiment..."
-                selects={selects}
-                values={filters}
-                onSearchChange={setSearch}
-                onFilterChange={handleFilterChange}
-                onReset={resetFilters}
-            />
+            {!isTrainer && (
+                <Filters
+                    search={search}
+                    searchPlaceholder="Nom de salle, bâtiment..."
+                    selects={selects}
+                    values={filters}
+                    onSearchChange={setSearch}
+                    onFilterChange={handleFilterChange}
+                    onReset={resetFilters}
+                />
+            )}
 
             <CardTable
                 data={rooms}
                 loading={loading}
                 pagination={{
                     currentPage: page,
-                    totalPages,
+                    totalPages: isTrainer ? 1 : totalPages,
                     onPageChange: setPage,
                 }}
                 card={{
                     icon: (room) => (
-                        <i className={`bi ${ room.typeSalle === "COURS" ? "bi-display" : "bi-box-seam"} fs-5`} aria-hidden="true"/>
+                        <i
+                            className={`bi ${
+                                room.typeSalle === "COURS"
+                                    ? "bi-display"
+                                    : "bi-box-seam"
+                            } fs-5`}
+                            aria-hidden="true"
+                        />
                     ),
                     title: (room) => "Salle " + room.nom,
                     subtitle: (room) =>
@@ -175,57 +205,59 @@ export default function Rooms() {
                         const state = room.etat.toUpperCase();
 
                         switch (state) {
-                            case "DISPONIBLE": {
+                            case "DISPONIBLE":
                                 return {
                                     label: "Disponible",
                                     variant: "success",
                                 };
-                            }
-                            case "MAINTENANCE": {
+
+                            case "MAINTENANCE":
                                 return {
                                     label: "Réinstallation en cours",
                                     variant: "warning",
                                 };
-                            }
-                            default: {
+
+                            default:
                                 return {
                                     label: "Non disponible",
                                     variant: "danger",
                                 };
-                            }
                         }
                     },
                     footer: (room) => {
-                        // Taux d'occupation = matériels disponibles / places, en pourcentage
                         const nbPlaces = room.nbPlaces ?? 0;
                         const nbMaterielDispo = room.nbMaterielDispo ?? 0;
 
                         const tauxOccupation =
                             nbPlaces > 0
-                                ? Math.round((nbMaterielDispo / nbPlaces) * 100)
+                                ? Math.round(
+                                    (nbMaterielDispo / nbPlaces) * 100,
+                                )
                                 : 0;
 
                         return (
                             <div className="d-flex align-items-center justify-content-between gap-3 small">
                                 <div>
                                     <span className="text-secondary">
-    {room.nbMaterielDispo ?? "x"} postes ·{" "}
+                                        {room.nbMaterielDispo ?? "x"} postes ·{" "}
                                         {room.nbPlaces ?? "-"} places
 
                                         {(room.nbAlertes ?? 0) > 0 && (
                                             <>
                                                 {" · "}
                                                 <span className="badge bg-danger rounded-pill">
-                <i className="bi bi-exclamation-triangle-fill me-1"></i>
+                                                    <i className="bi bi-exclamation-triangle-fill me-1" />
                                                     {room.nbAlertes} alertes
-            </span>
+                                                </span>
                                             </>
                                         )}
-</span>
+                                    </span>
 
                                     <div className="text-secondary mt-1">
                                         Taux d'occupation :{" "}
-                                        <span className="fw-semibold text-body">{tauxOccupation} %</span>
+                                        <span className="fw-semibold text-body">
+                                            {tauxOccupation} %
+                                        </span>
                                     </div>
                                 </div>
 
