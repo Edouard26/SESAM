@@ -17,9 +17,11 @@ import Process from "../pages/process/Process.tsx";
 import Stage from "../pages/stage/Stage.tsx";
 import Rules from "../pages/rule/Rules.tsx";
 import Masters from "../pages/master/Masters.tsx";
+import {useAuth} from "../context/AuthContext.tsx";
+import {Role} from "../types/Role.ts";
 
 export default function Router() {
-
+    const { user } = useAuth();
     return (
         <Routes>
             <Route path={routes.login} element={<Login />} />
@@ -27,8 +29,11 @@ export default function Router() {
             {/* Pages réservées aux utilisateurs connectés, affichées dans le Layout (sidebar + header) */}
             <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
-                    <Route path="/" element={<Navigate to={routes.dashboard} replace />} />
-                    <Route path={routes.dashboard} element={<Dashboard />} />
+                    <Route path="/" element={
+                            <Navigate to={user?.role === Role.FORMATEUR ? routes.rooms : routes.dashboard} replace/>
+                        }
+                    />
+                    <Route path={routes.dashboard} element={user?.role === Role.FORMATEUR ? <Navigate to={routes.rooms} replace /> : <Dashboard />}/>
                     <Route path={routes.materials} element={<Materials />} />
                     <Route path={`${routes.materials}/:id`} element={<Material />} />
                     <Route path={routes.rooms} element={<Rooms />} />

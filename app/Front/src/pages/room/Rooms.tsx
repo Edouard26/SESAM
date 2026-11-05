@@ -9,9 +9,13 @@ import {useEffect, useState} from "react";
 import type {Building} from "../../types/Building.ts";
 import {buildingApi} from "../../api/building.api.ts";
 import type {RoomForm} from "../../types/Room.ts";
+import AlertPopup from "../../components/alert/AlertPopup.tsx";
+import {Role} from "../../types/Role.ts";
+import {useAuth} from "../../context/AuthContext.tsx";
 
 // Liste des salles en cartes (recherche, filtres type/bâtiment/état) avec création via popup
 export default function Rooms() {
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const [showRoomPopup, setShowRoomPopup] = useState(false);
@@ -100,7 +104,8 @@ export default function Rooms() {
         pageSize: 9,
         errorMessage: "Impossible de charger les salles",
     });
-
+    const [showAlertPopup, setShowAlertPopup] = useState(false);
+    const canSendAlert = user && user.role == Role.FORMATEUR;
 
     return (
         <>
@@ -114,6 +119,13 @@ export default function Rooms() {
                     }}
                 />
             )}
+            {showAlertPopup && canSendAlert && (
+                <AlertPopup
+                    user={user}
+                    onClose={() => setShowAlertPopup(false)}
+                    onSubmit={() => setShowAlertPopup(false)}
+                />
+            )}
             <PageHeader
                 title="Salles"
                 description="Retrouvez les équipements et la disponibilité des salles."
@@ -124,6 +136,13 @@ export default function Rooms() {
                         variant: "primary",
                         onClick: () => setShowRoomPopup(true),
                     },
+                    ...(canSendAlert
+                        ? [{
+                            label: "Envoyer une alerte",
+                            icon: "bi-exclamation-triangle",
+                            onClick: () => setShowAlertPopup(true),
+                        }]
+                        : [])
                 ]}
             />
 

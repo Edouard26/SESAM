@@ -19,16 +19,19 @@ export default function Sidebar() {
             <hr />
 
             <ul className="nav nav-pills flex-column gap-1">
-                <li>
-                    <NavLink
-                        to={routes.dashboard}
-                        end
-                        className="nav-link text-white"
-                    >
-                        <i className="bi bi-house me-3" />
-                        Accueil
-                    </NavLink>
-                </li>
+                {user.role != Role.GESTIONNAIRE && (
+                    <li>
+                        <NavLink
+                            to={routes.dashboard}
+                            end
+                            className="nav-link text-white"
+                        >
+                            <i className="bi bi-house me-3" />
+                            Accueil
+                        </NavLink>
+                    </li>
+                )}
+
 
                 {user.role >= Role.GESTIONNAIRE && (
                     <>
