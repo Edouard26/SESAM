@@ -2,6 +2,7 @@ package net.ent.etnc.backend.init;
 
 import net.ent.etnc.backend.models.entities.*;
 import net.ent.etnc.backend.models.enums.*;
+import net.ent.etnc.backend.repositories.MaterielRepository;
 import net.ent.etnc.backend.services.*;
 import net.ent.etnc.backend.services.commons.ServiceException;
 import org.springframework.boot.CommandLineRunner;
@@ -45,6 +46,7 @@ public class Init implements CommandLineRunner {
     private final StageService stageService;
     private final ProcessusService processusService;
     private final RegleService regleService;
+    private final MaterielRepository materielRepository;
 
     private User gestionnaireCree;
     private User stagiaireCree;
@@ -54,7 +56,7 @@ public class Init implements CommandLineRunner {
                 VideoProjecteurService videoProjecteurService,
                 BatimentService batimentService, SalleService salleService,
                 AlerteService alerteService, StageService stageService,
-                ProcessusService processusService, RegleService regleService) {
+                ProcessusService processusService, RegleService regleService, MaterielRepository materielRepository) {
         this.userService = userService;
         this.materielService = materielService;
         this.uniteCentraleService = uniteCentraleService;
@@ -66,6 +68,7 @@ public class Init implements CommandLineRunner {
         this.stageService = stageService;
         this.processusService = processusService;
         this.regleService = regleService;
+        this.materielRepository = materielRepository;
     }
 
     @Override
@@ -90,6 +93,7 @@ public class Init implements CommandLineRunner {
         materiels.sort(Comparator.comparing(Materiel::getNumeroSerie));
 
         initRegles(salles);
+        initProcessusUC();
 
         rattacherSallesAuxBatiments(salles);
         List<Stage> groupes = initStagesEtGroupes(utilisateurs, salles);
@@ -108,20 +112,20 @@ public class Init implements CommandLineRunner {
     }
 
     private void initUsers() throws ServiceException {
-        userService.create(buildUser("0123456789", "admin@intradef.gouv.fr",
-                "admin", "Martin", "Alexandre", LocalDate.of(1985, 3, 12),
+        userService.create(buildUser("0123456789", "nicolas.pasquier@intradef.gouv.fr",
+                "admin", "Pasquier", "Nicolas", LocalDate.of(1985, 3, 12),
                 Grade.SERGENT, Role.ADMINISTRATEUR));
 
         gestionnaireCree = userService.create(buildUser("1234567890",
-                "gestionnaire@intradef.gouv.fr", "gestionnaire", "Bernard", "Hugo",
+                "killian.muscat@intradef.gouv.fr", "gestionnaire", "Muscat", "Killian",
                 LocalDate.of(1990, 6, 18), Grade.SERGENT, Role.GESTIONNAIRE));
 
-        userService.create(buildUser("2345678901", "formateur@intradef.gouv.fr",
-                "formateur", "Dubois", "Thomas", LocalDate.of(1988, 9, 5),
+        userService.create(buildUser("2345678901", "edouard.halimi@intradef.gouv.fr",
+                "formateur", "Halimi", "Edouard", LocalDate.of(1988, 9, 5),
                 Grade.SERGENT, Role.FORMATEUR));
 
         stagiaireCree = userService.create(buildUser("3456789012",
-                "stagiaire@intradef.gouv.fr", "stagiaire", "Petit", "Lucas",
+                "mark.lauer@intradef.gouv.fr", "stagiaire", "Lauer", "Mark",
                 LocalDate.of(2001, 11, 23), Grade.SERGENT, Role.STAGIAIRE));
 
         String[] prenoms = {
@@ -348,17 +352,17 @@ public class Init implements CommandLineRunner {
                 materielParId(2L)));
 
         // salleid: 62
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(21), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(21), null, null, "Appareil qui ne démarre pas", "L'appareil s'allume avec une lumière rouge mais rien ne se passe.", StatutAlerte.EN_ATTENTE,
                 materielParId(304L)));
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(24), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(24), null, null, "Matériel mort", "Impossible de faire quoi que ce soit dessus", StatutAlerte.EN_ATTENTE,
                 materielParId(136L)));
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(25), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(25), null, null, "Matériel bugé", "La moitié des fonctionnalités ne marchent pas", StatutAlerte.EN_ATTENTE,
                 materielParId(327L)));
 
         // salleid: 19
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(22), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(22), null, null, "Signalement en double", "Signalement annule car le probleme etait deja declare", StatutAlerte.EN_ATTENTE,
                 materielParId(231L)));
-        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(23), null, null, "Signalement en double", "d", StatutAlerte.EN_ATTENTE,
+        alerteService.create(buildAlerte(signaleur, maintenant.minusDays(23), null, null, "Matériel cassé", "Le matériel est tombé par terre depuis il ne fonctionne plus", StatutAlerte.EN_ATTENTE,
                 materielParId(471L)));
 
     }
@@ -408,7 +412,49 @@ public class Init implements CommandLineRunner {
             processusExistants.put(processus.getNom(), processus);
         }
 
-        for (String nom : List.of("steam.exe", "discord.exe", "powershell.exe")) {
+        for (String nom : List.of(
+                "steam.exe",
+                "discord.exe",
+                "powershell.exe",
+                "chrome.exe",
+                "intellij.exe",
+                "codex.exe",
+                "explorer.exe",
+                "taskmgr.exe",
+                "notepad.exe",
+                "notepad++.exe",
+                "cmd.exe",
+                "msedge.exe",
+                "firefox.exe",
+                "java.exe",
+                "javaw.exe",
+                "devenv.exe",
+                "Code.exe",
+                "WINWORD.EXE",
+                "EXCEL.EXE",
+                "OUTLOOK.EXE",
+                "OneDrive.exe",
+                "Teams.exe",
+                "ms-teams.exe",
+                "Skype.exe",
+                "Zoom.exe",
+                "vlc.exe",
+                "wmplayer.exe",
+                "Spotify.exe",
+                "Calculator.exe",
+                "mspaint.exe",
+                "SnippingTool.exe",
+                "SystemSettings.exe",
+                "RuntimeBroker.exe",
+                "SearchHost.exe",
+                "StartMenuExperienceHost.exe",
+                "WindowsTerminal.exe",
+                "regedit.exe",
+                "services.exe",
+                "slack.exe",
+                "eventvwr.exe",
+                "perfmon.exe"
+        )) {
             if (!processusExistants.containsKey(nom)) {
                 Processus processus = new Processus();
                 processus.setNom(nom);
@@ -423,8 +469,11 @@ public class Init implements CommandLineRunner {
 
         Map<String, List<String>> definitions = new LinkedHashMap<>();
         definitions.put("Jeux interdits", List.of("steam.exe"));
-        definitions.put("Messagerie", List.of("discord.exe"));
+        definitions.put("Messagerie", List.of("discord.exe", "slack.exe"));
         definitions.put("Outils système", List.of("powershell.exe"));
+        definitions.put("Navigateur", List.of("chrome.exe"));
+        definitions.put("IDE", List.of("intellij.exe"));
+        definitions.put("ChatGPT", List.of("codex.exe"));
 
         Map<String, Regle> reglesTest = new LinkedHashMap<>();
         for (Map.Entry<String, List<String>> definition : definitions.entrySet()) {
@@ -451,6 +500,39 @@ public class Init implements CommandLineRunner {
             }
         }
     }
+
+    private void initProcessusUC() throws ServiceException {
+        List<Processus> processusDisponibles = new ArrayList<>(processusService.findAll());
+        Collection<UniteCentrale> unitesCentrales = uniteCentraleService.findAll();
+
+        if (processusDisponibles.isEmpty()) {
+            return;
+        }
+
+        for (UniteCentrale uc : unitesCentrales) {
+            List<Processus> processusUC = uc.getProcessus();
+
+            if (processusUC.size() >= 5) {
+                continue;
+            }
+
+            List<Processus> candidats = new ArrayList<>(processusDisponibles);
+            candidats.removeAll(processusUC);
+
+            Collections.shuffle(candidats, RANDOM);
+
+            int nombreCible = 5 + RANDOM.nextInt(8);
+            int nombreAajouter = Math.min(
+                    nombreCible - processusUC.size(),
+                    candidats.size()
+            );
+
+            for (int i = 0; i < nombreAajouter; i++) {
+                processusUC.add(candidats.get(i));
+            }
+        }
+    }
+
 
     private void rattacherSallesAuxBatiments(List<Salle> salles) {
         Map<Long, Batiment> proprietaires = new LinkedHashMap<>();
