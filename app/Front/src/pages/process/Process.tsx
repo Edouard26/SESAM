@@ -156,44 +156,6 @@ export default function Process() {
                     {/* Informations du matériel */}
                     {material && etat ? (
                         <>
-                            <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 mb-3 border rounded-3 bg-body-tertiary">
-                                <div className="d-flex align-items-center gap-3">
-                                    <div className="rounded-3 bg-primary-subtle text-primary p-3">
-                                        <i
-                                            className={`bi ${typeIcons[material.typeMateriel]} fs-2`}
-                                            aria-hidden="true"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <div className="fw-semibold">
-                                            {material.nom}
-                                        </div>
-
-                                        <div className="text-secondary small">
-                                            <i
-                                                className="bi bi-pc-display me-2"
-                                                aria-hidden="true"
-                                            />
-                                            {typeLabels[material.typeMateriel]}
-                                        </div>
-
-                                        <div className="text-secondary small">
-                                            <i
-                                                className="bi bi-upc-scan me-2"
-                                                aria-hidden="true"
-                                            />
-                                            {material.numeroSerie || "Numéro de série indisponible"}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <span className={`badge rounded-pill px-3 py-2 ${etat.className}`}>
-                                    <i className={`bi ${etat.icon} me-2`} aria-hidden="true" />
-                                    {etat.label}
-                                </span>
-                            </div>
-
                             <div className="p-3 mb-4 border rounded-3 bg-body-tertiary">
                                 {/* En-tête */}
                                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
