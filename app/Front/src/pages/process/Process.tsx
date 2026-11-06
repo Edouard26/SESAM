@@ -36,6 +36,9 @@ const typeIcons: Record<MaterialType, string> = {
     VIDEO_PROJECTEUR: "bi-camera-video",
 };
 
+const formatDate = (value?: Date | string) =>
+    value ? new Date(value).toLocaleDateString("fr-FR") : "—";
+
 type InfoItemProps = {
     icon: string;
     label: string;
@@ -237,36 +240,95 @@ export default function Process() {
                                 </span>
                             </div>
 
-                            <div className="row g-3 mb-4">
-                                <InfoSection icon="bi-info-circle" title="Identification">
-                                    <InfoItem icon="bi-tag" label="Marque">
-                                        {material.marque || "—"}
-                                    </InfoItem>
+                            <div className="p-3 mb-4 border rounded-3 bg-body-tertiary">
+                                {/* En-tête */}
+                                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                                    <div className="d-flex align-items-center gap-3">
+                                        <div className="rounded-3 bg-primary-subtle text-primary p-3">
+                                            <i
+                                                className={`bi ${typeIcons[material.typeMateriel]} fs-2`}
+                                                aria-hidden="true"
+                                            />
+                                        </div>
 
-                                    <InfoItem icon="bi-box" label="Modèle">
-                                        {material.modele || "—"}
-                                    </InfoItem>
+                                        <div>
+                                            <div className="fw-semibold">{material.nom}</div>
+                                            <div className="text-secondary small">
+                                                {typeLabels[material.typeMateriel]}
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    <InfoItem icon="bi-upc-scan" label="Numéro de série">
-                                        {material.numeroSerie || "—"}
-                                    </InfoItem>
+                                    <span className={`badge rounded-pill px-3 py-2 ${etat.className}`}>
+            <i className={`bi ${etat.icon} me-2`} aria-hidden="true" />
+                                        {etat.label}
+        </span>
+                                </div>
 
-                                    <InfoItem icon="bi-ethernet" label="Adresse MAC" last>
-                                        {material.mac || "—"}
-                                    </InfoItem>
-                                </InfoSection>
+                                <hr />
 
-                                {(material.typeMateriel === "UC") && (
-                                    <InfoSection icon="bi-cpu" title="Caractéristiques techniques">
-                                        <InfoItem icon="bi-cpu" label="Processeur">
-                                            {material.processeur || "—"}
-                                        </InfoItem>
+                                {/* Informations */}
+                                <div className="row g-3">
+                                    <div className="col-12 col-md-6">
+                                        <div className="small text-secondary mb-2 fw-semibold">
+                                            Identification
+                                        </div>
 
-                                        <InfoItem icon="bi-gpu-card" label="Carte graphique" last>
-                                            {material.carteGraphique || "—"}
-                                        </InfoItem>
-                                    </InfoSection>
-                                )}
+                                        <div className="row g-2">
+                                            <div className="col-6">
+                                                <div className="small text-secondary">Marque</div>
+                                                <div className="fw-medium">{material.marque || "—"}</div>
+                                            </div>
+
+                                            <div className="col-6">
+                                                <div className="small text-secondary">Modèle</div>
+                                                <div className="fw-medium">{material.modele || "—"}</div>
+                                            </div>
+
+                                            <div className="col-6">
+                                                <div className="small text-secondary">Numéro de série</div>
+                                                <div className="fw-medium text-break">
+                                                    {material.numeroSerie || "—"}
+                                                </div>
+                                            </div>
+
+                                            <div className="col-6">
+                                                <div className="small text-secondary">Adresse MAC</div>
+                                                <div className="fw-medium text-break">
+                                                    {material.mac || "—"}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {(material.typeMateriel === "UC") && (
+                                        <div className="col-12 col-md-6">
+                                            <div className="small text-secondary mb-2 fw-semibold">
+                                                Caractéristiques techniques
+                                            </div>
+
+                                            <div className="row g-2">
+                                                {material.typeMateriel === "UC" && (
+                                                    <>
+                                                        <div className="col-12">
+                                                            <div className="small text-secondary">Processeur</div>
+                                                            <div className="fw-medium">
+                                                                {material.processeur || "—"}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="col-12">
+                                                            <div className="small text-secondary">Carte graphique</div>
+                                                            <div className="fw-medium">
+                                                                {material.carteGraphique || "—"}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </>
                     ) : (
