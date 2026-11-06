@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import { materialApi, processApi } from "../../api";
@@ -35,52 +35,6 @@ const typeIcons: Record<MaterialType, string> = {
     ECRAN: "bi-display",
     VIDEO_PROJECTEUR: "bi-camera-video",
 };
-
-const formatDate = (value?: Date | string) =>
-    value ? new Date(value).toLocaleDateString("fr-FR") : "—";
-
-type InfoItemProps = {
-    icon: string;
-    label: string;
-    children: ReactNode;
-    last?: boolean;
-};
-
-function InfoItem({ icon, label, children, last = false }: InfoItemProps) {
-    return (
-        <div className={`d-flex align-items-start gap-3 py-2 ${last ? "" : "border-bottom"}`}>
-            <i className={`bi ${icon} fs-5 text-primary mt-1`} aria-hidden="true" />
-
-            <div className="flex-grow-1">
-                <div className="small text-secondary">{label}</div>
-                <div className="fw-medium text-break">{children}</div>
-            </div>
-        </div>
-    );
-}
-
-type InfoSectionProps = {
-    icon: string;
-    title: string;
-    children: ReactNode;
-};
-
-function InfoSection({ icon, title, children }: InfoSectionProps) {
-    return (
-        <div className="col-12 col-md-6">
-            <div className="card shadow-sm h-100">
-                <div className="card-header bg-body-tertiary d-flex align-items-center gap-2 py-3">
-                    <i className={`bi ${icon} text-primary fs-5`} aria-hidden="true" />
-                    <h2 className="h6 fw-bold mb-0">{title}</h2>
-                </div>
-
-                <div className="card-body py-2">
-                    {children}
-                </div>
-            </div>
-        </div>
-    );
-}
 
 export default function Process() {
     const { id } = useParams<{ id: string }>();
