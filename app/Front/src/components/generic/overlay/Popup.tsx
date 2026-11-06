@@ -8,7 +8,7 @@ type PopupProps = {
     children: React.ReactNode;
     actions?: React.ReactNode;
     blurBackground?: boolean;
-    size?: "modal-sm" | "modal-md" | "modal-lg" | "modal-xl";
+    size?: "modal-sm" | "modal-md" | "modal-lg" | "modal-xl" | "modal-xxl";
     confirmOnSubmit?: boolean;
     confirmationTitle?: string;
     confirmationMessage?: string;

@@ -40,3 +40,8 @@
     font-size: 1.15rem;
     -webkit-text-stroke: 0.4px;
 }
+
+.modal-xxl {
+    max-width: 1600px;
+    width: calc(100% - 2rem);
+}

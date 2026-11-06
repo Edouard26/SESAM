@@ -143,7 +143,7 @@ export default function ImportMaterialsPopup({ onClose, blurBackground, onSubmit
     return (
         <Popup
             title="Importer des matériels"
-            size="modal-xl"
+            size="modal-xxl"
             onClose={onClose}
             blurBackground={blurBackground}
             actions={
