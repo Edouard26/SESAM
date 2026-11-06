@@ -41,7 +41,8 @@
     -webkit-text-stroke: 0.4px;
 }
 
-.modal-xxl {
-    max-width: 1600px;
-    width: calc(100% - 2rem);
+.modal-dialog.modal-xxl {
+    width: calc(100vw - 2rem) !important;
+    max-width: 1800px !important;
+    margin: 1rem auto;
 }
