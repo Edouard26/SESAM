@@ -41,7 +41,7 @@ public class BatimentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('GESTIONNAIRE')")
+    @PreAuthorize("hasRole('FORMATEUR')")
     public ResponseEntity<Page<BatimentResponse>> getAll(@PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(batimentService.findAll(pageable).map(assembler::toResponse));
     }
