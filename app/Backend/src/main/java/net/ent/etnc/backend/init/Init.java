@@ -112,20 +112,20 @@ public class Init implements CommandLineRunner {
     }
 
     private void initUsers() throws ServiceException {
-        userService.create(buildUser("0123456789", "nicolas.pasquier@intradef.gouv.fr",
-                "admin", "Pasquier", "Nicolas", LocalDate.of(1985, 3, 12),
+        userService.create(buildUser("0123456789", "jerome.dupont@intradef.gouv.fr",
+                "admin", "Dupont", "Jerome", LocalDate.of(1985, 3, 12),
                 Grade.SERGENT, Role.ADMINISTRATEUR));
 
         gestionnaireCree = userService.create(buildUser("1234567890",
-                "killian.muscat@intradef.gouv.fr", "gestionnaire", "Muscat", "Killian",
+                "pierre.blanc@intradef.gouv.fr", "gestionnaire", "Blanc", "Pierre",
                 LocalDate.of(1990, 6, 18), Grade.SERGENT, Role.GESTIONNAIRE));
 
-        userService.create(buildUser("2345678901", "edouard.halimi@intradef.gouv.fr",
-                "formateur", "Halimi", "Edouard", LocalDate.of(1988, 9, 5),
+        userService.create(buildUser("2345678901", "jack.durand@intradef.gouv.fr",
+                "formateur", "Durand", "Jack", LocalDate.of(1988, 9, 5),
                 Grade.SERGENT, Role.FORMATEUR));
 
         stagiaireCree = userService.create(buildUser("3456789012",
-                "mark.lauer@intradef.gouv.fr", "stagiaire", "Lauer", "Mark",
+                "jean.claude@intradef.gouv.fr", "stagiaire", "Claude", "Jean",
                 LocalDate.of(2001, 11, 23), Grade.SERGENT, Role.STAGIAIRE));
 
         String[] prenoms = {
